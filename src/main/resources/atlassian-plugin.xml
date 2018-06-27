@@ -19,8 +19,8 @@
         <resource type="download" name="highcharts" location="https://code.highcharts.com/highcharts.js"/>
         <resource type="download" name="treemap" location="https://code.highcharts.com/modules/treemap.js"/>
         <resource type="download" name="heatmapGadget.js" location="js/heatmapGadget.js"/>
-        <resource type="i18n" name="i18n" location="i18n/ni-sprint-perform"/>
-        <context>heatmap.context</context>
+        <resource type="i18n" name="i18n" location="i18n/heatmap"/>
+        <context>heatmapContext</context>
     </web-resource>
 
     <servlet key="role-checker" class="com.epam.jira.plugins.heatmap.configuration.CorrectRoleChecker">

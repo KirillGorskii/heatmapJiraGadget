@@ -2,7 +2,7 @@
 <head>
     <title>Heatmap configuration</title>
     <meta name="decorator" content="atl.admin" />
-    $webResourceManager.requireResourcesForContext("heatmap.context")
+    $webResourceManager.requireResourcesForContext("heatmapContext")
     #set ($configDTO = $action.configDTO)
 </head>
 

@@ -18,6 +18,10 @@
         <Require feature="views"/>
         <Optional feature='auth-refresh' />
         <Optional feature="atlassian.util"/>
+
+
+        #supportedLocales("gadget.common")
+        #supportedLocales
     </ModulePrefs>
 
     <UserPref name="isConfigured" datatype="hidden" default_value="false"/>
@@ -35,7 +39,7 @@
         <![CDATA[
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
-            #requireResource("com.epam.jira.plugins.heatmap:heatmap.context")
+            #requireResource("com.epam.jira.plugins.heatmap:heatmapContext")
             #includeResources()
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
