@@ -1,0 +1,286 @@
+<Module>
+    <ModulePrefs title="Heatmap gadget for Dow Jones"
+                 title_url=""
+                 directory_title="Heatmap gadget for Dow Jones"
+                 description="Heatmap gadget for Dow Jones"
+                 author="Dow Jones"
+                 author_email=""
+    >
+        <Optional feature="gadget-directory">
+            <Param name="categories">
+                JIRA
+            </Param>
+        </Optional>
+        <Require feature="oauthpopup"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="setprefs"/>
+        <Require feature="settitle"/>
+        <Require feature="views"/>
+        <Optional feature='auth-refresh' />
+        <Optional feature="atlassian.util"/>
+    </ModulePrefs>
+
+    <UserPref name="isConfigured" datatype="hidden" default_value="false"/>
+    <UserPref name="refresh" datatype="hidden" default_value="false" />
+    <UserPref name="projects" datatype="hidden" default_value="projects"/>
+    <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
+    <UserPref name="blocker" datatype="hidden" default_value="24"/>
+    <UserPref name="critical" datatype="hidden" default_value="48"/>
+    <UserPref name="major" datatype="hidden" default_value="96"/>
+    <UserPref name="minor" datatype="hidden" default_value="256"/>
+    <UserPref name="red" datatype="hidden" default_value="10"/>
+    <UserPref name="amber" datatype="hidden" default_value="1"/>
+
+    <Content type="html">
+        <![CDATA[
+            #requireResource("com.atlassian.jira.gadgets:autocomplete")
+            #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
+            #requireResource("com.epam.jira.plugins.heatmap.heatmap:heatmap.context")
+            #includeResources()
+
+            <script src="https://code.highcharts.com/highcharts.js"></script>
+            <script src="https://code.highcharts.com/modules/treemap.js"></script>
+            <script type="text/javascript">
+             AJS.$(document).ready((function() {
+                (function ($) {
+                var gadget = AJS.Gadget({
+                baseUrl: "__ATLASSIAN_BASE_URL__",
+                useOauth: "/rest/gadget/1.0/currentUser",
+                config: {
+                    descriptor: function(args) {
+                        var gadget = this;
+                        var allProjects = args.allProjects;
+                        return {
+                                theme : function() {
+                                    //set where settings will be
+                                if (gadgets.window.getViewportDimensions().width < 450){
+                                    return "gdt top-label";
+                                } else {
+                                    return "gdt";
+                                }
+                                }(),
+                                    //set settings to be return(create fields on config page)
+                                fields: [
+                                {
+                                    id: "projects",
+                                    userpref: "projects",
+                                    class: "numField",
+                                    label: "Projects (comma separated list, ex. 'FACTIVA,DMI')",
+                                    type: "text",
+                                    value: gadget.getPref("projects")
+                                },{
+                                    id: "labels",
+                                    userpref: "labels",
+                                    class: "numField",
+                                    label: "Labels:(comma separated list, ex. 'sec-issue,security')",
+                                    type: "text",
+                                    value: gadget.getPref("labels")
+                                },{
+                                    id: "blocker",
+                                    userpref: "blocker",
+                                    class: "numField",
+                                    label: "Blocker expected triage time, h(ex. 24):",
+                                    type: "text",
+                                    value: gadget.getPref("blocker")
+                                },{
+                                    id: "critical",
+                                    userpref: "critical",
+                                    class: "numField",
+                                    label: "Critical expected triage time, h(ex. 48):",
+                                    type: "text",
+                                    value: gadget.getPref("critical")
+                                },{
+                                    id: "major",
+                                    userpref: "major",
+                                    class: "numField",
+                                    label: "Major expected triage time, h(ex. 96):",
+                                    type: "text",
+                                    value: gadget.getPref("major")
+                                },{
+                                    id: "minor",
+                                    userpref: "minor",
+                                    class: "numField",
+                                    label: "Minor expected triage time, h(ex. 256):",
+                                    type: "text",
+                                    value: gadget.getPref("minor")
+                                },{
+                                    id: "red",
+                                    userpref: "red",
+                                    class: "numField",
+                                    label: "Health status 'Red' score value:",
+                                    type: "text",
+                                    value: gadget.getPref("red")
+                                },{
+                                    id: "amber",
+                                    userpref: "amber",
+                                    class: "numField",
+                                    label: "Health status 'Amber' score value:",
+                                    type: "text",
+                                    value: gadget.getPref("amber")
+                                },
+                                 AJS.gadget.fields.nowConfigured()
+                                ]
+                        };
+                    },
+                    args:[{
+                        key: "allProjects",
+                        ajaxOptions: function() {
+                            return {
+                                url:"/rest/api/2/project"
+                            }
+                        }
+                    }]
+                },
+                <!--end of config-->
+                view: {
+                        enableReload: true,
+                        onResizeReload: true,
+                        template: function(args) {
+                        var gadget = this;
+                        gadget.getView().html("<div id='container'/>");
+                            var configDto = {
+                                projects: gadgets.Prefs().getString("projects"),
+                                labels: gadgets.Prefs().getString("labels"),
+                                blocker: gadgets.Prefs().getString("blocker"),
+                                critical: gadgets.Prefs().getString("critical"),
+                                major: gadgets.Prefs().getString("major"),
+                                minor: gadgets.Prefs().getString("minor"),
+                                red: gadgets.Prefs().getString("red"),
+                                amber: gadgets.Prefs().getString("amber")
+                            }
+                            var records = args.records;
+                            var seriesData = [];
+                            records.forEach(function(record){
+                                seriesData.push({
+                                    name: record.projectName,
+                                    color: record.color,
+                                    value: record.risk_score,
+                                    link: record.link,
+                                    critical: record.critical,
+                                    blocker: record.blocker,
+                                    major: record.major
+                                });
+                            });
+
+                            gadgets.window.setTitle("Projects Status Heatmap");
+                            var charts = Highcharts.chart('container', {
+                                chart: {
+                                    type: 'treemap',
+                                    height: '50%',
+                                    layoutAlgorithm: 'squarified',
+                                    alternateStartingDirection: true,
+                                },
+                                tooltip: {
+                                    pointFormat: 'Risk Score: {point.value}<br />Blocker: {point.blocker}<br />Critical: {point.critical}<br />Major: {point.major}'
+                                },
+                                plotOptions: {
+                                     series: {
+                                        dataLabels: {
+                                            enabled: true,
+                                            format: '{point.name}<br /> Score: {point.value}',
+                                            style: {
+                                                fontWeight: 'bold',
+                                                fontSize: '24px'
+                                            }
+                                        },
+                                        cursor: 'pointer',
+                                        point: {
+                                            events: {
+                                                click: function () {
+                                                    window.open(this.link, '_blank');
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                series: [{
+                                    type: 'treemap',
+                                    layoutAlgorithm: 'squarified',
+                                    data: seriesData
+
+                                }],
+                                title: {
+                                    text: 'Projects Status Heatmap'
+                                }
+                            });
+                            charts.redraw();
+                        },
+                        <!--close templates-->
+                        args:[{
+                            key: "records",
+                            ajaxOptions: function() {
+                                        return {
+                                            url: "/rest/heatmap-dj/1.0/gadget/heatmap",
+                                            data: {
+                                                projects: gadgets.Prefs().getString("projects"),
+                                                labels: gadgets.Prefs().getString("labels"),
+                                                blocker: gadgets.Prefs().getString("blocker"),
+                                                critical: gadgets.Prefs().getString("critical"),
+                                                major: gadgets.Prefs().getString("major"),
+                                                minor: gadgets.Prefs().getString("minor"),
+                                                red: gadgets.Prefs().getString("red"),
+                                                amber: gadgets.Prefs().getString("amber")
+                                            }
+                                        };
+                            }
+                        }]
+                    }
+                <!--end of view-->
+            });
+            <!--end of AJS.Gadget-->
+        })(jQuery);
+        <!--end of function-->
+    }));
+    <!--end of function in doc.ready-->
+
+            </script>
+
+            <form id="heatmapConfig" name="heatmapConfig" class="aui" style="display: none;">
+                <fieldset>
+                    <div class="field-group">
+                        <label for="projects">Projects (comma separated list, ex. "FACTIVA,DMI")</label>
+                        <input type="text" id="projects" name="projects" class="text" value=""/>
+                    </div>
+                    <div class="field-group">
+                        <label for="labels">Labels:(comma separated list, ex. "sec-issue,security")</label>
+                        <input type="text" id="labels" name="labels" class="text" value=""/>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Health thresholds:</legend>
+                    <div class="field-group">
+                        <label for="blocker">Blocker expected triage time, h(ex. 24):</label>
+                        <input type="text" id="blocker" name="blocker" value="" class="text"/>
+                    </div>
+                    <div class="field-group">
+                        <label for="critical">Critical expected triage time, h(ex. 48):</label>
+                        <input type="text" id="critical" name="critical" value="" class="text"/>
+                    </div>
+                    <div class="field-group">
+                        <label for="major">Major expected triage time, h(ex. 96):</label>
+                        <input type="text" id="major" name="major" value="" class="text"/>
+                    </div>
+                    <div class="field-group">
+                        <label for="minor">Minor expected triage time, h(ex. 256):</label>
+                        <input type="text" id="minor" name="minor" value="" class="text"/>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Health thresholds:</legend>
+                    <div class="field-group">
+                        <label for="red">Health status "Red" score value:</label>
+                        <input type="text" id="red" name="red" value="" class="text"/>
+                    </div>
+                    <div class="field-group">
+                        <label for="amber">Health status "Amber" score value:</label>
+                        <input type="text" id="amber" name="amber" value="" class="text"/>
+                    </div>
+                    <div class="field-group">
+                        <input type="submit" id="submit" value="Submit" name="submit" class="button"/>
+                    </div>
+                </fieldset>
+            </form>
+        ]]>
+    </Content>
+
+</Module>

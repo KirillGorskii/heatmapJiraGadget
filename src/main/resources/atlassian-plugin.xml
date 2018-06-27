@@ -1,0 +1,39 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/plugins/servlet/heatmap/admin</param>
+    </plugin-info>
+
+
+    <!-- add our web resources -->
+    <web-resource key="heatmap-resources" name="Heatmap Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+
+        <resource type="download" name="heatmap.js" location="js/heatmap.js"/>
+        <resource type="download" name="heatmap.css" location="css/heatmap.css"/>
+        <resource type="download" name="images/" location="images"/>
+        <resource type="download" name="highcharts" location="https://code.highcharts.com/highcharts.js"/>
+        <resource type="download" name="treemap" location="https://code.highcharts.com/modules/treemap.js"/>
+        <resource type="download" name="heatmapGadget.js" location="js/heatmapGadget.js"/>
+        <resource type="i18n" name="i18n" location="i18n/ni-sprint-perform"/>
+        <context>heatmap.context</context>
+    </web-resource>
+
+    <servlet key="role-checker" class="com.epam.jira.plugins.heatmap.configuration.CorrectRoleChecker">
+        <url-pattern>/heatmap/admin</url-pattern>
+    </servlet>
+
+    <gadget name="HeatMap gadgeet" i18n-name-key="heatmap.name" key="heatmap-gadget" location="gadgets/heatmap/gadget.xml">
+        <description key="heatmap.description">The NI Sprint Performance Gadget Plugin</description>
+    </gadget>
+
+    <rest key="rest" path="/heatmap-dj" version="1.0">
+        <description>Provides REST resources for the admin UI.</description>
+        <package>com.epam.jira.plugins.heatmap.rest</package>
+    </rest>
+
+</atlassian-plugin>
