@@ -96,7 +96,7 @@ public class HitmapDataProviderService {
         List<ProjectDto> results = new ArrayList<>();
         for (String project : configDTO.getProjects()) {
             ProjectDto dto = new ProjectDto(project);
-            dto.setLink(collectLinkToProject(project));
+            dto.setLink(collectLinkToProject(project, configDTO));
             List<Issue> issues = getListOfIsses(project, configDTO, applicationUser);
             for (Issue issue : issues) {
                 calculateRateScore(configDTO, issue, dto);
@@ -137,9 +137,8 @@ public class HitmapDataProviderService {
 
     private void calculateRateScore(ConfigDTO dto, Issue issue, ProjectDto projectDto) {
         Timestamp now = Timestamp.from(Instant.now());
-        String issuePriority = issue.getPriority().getName();
-        incrementPriorityCounter(issuePriority, projectDto);
-        int hoursBetweenDueDateAndCreated = getHoursForProirity(issuePriority, dto);
+        incrementPriorityCounter(issue.getPriority().getName(), projectDto);
+        int hoursBetweenDueDateAndCreated = getHoursForProirity(issue, dto);
         if (hoursBetweenDueDateAndCreated == 0) {
             hoursBetweenDueDateAndCreated++;
         }
@@ -167,26 +166,33 @@ public class HitmapDataProviderService {
         }
     }
 
-    private int getHoursForProirity(String issuePriority, ConfigDTO dto) {
+    private int getHoursForProirity(Issue issue, ConfigDTO dto) {
+        String issuePriority = issue.getPriority().getName();
+        int hours = 0;
         if (issuePriority.equalsIgnoreCase("blocker")) {
-            return dto.getBlocker();
+            hours = dto.getBlocker();
         }
         if (issuePriority.equalsIgnoreCase("critical")) {
-            return dto.getCritical();
+            hours = dto.getCritical();
         }
         if (issuePriority.equalsIgnoreCase("major")) {
-            return dto.getMajor();
+            hours = dto.getMajor();
         }
         if (issuePriority.equalsIgnoreCase("minor")) {
-            return dto.getMinor();
+            hours = dto.getMinor();
         }
-        return 0;
+        if (hours==0){
+            long milesecondsBetweenDueAndCreated = issue.getDueDate().getTime() - issue.getCreated().getTime();
+            hours = Math.toIntExact(milesecondsBetweenDueAndCreated / (60 * 60 * 1000));
+        }
+        return hours;
     }
 
-    private String collectLinkToProject(String project) {
+    private String collectLinkToProject(String project, ConfigDTO configDTO) {
         StringBuilder builder = new StringBuilder();
         return builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
-                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)").toString();
+                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)%20and%20labels%20in%20(")
+                .append(configDTO.getLabels()).append(")").toString();
     }
 
     private List<Issue> getListOfIsses(String projectKey, ConfigDTO configDTO, ApplicationUser applicationUser) {
