@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,7 +34,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Path("gadget/heatmap")
@@ -70,7 +68,7 @@ public class HitmapDataProviderService {
         if (blocker != null && !blocker.isEmpty()) {
             configDto.setBlocker(Integer.parseInt(blocker));
         }
-        String critical =  queryMap.get("critical");
+        String critical = queryMap.get("critical");
         if (critical != null && !critical.isEmpty()) {
             configDto.setCritical(Integer.parseInt(critical));
         }
@@ -108,7 +106,7 @@ public class HitmapDataProviderService {
 
     private void addPropertieToMap(String s, Map<String, String> resultMap) {
         String[] splittedString = s.split("=");
-        if(splittedString.length!=1) {
+        if (splittedString.length != 1) {
             resultMap.put(splittedString[0], splittedString[1]);
         } else {
             resultMap.put(splittedString[0], null);
@@ -206,7 +204,7 @@ public class HitmapDataProviderService {
         if (issuePriority.equalsIgnoreCase("minor")) {
             hours = configDto.getMinor();
         }
-        if (hours==0){
+        if (hours == 0) {
             long milesecondsBetweenDueAndCreated = issue.getDueDate().getTime() - issue.getCreated().getTime();
             hours = Math.toIntExact(milesecondsBetweenDueAndCreated / (60 * 60 * 1000));
         }
@@ -215,16 +213,24 @@ public class HitmapDataProviderService {
 
     private String collectLinkToProject(String project) {
         StringBuilder builder = new StringBuilder();
-        return builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
-                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)%20and%20labels%20in%20(")
-                .append(configDto.getLabels()).append(")").toString();
+        builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
+                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)");
+        if (configDto.getLabels() != null) {
+            builder.append("%20and%20labels%20in%20(").append(configDto.getLabels()).append(")");
+        }
+        return builder.toString();
     }
 
     private List<Issue> getListOfIsses(String projectKey, ApplicationUser applicationUser) {
         JqlQueryParser parser = ComponentAccessor.getComponent(JqlQueryParser.class);
         Query query = null;
         try {
-            query = parser.parseQuery("project = '" + projectKey + "' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved) and labels in (" + configDto.labels + ")");
+            StringBuilder builder = new StringBuilder();
+            builder.append("project = '").append(projectKey).append("' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved)");
+            if (configDto.labels != null && configDto.labels.length() > 0) {
+                builder.append("and labels in (").append(configDto.getLabels()).append(")");
+            }
+            query = parser.parseQuery(builder.toString());
         } catch (JqlParseException e) {
             e.printStackTrace();
         }
