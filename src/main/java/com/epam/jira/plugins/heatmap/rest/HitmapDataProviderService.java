@@ -34,10 +34,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Path("gadget/heatmap")
@@ -50,6 +48,7 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
 
+    private ConfigDTO configDto;
     private String jiraUrl;
 
     @Inject
@@ -61,28 +60,33 @@ public class HitmapDataProviderService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response get(@QueryParam("projects") String projects, @QueryParam("labels") String labels, @QueryParam("blocker") String blocker, @QueryParam("critical") String critical,
-                        @QueryParam("major") String major, @QueryParam("minor") String minor, @QueryParam("red") String red, @QueryParam("amber") String amber, @Context HttpServletRequest request) {
-        ConfigDTO configDto = new ConfigDTO();
-        configDto.addProjects(projects);
-        configDto.setLabels(labels);
+    public Response get(@Context HttpServletRequest request) {
+        Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
+        configDto = new ConfigDTO();
+        configDto.addProjects(queryMap.get("projects"));
+        configDto.setLabels(queryMap.get("labels"));
+        String blocker = queryMap.get("blocker");
         if (blocker != null && !blocker.isEmpty()) {
             configDto.setBlocker(Integer.parseInt(blocker));
         }
+        String critical =  queryMap.get("critical");
         if (critical != null && !critical.isEmpty()) {
             configDto.setCritical(Integer.parseInt(critical));
         }
+        String major = queryMap.get("minor");
         if (major != null && !major.isEmpty()) {
             configDto.setMajor(Integer.parseInt(major));
         }
+
+        String minor = queryMap.get("major");
         if (minor != null && !minor.isEmpty()) {
             configDto.setMinor(Integer.parseInt(minor));
         }
-        configDto.setRed(Integer.parseInt(red));
-        configDto.setAmber(Integer.parseInt(amber));
+        configDto.setRed(Integer.parseInt(queryMap.get("red")));
+        configDto.setAmber(Integer.parseInt(queryMap.get("amber")));
 
         jiraUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
-        List<ProjectDto> result = getPropertiesUser(request, configDto);
+        List<ProjectDto> result = getPropertiesUser(request);
         if (result == null || result.isEmpty()) {
             return Response.noContent().build();
         } else {
@@ -90,19 +94,34 @@ public class HitmapDataProviderService {
         }
     }
 
-    private List<ProjectDto> getPropertiesUser(HttpServletRequest request, ConfigDTO configDTO) {
+    private Map<String, String> collectPropertiesFromQueryString(String queryString) {
+        Map<String, String> resultMap = new HashMap<>();
+        Arrays.stream(queryString.split("&")).map(s -> s.replace("%2C", ",")).forEach(s -> addPropertieToMap(s, resultMap));
+        return resultMap;
+    }
+
+    private void addPropertieToMap(String s, Map<String, String> resultMap) {
+        String[] splittedString = s.split("=");
+        if(splittedString.length!=1) {
+            resultMap.put(splittedString[0], splittedString[1]);
+        } else {
+            resultMap.put(splittedString[0], null);
+        }
+    }
+
+    private List<ProjectDto> getPropertiesUser(HttpServletRequest request) {
         String username = manager.getRemoteUsername(request);
         ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(username);
         List<ProjectDto> results = new ArrayList<>();
-        for (String project : configDTO.getProjects()) {
+        for (String project : configDto.getProjects()) {
             ProjectDto dto = new ProjectDto(project);
-            dto.setLink(collectLinkToProject(project, configDTO));
-            List<Issue> issues = getListOfIsses(project, configDTO, applicationUser);
+            dto.setLink(collectLinkToProject(project));
+            List<Issue> issues = getListOfIsses(project, applicationUser);
             for (Issue issue : issues) {
-                calculateRateScore(configDTO, issue, dto);
+                calculateRateScore(issue, dto);
             }
             calculateRateScoreBaseOnOverallData(dto);
-            setColour(dto, configDTO);
+            setColour(dto, configDto);
             if (dto.getRisk_score() == 0) {
                 dto.incrementRateScore(1);
             }
@@ -135,10 +154,10 @@ public class HitmapDataProviderService {
         dto.incrementRateScore(dto.getCritical());
     }
 
-    private void calculateRateScore(ConfigDTO dto, Issue issue, ProjectDto projectDto) {
+    private void calculateRateScore(Issue issue, ProjectDto projectDto) {
         Timestamp now = Timestamp.from(Instant.now());
         incrementPriorityCounter(issue.getPriority().getName(), projectDto);
-        int hoursBetweenDueDateAndCreated = getHoursForProirity(issue, dto);
+        int hoursBetweenDueDateAndCreated = getHoursForProirity(issue);
         if (hoursBetweenDueDateAndCreated == 0) {
             hoursBetweenDueDateAndCreated++;
         }
@@ -166,20 +185,20 @@ public class HitmapDataProviderService {
         }
     }
 
-    private int getHoursForProirity(Issue issue, ConfigDTO dto) {
+    private int getHoursForProirity(Issue issue) {
         String issuePriority = issue.getPriority().getName();
         int hours = 0;
         if (issuePriority.equalsIgnoreCase("blocker")) {
-            hours = dto.getBlocker();
+            hours = configDto.getBlocker();
         }
         if (issuePriority.equalsIgnoreCase("critical")) {
-            hours = dto.getCritical();
+            hours = configDto.getCritical();
         }
         if (issuePriority.equalsIgnoreCase("major")) {
-            hours = dto.getMajor();
+            hours = configDto.getMajor();
         }
         if (issuePriority.equalsIgnoreCase("minor")) {
-            hours = dto.getMinor();
+            hours = configDto.getMinor();
         }
         if (hours==0){
             long milesecondsBetweenDueAndCreated = issue.getDueDate().getTime() - issue.getCreated().getTime();
@@ -188,18 +207,18 @@ public class HitmapDataProviderService {
         return hours;
     }
 
-    private String collectLinkToProject(String project, ConfigDTO configDTO) {
+    private String collectLinkToProject(String project) {
         StringBuilder builder = new StringBuilder();
         return builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
                 .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)%20and%20labels%20in%20(")
-                .append(configDTO.getLabels()).append(")").toString();
+                .append(configDto.getLabels()).append(")").toString();
     }
 
-    private List<Issue> getListOfIsses(String projectKey, ConfigDTO configDTO, ApplicationUser applicationUser) {
+    private List<Issue> getListOfIsses(String projectKey, ApplicationUser applicationUser) {
         JqlQueryParser parser = ComponentAccessor.getComponent(JqlQueryParser.class);
         Query query = null;
         try {
-            query = parser.parseQuery("project = '" + projectKey + "' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved) and labels in (" + configDTO.labels + ")");
+            query = parser.parseQuery("project = '" + projectKey + "' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved) and labels in (" + configDto.labels + ")");
         } catch (JqlParseException e) {
             e.printStackTrace();
         }
