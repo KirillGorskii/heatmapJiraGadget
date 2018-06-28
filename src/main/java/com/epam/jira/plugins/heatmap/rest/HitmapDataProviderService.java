@@ -215,7 +215,7 @@ public class HitmapDataProviderService {
         StringBuilder builder = new StringBuilder();
         builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
                 .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)");
-        if (configDto.getLabels() != null) {
+        if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
             builder.append("%20and%20labels%20in%20(").append(configDto.getLabels()).append(")");
         }
         return builder.toString();
@@ -227,7 +227,7 @@ public class HitmapDataProviderService {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("project = '").append(projectKey).append("' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved)");
-            if (configDto.labels != null && configDto.labels.length() > 0) {
+            if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
                 builder.append("and labels in (").append(configDto.getLabels()).append(")");
             }
             query = parser.parseQuery(builder.toString());
