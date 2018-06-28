@@ -65,6 +65,7 @@ public class HitmapDataProviderService {
         configDto = new ConfigDTO();
         configDto.addProjects(queryMap.get("projects"));
         configDto.setLabels(queryMap.get("labels"));
+
         String blocker = queryMap.get("blocker");
         if (blocker != null && !blocker.isEmpty()) {
             configDto.setBlocker(Integer.parseInt(blocker));
@@ -73,18 +74,23 @@ public class HitmapDataProviderService {
         if (critical != null && !critical.isEmpty()) {
             configDto.setCritical(Integer.parseInt(critical));
         }
-        String major = queryMap.get("minor");
+        String major = queryMap.get("major");
         if (major != null && !major.isEmpty()) {
             configDto.setMajor(Integer.parseInt(major));
         }
 
-        String minor = queryMap.get("major");
+        String minor = queryMap.get("minor");
         if (minor != null && !minor.isEmpty()) {
             configDto.setMinor(Integer.parseInt(minor));
         }
-        configDto.setRed(Integer.parseInt(queryMap.get("red")));
-        configDto.setAmber(Integer.parseInt(queryMap.get("amber")));
-
+        String red = queryMap.get("red");
+        if (red != null && !red.isEmpty()) {
+            configDto.setRed(Integer.parseInt(red));
+        }
+        String amber = queryMap.get("amber");
+        if (amber != null && !amber.isEmpty()) {
+            configDto.setAmber(Integer.parseInt(amber));
+        }
         jiraUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
         List<ProjectDto> result = getPropertiesUser(request);
         if (result == null || result.isEmpty()) {
@@ -251,9 +257,9 @@ public class HitmapDataProviderService {
         @XmlElement
         private int minor = 0;
         @XmlElement
-        private int red = 0;
+        private int red = 1;
         @XmlElement
-        private int amber = 0;
+        private int amber = 1;
 
         public int getMinor() {
             return minor;
@@ -270,7 +276,8 @@ public class HitmapDataProviderService {
 
         public void addProjects(String project) {
             if (project.contains(",")) {
-                projects.addAll(Arrays.asList(project.split(",")));
+                projects.addAll(Arrays.asList(project.replaceAll(" ", "").replaceAll("\\+", "").split(",")));
+
             } else {
                 projects.add(project);
             }
