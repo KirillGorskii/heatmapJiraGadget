@@ -60,7 +60,7 @@
                                 if (gadgets.window.getViewportDimensions().width < 450){
                                     return "gdt top-label";
                                 } else {
-                                    return "gdt";
+                                    return "gdt top-labe";
                                 }
                                 }(),
                                     //set settings to be return(create fields on config page)

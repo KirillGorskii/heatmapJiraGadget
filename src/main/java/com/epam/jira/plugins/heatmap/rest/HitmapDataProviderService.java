@@ -3,19 +3,16 @@ package com.epam.jira.plugins.heatmap.rest;
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
-import com.atlassian.jira.issue.CustomFieldManager;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.jql.parser.JqlParseException;
 import com.atlassian.jira.jql.parser.JqlQueryParser;
 import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.user.preferences.ExtendedPreferences;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.query.Query;
-import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.epam.jira.plugins.heatmap.dto.ProjectDto;
@@ -46,24 +43,20 @@ import java.util.List;
 @Path("gadget/heatmap")
 @Scanned
 public class HitmapDataProviderService {
-    private List<String> projects;
     @ComponentImport
     private final SearchService searchService;
     @ComponentImport
     private final UserManager manager;
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
-    @ComponentImport
-    private final CustomFieldManager customFieldManager;
 
     private String jiraUrl;
 
     @Inject
-    public HitmapDataProviderService(CustomFieldManager customFieldManager, UserManager userManager, TransactionTemplate transactionTemplate, SearchService searchService) {
+    public HitmapDataProviderService(UserManager userManager, TransactionTemplate transactionTemplate, SearchService searchService) {
         this.manager = userManager;
         this.transactionTemplate = transactionTemplate;
         this.searchService = searchService;
-        this.customFieldManager = customFieldManager;
     }
 
     @GET
@@ -73,22 +66,27 @@ public class HitmapDataProviderService {
         ConfigDTO configDto = new ConfigDTO();
         configDto.addProjects(projects);
         configDto.setLabels(labels);
-        configDto.setBlocker(Integer.parseInt(blocker));
-        configDto.setCritical(Integer.parseInt(critical));
-        configDto.setMajor(Integer.parseInt(major));
-        configDto.setMinor(Integer.parseInt(minor));
+        if (blocker != null && !blocker.isEmpty()) {
+            configDto.setBlocker(Integer.parseInt(blocker));
+        }
+        if (critical != null && !critical.isEmpty()) {
+            configDto.setCritical(Integer.parseInt(critical));
+        }
+        if (major != null && !major.isEmpty()) {
+            configDto.setMajor(Integer.parseInt(major));
+        }
+        if (minor != null && !minor.isEmpty()) {
+            configDto.setMinor(Integer.parseInt(minor));
+        }
         configDto.setRed(Integer.parseInt(red));
         configDto.setAmber(Integer.parseInt(amber));
+
         jiraUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
         List<ProjectDto> result = getPropertiesUser(request, configDto);
         if (result == null || result.isEmpty()) {
             return Response.noContent().build();
         } else {
-            return Response.ok(transactionTemplate.execute(new TransactionCallback() {
-                public Object doInTransaction() {
-                    return new Gson().toJson(result);
-                }
-            })).build();
+            return Response.ok(transactionTemplate.execute(() -> new Gson().toJson(result))).build();
         }
     }
 
@@ -105,7 +103,7 @@ public class HitmapDataProviderService {
             }
             calculateRateScoreBaseOnOverallData(dto);
             setColour(dto, configDTO);
-            if(dto.getRisk_score()==0){
+            if (dto.getRisk_score() == 0) {
                 dto.incrementRateScore(1);
             }
             results.add(dto);
@@ -179,7 +177,7 @@ public class HitmapDataProviderService {
         if (issuePriority.equalsIgnoreCase("major")) {
             return dto.getMajor();
         }
-        if (issuePriority.equalsIgnoreCase("minor")){
+        if (issuePriority.equalsIgnoreCase("minor")) {
             return dto.getMinor();
         }
         return 0;
@@ -188,15 +186,14 @@ public class HitmapDataProviderService {
     private String collectLinkToProject(String project) {
         StringBuilder builder = new StringBuilder();
         return builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
-                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20in%20(Open%2C%20Reopened)").toString();
+                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)").toString();
     }
 
     private List<Issue> getListOfIsses(String projectKey, ConfigDTO configDTO, ApplicationUser applicationUser) {
         JqlQueryParser parser = ComponentAccessor.getComponent(JqlQueryParser.class);
-
         Query query = null;
         try {
-            query = parser.parseQuery("project = '" + projectKey + "' AND priority IN (Blocker, Critical, Major) AND status in (Open, Reopened) and labels in ("+ configDTO.labels+")");
+            query = parser.parseQuery("project = '" + projectKey + "' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved) and labels in (" + configDTO.labels + ")");
         } catch (JqlParseException e) {
             e.printStackTrace();
         }
@@ -209,18 +206,6 @@ public class HitmapDataProviderService {
             issues = new ArrayList<>();
         }
         return issues;
-    }
-
-    private ConfigDTO setPrefInConfiguration(ExtendedPreferences preferences) {
-        ConfigDTO configDto = new ConfigDTO();
-        configDto.addProjects(preferences.getText("projects"));
-        configDto.setLabels(preferences.getText("labels"));
-        configDto.setBlocker(Integer.parseInt(preferences.getText("blocker")));
-        configDto.setCritical(Integer.parseInt(preferences.getText("critical")));
-        configDto.setMajor(Integer.parseInt(preferences.getText("major")));
-        configDto.setRed(Integer.parseInt(preferences.getText("red")));
-        configDto.setAmber(Integer.parseInt(preferences.getText("amber")));
-        return configDto;
     }
 
     @XmlRootElement
@@ -238,6 +223,12 @@ public class HitmapDataProviderService {
         private int critical = 0;
         @XmlElement
         private int major = 0;
+        @XmlElement
+        private int minor = 0;
+        @XmlElement
+        private int red = 0;
+        @XmlElement
+        private int amber = 0;
 
         public int getMinor() {
             return minor;
@@ -247,13 +238,6 @@ public class HitmapDataProviderService {
             this.minor = minor;
         }
 
-        @XmlElement
-
-        private int minor = 0;
-        @XmlElement
-        private int red = 0;
-        @XmlElement
-        private int amber = 0;
 
         public List<String> getProjects() {
             return projects;
