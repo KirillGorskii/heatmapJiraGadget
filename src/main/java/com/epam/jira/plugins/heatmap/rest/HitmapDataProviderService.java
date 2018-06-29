@@ -169,7 +169,7 @@ public class HitmapDataProviderService {
         if (now.after(Timestamp.valueOf(dueDate))) {
             long milesecondsBetweenNowAndCreated = Timestamp.from(Instant.now()).getTime() - issue.getCreated().getTime();
             int hoursBetweenNowAndCreated = Math.toIntExact(milesecondsBetweenNowAndCreated / (60 * 60 * 1000));
-            int countToIncrement = (hoursBetweenNowAndCreated - hoursBetweenDueDateAndCreated) / hoursBetweenDueDateAndCreated;
+            int countToIncrement = ((hoursBetweenNowAndCreated - hoursBetweenDueDateAndCreated) / hoursBetweenDueDateAndCreated)/24;
             projectDto.incrementRateScore(countToIncrement);
         }
     }
