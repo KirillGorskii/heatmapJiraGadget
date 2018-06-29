@@ -173,7 +173,7 @@
                                      series: {
                                         dataLabels: {
                                             enabled: true,
-                                            format: '{point.name}<br /> Score: {point.value}',
+                                            format: '{point.name}<br /> Risk score: {point.value}',
                                             style: {
                                                 fontWeight: 'bold',
                                                 fontSize: '24px'
