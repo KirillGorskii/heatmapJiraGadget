@@ -31,7 +31,6 @@
     <UserPref name="blocker" datatype="hidden" default_value="24"/>
     <UserPref name="critical" datatype="hidden" default_value="48"/>
     <UserPref name="major" datatype="hidden" default_value="96"/>
-    <UserPref name="minor" datatype="hidden" default_value="256"/>
     <UserPref name="red" datatype="hidden" default_value="10"/>
     <UserPref name="amber" datatype="hidden" default_value="1"/>
 
@@ -101,13 +100,6 @@
                                     type: "text",
                                     value: gadget.getPref("major")
                                 },{
-                                    id: "minor",
-                                    userpref: "minor",
-                                    class: "numField",
-                                    label: "Minor expected triage time, h(ex. 256):",
-                                    type: "text",
-                                    value: gadget.getPref("minor")
-                                },{
                                     id: "red",
                                     userpref: "red",
                                     class: "numField",
@@ -140,7 +132,6 @@
                                 blocker: gadgets.Prefs().getString("blocker"),
                                 critical: gadgets.Prefs().getString("critical"),
                                 major: gadgets.Prefs().getString("major"),
-                                minor: gadgets.Prefs().getString("minor"),
                                 red: gadgets.Prefs().getString("red"),
                                 amber: gadgets.Prefs().getString("amber")
                             }
@@ -213,7 +204,6 @@
                                                 blocker: gadgets.Prefs().getString("blocker"),
                                                 critical: gadgets.Prefs().getString("critical"),
                                                 major: gadgets.Prefs().getString("major"),
-                                                minor: gadgets.Prefs().getString("minor"),
                                                 red: gadgets.Prefs().getString("red"),
                                                 amber: gadgets.Prefs().getString("amber")
                                             }

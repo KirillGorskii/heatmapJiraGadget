@@ -49,8 +49,6 @@ public class HitmapDataProviderService {
     private static final String highestPriorityName = "blocker";
     private static final String highPriorityName = "critical";
     private static final String middlePriorityName = "major";
-    private static final String lowPriorityName = "minor";
-
     private ConfigDTO configDto;
     private String jiraUrl;
 
@@ -151,9 +149,6 @@ public class HitmapDataProviderService {
         if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
             dto.incrementMajor();
         }
-        if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
-            dto.incrementMinor();
-        }
     }
 
     private int getHoursForProirity(Issue issue) {
@@ -225,10 +220,6 @@ public class HitmapDataProviderService {
             configDto.setMajor(Integer.parseInt(major));
         }
 
-        String minor = queryMap.get(lowPriorityName);
-        if (minor != null && !minor.isEmpty()) {
-            configDto.setMinor(Integer.parseInt(minor));
-        }
         String red = queryMap.get("red");
         if (red != null && !red.isEmpty()) {
             configDto.setRed(Integer.parseInt(red));
@@ -254,8 +245,6 @@ public class HitmapDataProviderService {
         @XmlElement
         private int major = 0;
         @XmlElement
-        private int minor = 0;
-        @XmlElement
         private int red = 10;
         @XmlElement
         private int amber = 1;
@@ -263,16 +252,6 @@ public class HitmapDataProviderService {
         private static final int standardBlockerSLA = 3*24*3600;
         private static final int standardCriticalSLA = 5*24*3600;
         private static final int standardMajorSLA =  25*24*3600;
-        private static final int standardMinorSLA = 60*24*3600;
-
-        public int getMinor() {
-            return minor;
-        }
-
-        public void setMinor(int minor) {
-            this.minor = minor;
-        }
-
 
         public List<String> getProjects() {
             return projects;
@@ -353,9 +332,6 @@ public class HitmapDataProviderService {
             if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
                 return standardMajorSLA;
             }
-            if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
-                return standardMinorSLA;
-            }
             return 586;
         }
 
@@ -369,9 +345,7 @@ public class HitmapDataProviderService {
             if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
                 return major;
             }
-            if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
-                return minor;
-            }
+
             return 0;
         }
     }
