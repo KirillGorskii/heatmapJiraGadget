@@ -46,6 +46,11 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
 
+    private static final String highestPriorityName = "blocker";
+    private static final String highPriorityName = "critical";
+    private static final String middlePriorityName = "major";
+    private static final String lowPriorityName = "minor";
+
     private ConfigDTO configDto;
     private String jiraUrl;
 
@@ -59,36 +64,7 @@ public class HitmapDataProviderService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context HttpServletRequest request) {
-        Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
-        configDto = new ConfigDTO();
-        configDto.addProjects(queryMap.get("projects"));
-        configDto.setLabels(queryMap.get("labels"));
-
-        String blocker = queryMap.get("blocker");
-        if (blocker != null && !blocker.isEmpty()) {
-            configDto.setBlocker(Integer.parseInt(blocker));
-        }
-        String critical = queryMap.get("critical");
-        if (critical != null && !critical.isEmpty()) {
-            configDto.setCritical(Integer.parseInt(critical));
-        }
-        String major = queryMap.get("major");
-        if (major != null && !major.isEmpty()) {
-            configDto.setMajor(Integer.parseInt(major));
-        }
-
-        String minor = queryMap.get("minor");
-        if (minor != null && !minor.isEmpty()) {
-            configDto.setMinor(Integer.parseInt(minor));
-        }
-        String red = queryMap.get("red");
-        if (red != null && !red.isEmpty()) {
-            configDto.setRed(Integer.parseInt(red));
-        }
-        String amber = queryMap.get("amber");
-        if (amber != null && !amber.isEmpty()) {
-            configDto.setAmber(Integer.parseInt(amber));
-        }
+        setConfigDto(request);
         jiraUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
         List<ProjectDto> result = getPropertiesUser(request);
         if (result == null || result.isEmpty()) {
@@ -97,6 +73,8 @@ public class HitmapDataProviderService {
             return Response.ok(transactionTemplate.execute(() -> new Gson().toJson(result))).build();
         }
     }
+
+
 
     private Map<String, String> collectPropertiesFromQueryString(String queryString) {
         Map<String, String> resultMap = new HashMap<>();
@@ -114,8 +92,7 @@ public class HitmapDataProviderService {
     }
 
     private List<ProjectDto> getPropertiesUser(HttpServletRequest request) {
-        String username = manager.getRemoteUsername(request);
-        ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(username);
+        ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(manager.getRemoteUsername(request));
         List<ProjectDto> results = new ArrayList<>();
         for (String project : configDto.getProjects()) {
             ProjectDto dto = new ProjectDto(project);
@@ -145,46 +122,36 @@ public class HitmapDataProviderService {
     }
 
     private void calculateRateScoreBaseOnOverallData(ProjectDto dto) {
-        int blockerCount = dto.getBlocker();
-        if (blockerCount > 0) {
-            dto.incrementRateScore(10);
-        }
-        if (dto.getCritical() > 0) {
-            dto.incrementRateScore(dto.getCritical());
-        }
-        if (dto.getMajor() > 0) {
-            dto.incrementRateScore(dto.getMajor() / 20);
-        }
+        dto.incrementRateScore( dto.getBlocker() * 10);
         dto.incrementRateScore(dto.getCritical());
+        dto.incrementRateScore(dto.getMajor() / 20);
     }
 
     private void calculateRateScore(Issue issue, ProjectDto projectDto) {
         Timestamp now = Timestamp.from(Instant.now());
-        incrementPriorityCounter(issue.getPriority().getName(), projectDto);
         int hoursBetweenDueDateAndCreated = getHoursForProirity(issue);
+        long createdTime = issue.getCreated().getTime();
         if (hoursBetweenDueDateAndCreated == 0) {
             hoursBetweenDueDateAndCreated++;
         }
-        LocalDateTime dueDate = issue.getCreated().toLocalDateTime().plusHours(hoursBetweenDueDateAndCreated);
-        if (now.after(Timestamp.valueOf(dueDate))) {
-            long milesecondsBetweenNowAndCreated = Timestamp.from(Instant.now()).getTime() - issue.getCreated().getTime();
-            int hoursBetweenNowAndCreated = Math.toIntExact(milesecondsBetweenNowAndCreated / (60 * 60 * 1000));
-            int countToIncrement = ((hoursBetweenNowAndCreated - hoursBetweenDueDateAndCreated) / hoursBetweenDueDateAndCreated)/24;
-            projectDto.incrementRateScore(countToIncrement);
+        long dueDate = createdTime + (hoursBetweenDueDateAndCreated * 60 * 60 * 1000);
+        if (now.getTime() > dueDate) {
+            incrementPriorityCounter(issue.getPriority().getName(), projectDto);
+            projectDto.incrementRateScore(1);
         }
     }
 
     private void incrementPriorityCounter(String issuePriority, ProjectDto dto) {
-        if (issuePriority.equalsIgnoreCase("blocker")) {
-            dto.increntBlocer();
+        if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
+            dto.increntBlocker();
         }
-        if (issuePriority.equalsIgnoreCase("critical")) {
+        if (issuePriority.equalsIgnoreCase(highPriorityName)) {
             dto.incrementCritical();
         }
-        if (issuePriority.equalsIgnoreCase("major")) {
+        if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
             dto.incrementMajor();
         }
-        if (issuePriority.equalsIgnoreCase("minor")) {
+        if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
             dto.incrementMinor();
         }
     }
@@ -192,21 +159,16 @@ public class HitmapDataProviderService {
     private int getHoursForProirity(Issue issue) {
         String issuePriority = issue.getPriority().getName();
         int hours = 0;
-        if (issuePriority.equalsIgnoreCase("blocker")) {
-            hours = configDto.getBlocker();
-        }
-        if (issuePriority.equalsIgnoreCase("critical")) {
-            hours = configDto.getCritical();
-        }
-        if (issuePriority.equalsIgnoreCase("major")) {
-            hours = configDto.getMajor();
-        }
-        if (issuePriority.equalsIgnoreCase("minor")) {
-            hours = configDto.getMinor();
-        }
+        hours = configDto.getSlaTimeForPriority(issuePriority);
+
         if (hours == 0) {
-            long milesecondsBetweenDueAndCreated = issue.getDueDate().getTime() - issue.getCreated().getTime();
-            hours = Math.toIntExact(milesecondsBetweenDueAndCreated / (60 * 60 * 1000));
+            Timestamp due = issue.getDueDate();
+            if(due!=null){
+                long milesecondsBetweenDueAndCreated = due.getTime() - issue.getCreated().getTime();
+                hours = Math.toIntExact(milesecondsBetweenDueAndCreated / (60 * 60 * 1000));
+            } else{
+                return configDto.getStandardSlaTimeForPriority(issuePriority);
+            }
         }
         return hours;
     }
@@ -244,7 +206,38 @@ public class HitmapDataProviderService {
         }
         return issues;
     }
+    private void setConfigDto(HttpServletRequest request){
+        Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
+        configDto = new ConfigDTO();
+        configDto.addProjects(queryMap.get("projects"));
+        configDto.setLabels(queryMap.get("labels"));
 
+        String blocker = queryMap.get(highestPriorityName);
+        if (blocker != null && !blocker.isEmpty()) {
+            configDto.setBlocker(Integer.parseInt(blocker));
+        }
+        String critical = queryMap.get(highPriorityName);
+        if (critical != null && !critical.isEmpty()) {
+            configDto.setCritical(Integer.parseInt(critical));
+        }
+        String major = queryMap.get(middlePriorityName);
+        if (major != null && !major.isEmpty()) {
+            configDto.setMajor(Integer.parseInt(major));
+        }
+
+        String minor = queryMap.get(lowPriorityName);
+        if (minor != null && !minor.isEmpty()) {
+            configDto.setMinor(Integer.parseInt(minor));
+        }
+        String red = queryMap.get("red");
+        if (red != null && !red.isEmpty()) {
+            configDto.setRed(Integer.parseInt(red));
+        }
+        String amber = queryMap.get("amber");
+        if (amber != null && !amber.isEmpty()) {
+            configDto.setAmber(Integer.parseInt(amber));
+        }
+    }
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.FIELD)
     public static final class ConfigDTO {
@@ -263,9 +256,14 @@ public class HitmapDataProviderService {
         @XmlElement
         private int minor = 0;
         @XmlElement
-        private int red = 1;
+        private int red = 10;
         @XmlElement
         private int amber = 1;
+
+        private static final int standardBlockerSLA = 3*24*3600;
+        private static final int standardCriticalSLA = 5*24*3600;
+        private static final int standardMajorSLA =  25*24*3600;
+        private static final int standardMinorSLA = 60*24*3600;
 
         public int getMinor() {
             return minor;
@@ -344,6 +342,41 @@ public class HitmapDataProviderService {
         public void setAmber(int amber) {
             this.amber = amber;
         }
+
+        public int getStandardSlaTimeForPriority(String issuePriority) {
+            if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
+               return standardBlockerSLA;
+            }
+            if (issuePriority.equalsIgnoreCase(highPriorityName)) {
+                return standardCriticalSLA;
+            }
+            if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
+                return standardMajorSLA;
+            }
+            if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
+                return standardMinorSLA;
+            }
+            return 586;
+        }
+
+        public int getSlaTimeForPriority(String issuePriority) {
+            if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
+                return blocker;
+            }
+            if (issuePriority.equalsIgnoreCase(highPriorityName)) {
+                return critical;
+            }
+            if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
+                return major;
+            }
+            if (issuePriority.equalsIgnoreCase(lowPriorityName)) {
+                return minor;
+            }
+            return 0;
+        }
+    }
+
+    public static final class SLA{
 
     }
 }

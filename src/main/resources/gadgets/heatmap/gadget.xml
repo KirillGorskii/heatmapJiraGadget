@@ -60,7 +60,7 @@
                                 if (gadgets.window.getViewportDimensions().width < 450){
                                     return "gdt top-label";
                                 } else {
-                                    return "gdt top-labe";
+                                    return "gdt top-label";
                                 }
                                 }(),
                                     //set settings to be return(create fields on config page)
@@ -176,7 +176,7 @@
                                             format: '{point.name}<br /> Risk score: {point.value}',
                                             style: {
                                                 fontWeight: 'bold',
-                                                fontSize: '24px'
+                                                fontSize: '20px'
                                             }
                                         },
                                         cursor: 'pointer',

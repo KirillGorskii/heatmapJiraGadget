@@ -79,7 +79,7 @@ public class ProjectDto {
         risk_score+=value;
     }
 
-    public void increntBlocer() {
+    public void increntBlocker() {
         blocker++;
     }
 
