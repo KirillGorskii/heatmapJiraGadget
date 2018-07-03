@@ -15,6 +15,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.query.Query;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
+import com.epam.jira.plugins.heatmap.dto.ConfigDTO;
 import com.epam.jira.plugins.heatmap.dto.ProjectDto;
 import com.google.gson.Gson;
 
@@ -47,9 +48,6 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final TransactionTemplate transactionTemplate;
 
-    private static final String highestPriorityName = "blocker";
-    private static final String highPriorityName = "critical";
-    private static final String middlePriorityName = "major";
     private ConfigDTO configDto;
     private String jiraUrl;
 
@@ -63,30 +61,13 @@ public class HitmapDataProviderService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context HttpServletRequest request) {
-        setConfigDto(request);
+        configDto = new ConfigDTO(request);
         jiraUrl = ComponentAccessor.getApplicationProperties().getString(APKeys.JIRA_BASEURL);
         List<ProjectDto> result = getPropertiesUser(request);
         if (result == null || result.isEmpty()) {
             return Response.noContent().build();
         } else {
             return Response.ok(transactionTemplate.execute(() -> new Gson().toJson(result))).build();
-        }
-    }
-
-
-
-    private Map<String, String> collectPropertiesFromQueryString(String queryString) {
-        Map<String, String> resultMap = new HashMap<>();
-        Arrays.stream(queryString.split("&")).map(s -> s.replace("%2C", ",")).forEach(s -> addPropertieToMap(s, resultMap));
-        return resultMap;
-    }
-
-    private void addPropertieToMap(String s, Map<String, String> resultMap) {
-        String[] splittedString = s.split("=");
-        if (splittedString.length != 1) {
-            resultMap.put(splittedString[0], splittedString[1]);
-        } else {
-            resultMap.put(splittedString[0], null);
         }
     }
 
@@ -163,13 +144,13 @@ public class HitmapDataProviderService {
     }
 
     private void incrementPriorityCounter(String issuePriority, ProjectDto dto) {
-        if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
+        if (issuePriority.equalsIgnoreCase(configDto.getHighestPriorityName())) {
             dto.increntBlocker();
         }
-        if (issuePriority.equalsIgnoreCase(highPriorityName)) {
+        if (issuePriority.equalsIgnoreCase(configDto.getHighPriorityName())) {
             dto.incrementCritical();
         }
-        if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
+        if (issuePriority.equalsIgnoreCase(configDto.getMiddlePriorityName())) {
             dto.incrementMajor();
         }
     }
@@ -194,7 +175,9 @@ public class HitmapDataProviderService {
     private String collectLinkToProject(String project) {
         StringBuilder builder = new StringBuilder();
         builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
-                .append("%20and%20priority%20in%20(Blocker%2C%20Critical%2C%20Major)%20and%20status%20not%20in%20(Closed%2C%20Resolved)");
+                .append("%20and%20priority%20in%20(")
+        .append(configDto.getHighestPriorityName()).append("%2C%20").append(configDto.getHighPriorityName())
+                .append("%2C%20").append(configDto.getMiddlePriorityName()).append(")%20and%20status%20not%20in%20(Closed%2C%20Resolved)");
         if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
             builder.append("%20and%20labels%20in%20(").append(configDto.getLabels()).append(")");
         }
@@ -206,7 +189,8 @@ public class HitmapDataProviderService {
         Query query = null;
         try {
             StringBuilder builder = new StringBuilder();
-            builder.append("project = '").append(projectKey).append("' AND priority IN (Blocker, Critical, Major) AND status not in (Closed, Resolved)");
+            builder.append("project = '").append(projectKey).append("' AND priority IN (").append(configDto.getHighestPriorityName()).append(",")
+                    .append( configDto.getHighPriorityName()).append(",").append(configDto.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
             if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
                 builder.append("and labels in (").append(configDto.getLabels()).append(")");
             }
@@ -224,150 +208,5 @@ public class HitmapDataProviderService {
         }
         return issues;
     }
-    private void setConfigDto(HttpServletRequest request){
-        Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
-        configDto = new ConfigDTO();
-        configDto.addProjects(queryMap.get("projects"));
-        configDto.setLabels(queryMap.get("labels"));
 
-        String blocker = queryMap.get(highestPriorityName);
-        if (blocker != null && !blocker.isEmpty()) {
-            configDto.setBlocker(Integer.parseInt(blocker));
-        }
-        String critical = queryMap.get(highPriorityName);
-        if (critical != null && !critical.isEmpty()) {
-            configDto.setCritical(Integer.parseInt(critical));
-        }
-        String major = queryMap.get(middlePriorityName);
-        if (major != null && !major.isEmpty()) {
-            configDto.setMajor(Integer.parseInt(major));
-        }
-
-        String red = queryMap.get("red");
-        if (red != null && !red.isEmpty()) {
-            configDto.setRed(Integer.parseInt(red));
-        }
-        String amber = queryMap.get("amber");
-        if (amber != null && !amber.isEmpty()) {
-            configDto.setAmber(Integer.parseInt(amber));
-        }
-    }
-
-    public static final class ConfigDTO {
-        private List<String> projects = new LinkedList<>();
-
-
-        private String project;
-
-        private String labels;
-        private int blocker = 0;
-        private int critical = 0;
-        private int major = 0;
-        private int red = 10;
-        private int amber = 1;
-
-        private static final int standardBlockerSLA = 3*24*3600;
-        private static final int standardCriticalSLA = 5*24*3600;
-        private static final int standardMajorSLA =  25*24*3600;
-
-        public List<String> getProjects() {
-            return projects;
-        }
-
-        public void addProjects(String project) {
-            if (project.contains(",")) {
-                projects.addAll(Arrays.asList(project.replaceAll(" ", "").replaceAll("\\+", "").split(",")));
-
-            } else {
-                projects.add(project);
-            }
-        }
-
-        public String getProject() {
-            return project;
-        }
-
-        public void setProject(String project) {
-            this.project = project;
-        }
-
-        public String getLabels() {
-            return labels;
-        }
-
-        public void setLabels(String labels) {
-            this.labels = labels;
-        }
-
-        public int getBlocker() {
-            return blocker;
-        }
-
-        public void setBlocker(int blocker) {
-            this.blocker = blocker;
-        }
-
-        public int getCritical() {
-            return critical;
-        }
-
-        public void setCritical(int critical) {
-            this.critical = critical;
-        }
-
-        public int getMajor() {
-            return major;
-        }
-
-        public void setMajor(int major) {
-            this.major = major;
-        }
-
-        public int getRed() {
-            return red;
-        }
-
-        public void setRed(int red) {
-            this.red = red;
-        }
-
-        public int getAmber() {
-            return amber;
-        }
-
-        public void setAmber(int amber) {
-            this.amber = amber;
-        }
-
-        public int getStandardSlaTimeForPriority(String issuePriority) {
-            if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
-               return standardBlockerSLA;
-            }
-            if (issuePriority.equalsIgnoreCase(highPriorityName)) {
-                return standardCriticalSLA;
-            }
-            if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
-                return standardMajorSLA;
-            }
-            return 586;
-        }
-
-        public int getSlaTimeForPriority(String issuePriority) {
-            if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
-                return blocker;
-            }
-            if (issuePriority.equalsIgnoreCase(highPriorityName)) {
-                return critical;
-            }
-            if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
-                return major;
-            }
-
-            return 0;
-        }
-    }
-
-    public static final class SLA{
-
-    }
 }

@@ -28,7 +28,9 @@
     <UserPref name="refresh" datatype="hidden" default_value="false" />
     <UserPref name="projects" datatype="hidden" default_value="projects"/>
     <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
-    <UserPref name="priorityNames" datatype="hidden" default_value="Blocker,Critical,Minor"/>
+    <UserPref name="majorPriorityName" datatype="hidden" default_value="Major"/>
+    <UserPref name="highPriorityName" datatype="hidden" default_value="Critical"/>
+    <UserPref name="highestPriorityName" datatype="hidden" default_value="Blocker"/>
     <UserPref name="blocker" datatype="hidden" default_value="24"/>
     <UserPref name="critical" datatype="hidden" default_value="48"/>
     <UserPref name="major" datatype="hidden" default_value="96"/>
@@ -70,37 +72,51 @@
                                     id: "projects",
                                     userpref: "projects",
                                     class: "numField",
-                                    label: "Projects (comma separated list, ex. 'FACTIVA,DMI')",
+                                    label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
                                     type: "text",
                                     value: gadget.getPref("projects")
                                 },{
                                     id: "labels",
                                     userpref: "labels",
                                     class: "numField",
-                                    label: "Labels:(comma separated list, ex. 'sec-issue,security')",
+                                    label: "Labels(comma separated list, ex. 'sec-issue,security'):",
                                     type: "text",
                                     value: gadget.getPref("labels")
                                 },{
-                                    id: "priorityNames",
-                                    userpref: "priorityNames",
-                                    class: "priorityNames",
-                                    label: "Priority names:(comma separated list, ex. 'blocker, critical, major')",
+                                    id: "highestPriorityName",
+                                    userpref: "highestPriorityName",
+                                    class: "highestPriorityName",
+                                    label: "Highest priority name:",
                                     type: "text",
-                                    value: gadget.getPref("labels")
+                                    value: gadget.getPref("highestPriorityName")
                                 },{
                                     id: "blocker",
                                     userpref: "blocker",
                                     class: "numField",
-                                    label: "Blocker expected triage time, h(ex. 24):",
+                                    label: "Highest expected triage time, h(ex. 24):",
                                     type: "text",
                                     value: gadget.getPref("blocker")
+                                },{
+                                    id: "highPriorityName",
+                                    userpref: "highPriorityName",
+                                    class: "highPriorityName",
+                                    label: "High priority name:",
+                                    type: "text",
+                                    value: gadget.getPref("highPriorityName")
                                 },{
                                     id: "critical",
                                     userpref: "critical",
                                     class: "numField",
-                                    label: "Critical expected triage time, h(ex. 48):",
+                                    label: "High expected triage time, h(ex. 48):",
                                     type: "text",
                                     value: gadget.getPref("critical")
+                                },{
+                                    id: "majorPriorityName",
+                                    userpref: "majorPriorityName",
+                                    class: "majorPriorityName",
+                                    label: "Major priority name:",
+                                    type: "text",
+                                    value: gadget.getPref("majorPriorityName")
                                 },{
                                     id: "major",
                                     userpref: "major",
@@ -138,6 +154,9 @@
                             var configDto = {
                                 projects: gadgets.Prefs().getString("projects"),
                                 labels: gadgets.Prefs().getString("labels"),
+                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
                                 blocker: gadgets.Prefs().getString("blocker"),
                                 critical: gadgets.Prefs().getString("critical"),
                                 major: gadgets.Prefs().getString("major"),
@@ -168,7 +187,7 @@
                                 },
                                 tooltip: {
                                     useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px">{point.name}<br/>Risk Score: {point.value}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.value}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
@@ -215,6 +234,9 @@
                                             data: {
                                                 projects: gadgets.Prefs().getString("projects"),
                                                 labels: gadgets.Prefs().getString("labels"),
+                                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
                                                 blocker: gadgets.Prefs().getString("blocker"),
                                                 critical: gadgets.Prefs().getString("critical"),
                                                 major: gadgets.Prefs().getString("major"),
