@@ -57,6 +57,7 @@
                     descriptor: function(args) {
                         var gadget = this;
                         var allProjects = args.allProjects;
+
                         return {
                                 theme : function() {
                                     //set where settings will be
@@ -68,6 +69,13 @@
                                 }(),
                                     //set settings to be return(create fields on config page)
                                 fields: [
+                                {
+                                    type: "custom",
+                                    userpref: "myfield",
+                                    template: function(){
+                                        return "<table width = '100%'><tr><td>";
+                                    }
+                                },
                                 {
                                     id: "projects",
                                     userpref: "projects",
@@ -138,6 +146,24 @@
                                     label: "Health status 'Amber' score value:",
                                     type: "text",
                                     value: gadget.getPref("amber")
+                                },{
+                                    type: "custom",
+                                    userpref: "myfield",
+                                    template: function(){
+                                        return "</td><td>";
+                                    }
+                                },{
+                                    type: "custom",
+                                    userpref: "myfield",
+                                    template: function(){
+                                        return "<div>Risk Score = (Blcokers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)</div>";
+                                    }
+                                },{
+                                    type: "custom",
+                                    userpref: "myfield1",
+                                    template: function(){
+                                        return "</td></tr></table>";
+                                    }
                                 },
                                  AJS.gadget.fields.nowConfigured()
                                 ]
@@ -194,9 +220,8 @@
                                         dataLabels: {
                                             enabled: true,
                                             allowOverlap: false,
-                                            borderRadius:0,
                                             useHTML: true,
-                                            format: '{point.name}<br /> <span style="white-space: nowrap">Risk score: {point.value}</span>',
+                                            format: '<div style="margin-left: 10px">{point.name}<br /> <span style="white-space: nowrap"> Risk score: {point.value}</span></div>',
                                             style: {
                                                 fontWeight: 'bold',
                                                 fontSize: '16px',
