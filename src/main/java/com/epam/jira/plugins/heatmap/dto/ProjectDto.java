@@ -9,6 +9,7 @@ public class ProjectDto {
     private int blocker=0;
     private int major=0;
     private int minor=0;
+    private int squareSize =0;
 
     public ProjectDto(String projectName){
         this.projectName = projectName;
@@ -37,6 +38,7 @@ public class ProjectDto {
 
     public void setRisk_score(int risk_score) {
         this.risk_score = risk_score;
+        this.squareSize = risk_score;
     }
 
     public String getLink() {
@@ -77,6 +79,12 @@ public class ProjectDto {
 
     public void incrementRateScore(int value){
         risk_score+=value;
+        squareSize+=value;
+    }
+
+    public void incrementRateScore(){
+        risk_score++;
+        squareSize++;
     }
 
     public void increntBlocker() {
@@ -93,5 +101,13 @@ public class ProjectDto {
 
     public void incrementMinor() {
         minor++;
+    }
+
+    public int getSquareSize() {
+        return squareSize;
+    }
+
+    public void incrementSquareSize(int minCalculated) {
+        squareSize+=minCalculated;
     }
 }

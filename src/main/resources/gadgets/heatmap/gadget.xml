@@ -28,6 +28,7 @@
     <UserPref name="refresh" datatype="hidden" default_value="false" />
     <UserPref name="projects" datatype="hidden" default_value="projects"/>
     <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
+    <UserPref name="priorityNames" datatype="hidden" default_value="Blocker,Critical,Minor"/>
     <UserPref name="blocker" datatype="hidden" default_value="24"/>
     <UserPref name="critical" datatype="hidden" default_value="48"/>
     <UserPref name="major" datatype="hidden" default_value="96"/>
@@ -43,6 +44,7 @@
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
+            <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script type="text/javascript">
              AJS.$(document).ready((function() {
                 (function ($) {
@@ -76,6 +78,13 @@
                                     userpref: "labels",
                                     class: "numField",
                                     label: "Labels:(comma separated list, ex. 'sec-issue,security')",
+                                    type: "text",
+                                    value: gadget.getPref("labels")
+                                },{
+                                    id: "priorityNames",
+                                    userpref: "priorityNames",
+                                    class: "priorityNames",
+                                    label: "Priority names:(comma separated list, ex. 'blocker, critical, major')",
                                     type: "text",
                                     value: gadget.getPref("labels")
                                 },{
@@ -158,16 +167,21 @@
                                     alternateStartingDirection: true,
                                 },
                                 tooltip: {
-                                    pointFormat: 'Risk Score: {point.value}<br />Blocker: {point.blocker}<br />Critical: {point.critical}<br />Major: {point.major}'
+                                    useHTML: true,
+                                    pointFormat: '<span style="font-size: 14px">{point.name}<br/>Risk Score: {point.value}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
                                         dataLabels: {
                                             enabled: true,
-                                            format: '{point.name}<br /> Risk score: {point.value}',
+                                            allowOverlap: false,
+                                            borderRadius:0,
+                                            useHTML: true,
+                                            format: '{point.name}<br /> <span style="white-space: nowrap">Risk score: {point.value}</span>',
                                             style: {
                                                 fontWeight: 'bold',
-                                                fontSize: '20px'
+                                                fontSize: '16px',
+                                                textOutline:'0px'
                                             }
                                         },
                                         cursor: 'pointer',

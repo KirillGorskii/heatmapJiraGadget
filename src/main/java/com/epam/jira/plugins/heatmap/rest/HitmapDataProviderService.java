@@ -34,6 +34,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 
 
 @Path("gadget/heatmap")
@@ -102,11 +103,33 @@ public class HitmapDataProviderService {
             calculateRateScoreBaseOnOverallData(dto);
             setColour(dto, configDto);
             if (dto.getRisk_score() == 0) {
-                dto.incrementRateScore(1);
+                dto.incrementRateScore();
             }
             results.add(dto);
         }
         return results;
+    }
+
+    private void setMinimumValueToRender(List<ProjectDto> results) {
+        IntStream intStream = results.stream().mapToInt(ProjectDto::getSquareSize);
+        int minValueFromProj = intStream.min().getAsInt();
+        int summ = intStream.sum();
+        int minCalculated = summ/(4*results.size());
+        if (minValueFromProj < minCalculated){
+            int count = 0;
+            while (count < 3 || minValueFromProj < minCalculated){
+                count++;
+                for(ProjectDto projectDto: results){
+                    projectDto.incrementSquareSize(minCalculated);
+                }
+                summ = intStream.sum();
+                minCalculated = summ/(4*results.size());
+                minValueFromProj+=minCalculated;
+
+                minCalculated = summ/(4*results.size());
+            }
+        }
+        intStream.close();
     }
 
     private void setColour(ProjectDto dto, ConfigDTO configDTO) {
@@ -135,7 +158,7 @@ public class HitmapDataProviderService {
         long dueDate = createdTime + (hoursBetweenDueDateAndCreated * 60 * 60 * 1000);
         if (now.getTime() > dueDate) {
             incrementPriorityCounter(issue.getPriority().getName(), projectDto);
-            projectDto.incrementRateScore(1);
+            projectDto.incrementRateScore();
         }
     }
 
@@ -229,24 +252,18 @@ public class HitmapDataProviderService {
             configDto.setAmber(Integer.parseInt(amber));
         }
     }
-    @XmlRootElement
-    @XmlAccessorType(XmlAccessType.FIELD)
+
     public static final class ConfigDTO {
         private List<String> projects = new LinkedList<>();
 
-        @XmlElement
+
         private String project;
-        @XmlElement
+
         private String labels;
-        @XmlElement
         private int blocker = 0;
-        @XmlElement
         private int critical = 0;
-        @XmlElement
         private int major = 0;
-        @XmlElement
         private int red = 10;
-        @XmlElement
         private int amber = 1;
 
         private static final int standardBlockerSLA = 3*24*3600;
