@@ -95,35 +95,48 @@ public class HitmapDataProviderService {
 
     private void setMinimumValueToRender(List<ProjectDto> results) {
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
+        int minValue = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
+        if( minValue < (minValue*200)/summ) {
+           recalculateSquresSizes(results);
+        }
+
+    }
+
+    private void recalculateSquresSizes(List<ProjectDto> results) {
+        int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         int count = 0;
-        for(ProjectDto projectDto: results){
-            int calculateValue = (projectDto.getSquareSize()*100)/summ;
-            if(calculateValue<1){
+        for (ProjectDto projectDto : results) {
+            int calculateValue = (projectDto.getSquareSize() * 200) / summ;
+            if (calculateValue < 1) {
                 calculateValue++;
                 count++;
             }
             projectDto.setSquareSize(calculateValue);
         }
-        if(count > 0 && results.size()>1){
-            summ = results.stream().filter(dto -> dto.getSquareSize()>1).mapToInt(ProjectDto::getSquareSize).sum();
-            float overallWeight = 0;
-            for (ProjectDto projectDto: results){
-                int squareSize = projectDto.getSquareSize();
-                if(squareSize!=1){
-                    overallWeight += (float)squareSize/(summ-squareSize);
-                }
-            }
-            for (ProjectDto projectDto: results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())){
-                int squareSize = projectDto.getSquareSize();
-                if(squareSize!=1 && overallWeight>0){
-                    int valueToDecrement = Math.round((count * squareSize)/overallWeight);
-                    overallWeight-=overallWeight;
-                    count--;
-                    projectDto.setSquareSize(squareSize - valueToDecrement);
-                }
+        if (count > 0 && results.size() > 1) {
+            correctionsInCalculations(results, count);
+        }
+    }
+
+
+    private void correctionsInCalculations(List<ProjectDto> results, int count){
+        int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
+        float overallWeight = 0;
+        for (ProjectDto projectDto : results) {
+            int squareSize = projectDto.getSquareSize();
+            if (squareSize != 1) {
+                overallWeight += (float) squareSize / (summ - squareSize);
             }
         }
-
+        for (ProjectDto projectDto : results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())) {
+            int squareSize = projectDto.getSquareSize();
+            if (squareSize != 1 && overallWeight > 0) {
+                int valueToDecrement = Math.round((count * squareSize) / overallWeight);
+                overallWeight -= overallWeight;
+                count--;
+                projectDto.setSquareSize(squareSize - valueToDecrement);
+            }
+        }
     }
 
 
