@@ -41,10 +41,12 @@
         <![CDATA[
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
-            #requireResource("com.epam.jira.plugins.heatmap:heatmapContext")
+            #requireResource("com.epam.jira.plugins.heatmap:heatmap-resourcesprojects")
             #includeResources()
             <style type="text/css">
-
+                .highcharts-point{
+                    min-width: 300px;
+                }
             </style>
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -202,6 +204,7 @@
                                     height: '50%',
                                     layoutAlgorithm: 'squarified',
                                     alternateStartingDirection: true,
+                                    zoomType: 'xy'
                                 },
                                 tooltip: {
                                     useHTML: true,
@@ -236,6 +239,16 @@
                                     data: seriesData
 
                                 }],
+                                xAxis: {
+                                    scrollbar: {
+                                        enabled: true
+                                    }
+                                },
+                                yAxis: {
+                                    scrollbar: {
+                                        enabled: true
+                                    }
+                                },
                                 title: {
                                     text: 'Projects Status Heatmap'
                                 }

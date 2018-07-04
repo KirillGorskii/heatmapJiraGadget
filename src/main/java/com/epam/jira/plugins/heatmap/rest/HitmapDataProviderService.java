@@ -93,13 +93,14 @@ public class HitmapDataProviderService {
     }
 
     private void setMinimumValueToRender(List<ProjectDto> results) {
-        int testValue = 10*results.size();
+        int testValue = calculateRateForMinSize(results.size());
+
         int minValueFromProj = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         int minCalculated = summ/testValue;
         if (minValueFromProj < minCalculated){
             int count = 0;
-            while (count < 3 && minValueFromProj < minCalculated){
+            while (count < 50 && minValueFromProj < minCalculated){
                 count++;
                 for(ProjectDto projectDto: results){
                     projectDto.incrementSquareSize(minCalculated);
@@ -108,6 +109,16 @@ public class HitmapDataProviderService {
                 summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
                 minCalculated = summ/testValue;
             }
+        }
+    }
+
+    private int calculateRateForMinSize(int size) {
+        if (size > 50) {
+            return size;
+        } else if (size > 10) {
+            return size * 4;
+        } else{
+            return size*10;
         }
     }
 
