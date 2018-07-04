@@ -45,6 +45,10 @@ public class ProjectDto {
         return link;
     }
 
+    public void setSquareSize(int squareSize) {
+        this.squareSize = squareSize;
+    }
+
     public void setLink(String link) {
         this.link = link;
     }

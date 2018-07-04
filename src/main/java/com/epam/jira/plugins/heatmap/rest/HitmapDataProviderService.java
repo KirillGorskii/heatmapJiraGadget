@@ -35,6 +35,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -93,34 +94,38 @@ public class HitmapDataProviderService {
     }
 
     private void setMinimumValueToRender(List<ProjectDto> results) {
-        int testValue = calculateRateForMinSize(results.size());
-
-        int minValueFromProj = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
-        int minCalculated = summ/testValue;
-        if (minValueFromProj < minCalculated){
-            int count = 0;
-            while (count < 50 && minValueFromProj < minCalculated){
+        int count = 0;
+        for(ProjectDto projectDto: results){
+            int calculateValue = (projectDto.getSquareSize()*100)/summ;
+            if(calculateValue<1){
+                calculateValue++;
                 count++;
-                for(ProjectDto projectDto: results){
-                    projectDto.incrementSquareSize(minCalculated);
+            }
+            projectDto.setSquareSize(calculateValue);
+        }
+        if(count > 0 && results.size()>1){
+            summ = results.stream().filter(dto -> dto.getSquareSize()>1).mapToInt(ProjectDto::getSquareSize).sum();
+            float overallWeight = 0;
+            for (ProjectDto projectDto: results){
+                int squareSize = projectDto.getSquareSize();
+                if(squareSize!=1){
+                    overallWeight += (float)squareSize/(summ-squareSize);
                 }
-                minValueFromProj+=minCalculated;
-                summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
-                minCalculated = summ/testValue;
+            }
+            for (ProjectDto projectDto: results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())){
+                int squareSize = projectDto.getSquareSize();
+                if(squareSize!=1 && overallWeight>0){
+                    int valueToDecrement = Math.round((count * squareSize)/overallWeight);
+                    overallWeight-=overallWeight;
+                    count--;
+                    projectDto.setSquareSize(squareSize - valueToDecrement);
+                }
             }
         }
+
     }
 
-    private int calculateRateForMinSize(int size) {
-        if (size > 50) {
-            return size;
-        } else if (size > 10) {
-            return size * 4;
-        } else{
-            return size*10;
-        }
-    }
 
     private void setColour(ProjectDto dto, ConfigDTO configDTO) {
         if (dto.getRisk_score() > configDTO.getRed()) {
