@@ -43,6 +43,9 @@
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
             #requireResource("com.epam.jira.plugins.heatmap:heatmapContext")
             #includeResources()
+            <style type="text/css">
+
+            </style>
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
@@ -73,10 +76,9 @@
                                     type: "custom",
                                     userpref: "myfield",
                                     template: function(){
-                                        return "<table width = '100%'><tr><td>";
+                                        return "<table width = '100%'><tr><td width = '30%'>";
                                     }
-                                },
-                                {
+                                },{
                                     id: "projects",
                                     userpref: "projects",
                                     class: "numField",
@@ -150,7 +152,7 @@
                                     type: "custom",
                                     userpref: "myfield",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</td><td valign='top' align='left'>";
                                     }
                                 },{
                                     type: "custom",
@@ -177,25 +179,15 @@
                         template: function(args) {
                         var gadget = this;
                         gadget.getView().html("<div id='container'/>");
-                            var configDto = {
-                                projects: gadgets.Prefs().getString("projects"),
-                                labels: gadgets.Prefs().getString("labels"),
-                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-                                blocker: gadgets.Prefs().getString("blocker"),
-                                critical: gadgets.Prefs().getString("critical"),
-                                major: gadgets.Prefs().getString("major"),
-                                red: gadgets.Prefs().getString("red"),
-                                amber: gadgets.Prefs().getString("amber")
-                            }
+
                             var records = args.records;
                             var seriesData = [];
                             records.forEach(function(record){
                                 seriesData.push({
                                     name: record.projectName,
                                     color: record.color,
-                                    value: record.risk_score,
+                                    value: record.squareSize,
+                                    risk_score: record.risk_score,
                                     link: record.link,
                                     critical: record.critical,
                                     blocker: record.blocker,
@@ -213,7 +205,7 @@
                                 },
                                 tooltip: {
                                     useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.value}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.risk_score}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
@@ -221,7 +213,7 @@
                                             enabled: true,
                                             allowOverlap: false,
                                             useHTML: true,
-                                            format: '<div style="margin-left: 10px">{point.name}<br /> <span style="white-space: nowrap"> Risk score: {point.value}</span></div>',
+                                            format: '<div style="margin-left: 10px">{point.name}<br /> <span style="white-space: nowrap"> Risk score: {point.risk_score}</span></div>',
                                             style: {
                                                 fontWeight: 'bold',
                                                 fontSize: '16px',

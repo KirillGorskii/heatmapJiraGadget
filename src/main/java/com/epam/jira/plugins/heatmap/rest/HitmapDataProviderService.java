@@ -88,29 +88,27 @@ public class HitmapDataProviderService {
             }
             results.add(dto);
         }
+        setMinimumValueToRender(results);
         return results;
     }
 
     private void setMinimumValueToRender(List<ProjectDto> results) {
-        IntStream intStream = results.stream().mapToInt(ProjectDto::getSquareSize);
-        int minValueFromProj = intStream.min().getAsInt();
-        int summ = intStream.sum();
-        int minCalculated = summ/(4*results.size());
+        int testValue = 10*results.size();
+        int minValueFromProj = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
+        int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
+        int minCalculated = summ/testValue;
         if (minValueFromProj < minCalculated){
             int count = 0;
-            while (count < 3 || minValueFromProj < minCalculated){
+            while (count < 3 && minValueFromProj < minCalculated){
                 count++;
                 for(ProjectDto projectDto: results){
                     projectDto.incrementSquareSize(minCalculated);
                 }
-                summ = intStream.sum();
-                minCalculated = summ/(4*results.size());
                 minValueFromProj+=minCalculated;
-
-                minCalculated = summ/(4*results.size());
+                summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
+                minCalculated = summ/testValue;
             }
         }
-        intStream.close();
     }
 
     private void setColour(ProjectDto dto, ConfigDTO configDTO) {
