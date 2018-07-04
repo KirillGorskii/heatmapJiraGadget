@@ -27,16 +27,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Path("gadget/heatmap")
@@ -96,8 +91,8 @@ public class HitmapDataProviderService {
     private void setMinimumValueToRender(List<ProjectDto> results) {
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         int minValue = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
-        if( minValue < (minValue*200)/summ) {
-           recalculateSquresSizes(results);
+        if (minValue <( (minValue * 200) / summ)) {
+            recalculateSquresSizes(results);
         }
 
     }
@@ -119,7 +114,7 @@ public class HitmapDataProviderService {
     }
 
 
-    private void correctionsInCalculations(List<ProjectDto> results, int count){
+    private void correctionsInCalculations(List<ProjectDto> results, int count) {
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         float overallWeight = 0;
         for (ProjectDto projectDto : results) {
@@ -151,7 +146,7 @@ public class HitmapDataProviderService {
     }
 
     private void calculateRateScoreBaseOnOverallData(ProjectDto dto) {
-        dto.incrementRateScore( dto.getBlocker() * 10);
+        dto.incrementRateScore(dto.getBlocker() * 10);
         dto.incrementRateScore(dto.getCritical());
         dto.incrementRateScore(dto.getMajor() / 20);
     }
@@ -189,10 +184,10 @@ public class HitmapDataProviderService {
 
         if (hours == 0) {
             Timestamp due = issue.getDueDate();
-            if(due!=null){
+            if (due != null) {
                 long milesecondsBetweenDueAndCreated = due.getTime() - issue.getCreated().getTime();
                 hours = Math.toIntExact(milesecondsBetweenDueAndCreated / (60 * 60 * 1000));
-            } else{
+            } else {
                 return configDto.getStandardSlaTimeForPriority(issuePriority);
             }
         }
@@ -203,9 +198,9 @@ public class HitmapDataProviderService {
         StringBuilder builder = new StringBuilder();
         builder.append(jiraUrl).append("/issues/?jql=project%20%3D%20").append(project)
                 .append("%20and%20priority%20in%20(")
-        .append(configDto.getHighestPriorityName()).append("%2C%20").append(configDto.getHighPriorityName())
+                .append(configDto.getHighestPriorityName()).append("%2C%20").append(configDto.getHighPriorityName())
                 .append("%2C%20").append(configDto.getMiddlePriorityName()).append(")%20and%20status%20not%20in%20(Closed%2C%20Resolved)");
-        if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
+        if (configDto.getLabels() != null && configDto.getLabels().length() > 0 && !configDto.getLabels().equals("-")) {
             builder.append("%20and%20labels%20in%20(").append(configDto.getLabels()).append(")");
         }
         return builder.toString();
@@ -217,8 +212,8 @@ public class HitmapDataProviderService {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("project = '").append(projectKey).append("' AND priority IN (").append(configDto.getHighestPriorityName()).append(",")
-                    .append( configDto.getHighPriorityName()).append(",").append(configDto.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
-            if (configDto.getLabels() != null &&configDto.getLabels().length()>0&&!configDto.getLabels().equals("-")) {
+                    .append(configDto.getHighPriorityName()).append(",").append(configDto.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
+            if (configDto.getLabels() != null && configDto.getLabels().length() > 0 && !configDto.getLabels().equals("-")) {
                 builder.append("and labels in (").append(configDto.getLabels()).append(")");
             }
             query = parser.parseQuery(builder.toString());
