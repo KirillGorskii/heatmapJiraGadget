@@ -91,7 +91,7 @@ public class HitmapDataProviderService {
     private void setMinimumValueToRender(List<ProjectDto> results) {
         int summ = results.stream().mapToInt(ProjectDto::getRisk_score).sum();
         int minValue = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
-        if (((float)minValue/summ) <= ((float)1 / 100)) {
+        if (((float)minValue/summ) <= ((float)1 / 200)) {
             recalculateSquresSizes(results);
         }
 
@@ -101,7 +101,7 @@ public class HitmapDataProviderService {
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         int count = 0;
         for (ProjectDto projectDto : results) {
-            int calculateValue = (projectDto.getSquareSize() * 100) / summ;
+            int calculateValue = (projectDto.getSquareSize() * 200) / summ;
             if (calculateValue < 1) {
                 calculateValue++;
                 count++;
