@@ -91,7 +91,7 @@ public class HitmapDataProviderService {
     private void setMinimumValueToRender(List<ProjectDto> results) {
         int summ = results.stream().mapToInt(ProjectDto::getRisk_score).sum();
         int minValue = results.stream().mapToInt(ProjectDto::getSquareSize).min().getAsInt();
-        if (minValue <= (summ / 100)) {
+        if (((float)minValue/summ) <= ((float)1 / 100)) {
             recalculateSquresSizes(results);
         }
 
@@ -123,11 +123,12 @@ public class HitmapDataProviderService {
                 overallWeight += (float) squareSize / (summ - squareSize);
             }
         }
+        int projectsToDecrement = (int) results.stream().filter(dto -> dto.getSquareSize()>1).count();
         for (ProjectDto projectDto : results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())) {
             int squareSize = projectDto.getSquareSize();
             if (squareSize != 1 && overallWeight > 0) {
-                int valueToDecrement = Math.round((count * squareSize) / overallWeight);
-                overallWeight -= overallWeight;
+                int valueToDecrement = Math.round((count * ((float) squareSize / (summ - squareSize))) / overallWeight);
+                overallWeight -= valueToDecrement;
                 count--;
                 projectDto.setSquareSize(squareSize - valueToDecrement);
             }
