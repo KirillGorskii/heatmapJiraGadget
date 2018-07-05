@@ -76,80 +76,169 @@
                                 fields: [
                                 {
                                     type: "custom",
-                                    userpref: "myfield",
                                     template: function(){
-                                        return "<table width = '100%'><tr><td width = '30%'>";
+                                        return "<p>Issues filter settings</p><table id='parentTable' class='parentTable' width = '100%'><tr><td width = '30%'>";
                                     }
                                 },{
                                     id: "projects",
                                     userpref: "projects",
                                     class: "numField",
                                     label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
-                                    type: "text",
-                                    value: gadget.getPref("projects")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                       parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "projects",
+                                                type: "text",
+                                                class: "text",
+                                                name:"projects"
+                                            }).val(gadget.getPref("projects"))
+                                        );
+                                    }
                                 },{
                                     id: "labels",
                                     userpref: "labels",
                                     class: "numField",
                                     label: "Labels(comma separated list, ex. 'sec-issue,security'):",
-                                    type: "text",
-                                    value: gadget.getPref("labels")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "labels",
+                                                type: "text",
+                                                class: "text",
+                                                name:"labels"
+                                            }).val(gadget.getPref("labels"))
+                                        );
+                                    }
                                 },{
                                     id: "highestPriorityName",
                                     userpref: "highestPriorityName",
-                                    class: "highestPriorityName",
+                                    class: "numField",
                                     label: "Highest priority name:",
-                                    type: "text",
-                                    value: gadget.getPref("highestPriorityName")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "highestPriorityName",
+                                                type: "text",
+                                                class: "text",
+                                                name:"highestPriorityName"
+                                            }).val(gadget.getPref("highestPriorityName"))
+                                        );
+                                    }
                                 },{
                                     id: "blocker",
                                     userpref: "blocker",
                                     class: "numField",
                                     label: "Highest expected triage time, h(ex. 24):",
-                                    type: "text",
-                                    value: gadget.getPref("blocker")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "blocker",
+                                                type: "text",
+                                                class: "text",
+                                                name:"blocker"
+                                            }).val(gadget.getPref("blocker"))
+                                        );
+                                    }
                                 },{
                                     id: "highPriorityName",
                                     userpref: "highPriorityName",
                                     class: "highPriorityName",
                                     label: "High priority name:",
-                                    type: "text",
-                                    value: gadget.getPref("highPriorityName")
+                                     type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "highPriorityName",
+                                                type: "text",
+                                                class: "text",
+                                                name:"highPriorityName"
+                                            }).val(gadget.getPref("highPriorityName"))
+                                        );
+                                    }
                                 },{
                                     id: "critical",
                                     userpref: "critical",
                                     class: "numField",
                                     label: "High expected triage time, h(ex. 48):",
-                                    type: "text",
-                                    value: gadget.getPref("critical")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "critical",
+                                                type: "text",
+                                                class: "text",
+                                                name:"critical"
+                                            }).val(gadget.getPref("critical"))
+                                        );
+                                    }
                                 },{
                                     id: "majorPriorityName",
                                     userpref: "majorPriorityName",
                                     class: "majorPriorityName",
                                     label: "Major priority name:",
-                                    type: "text",
-                                    value: gadget.getPref("majorPriorityName")
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "majorPriorityName",
+                                                type: "text",
+                                                class: "text",
+                                                name:"majorPriorityName"
+                                            }).val(gadget.getPref("majorPriorityName"))
+                                        );
+                                    }
                                 },{
                                     id: "major",
                                     userpref: "major",
                                     class: "numField",
                                     label: "Major expected triage time, h(ex. 96):",
-                                    type: "text",
-                                    value: gadget.getPref("major")
+                                     type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "major",
+                                                type: "text",
+                                                class: "text",
+                                                name:"major"
+                                            }).val(gadget.getPref("major"))
+                                        );
+                                    }
                                 },{
                                     id: "red",
                                     userpref: "red",
                                     class: "numField",
                                     label: "Health status 'Red' score value:",
-                                    type: "text",
-                                    value: gadget.getPref("red")
+                                     type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "red",
+                                                type: "text",
+                                                class: "text",
+                                                name:"red"
+                                            }).val(gadget.getPref("red"))
+                                        );
+                                    }
                                 },{
                                     id: "amber",
                                     userpref: "amber",
                                     class: "numField",
                                     label: "Health status 'Amber' score value:",
-                                    type: "text",
-                                    value: gadget.getPref("amber")
+                                     type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "amber",
+                                                type: "text",
+                                                class: "text",
+                                                name:"amber"
+                                            }).val(gadget.getPref("amber"))
+                                        );
+                                    }
                                 },{
                                     type: "custom",
                                     userpref: "myfield",
@@ -208,7 +297,7 @@
                                 },
                                 tooltip: {
                                     useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.risk_score}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/><span style="white-space: nowrap">Risk Score: {point.risk_score}</span><br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
