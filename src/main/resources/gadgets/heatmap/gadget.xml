@@ -28,6 +28,7 @@
     <UserPref name="refresh" datatype="hidden" default_value="false" />
     <UserPref name="projects" datatype="hidden" default_value="projects"/>
     <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
+    <UserPref name="cellsNumber" datatype="hidden" default_value="50"/>
     <UserPref name="majorPriorityName" datatype="hidden" default_value="Major"/>
     <UserPref name="highPriorityName" datatype="hidden" default_value="Critical"/>
     <UserPref name="highestPriorityName" datatype="hidden" default_value="Blocker"/>
@@ -109,6 +110,22 @@
                                                 class: "text",
                                                 name:"labels"
                                             }).val(gadget.getPref("labels"))
+                                        );
+                                    }
+                                },{
+                                    id: "cellsNumber",
+                                    userpref: "cellsNumber",
+                                    class: "numField",
+                                    label: "Set number of cells:",
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "cellsNumber",
+                                                type: "text",
+                                                class: "text",
+                                                name:"cellsNumber"
+                                            }).val(gadget.getPref("cellsNumber"))
                                         );
                                     }
                                 },{
@@ -297,7 +314,7 @@
                                 },
                                 tooltip: {
                                     useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/><span style="white-space: nowrap">Risk Score: {point.risk_score}</span><br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.risk_score}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
@@ -305,7 +322,7 @@
                                             enabled: true,
                                             allowOverlap: false,
                                             useHTML: true,
-                                            format: '<div style="margin-left: 10px">{point.name}<br /> <span style="white-space: nowrap"> Risk score: {point.risk_score}</span></div>',
+                                            format: '<div style="margin-left: 10px">{point.name}<br />  Risk score: {point.risk_score}</div>',
                                             style: {
                                                 fontWeight: 'bold',
                                                 fontSize: '16px',
@@ -354,6 +371,7 @@
                                                 projects: gadgets.Prefs().getString("projects"),
                                                 labels: gadgets.Prefs().getString("labels"),
                                                 majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                                cellsNumber: gadgets.Prefs().getString("cellsNumber"),
                                                 highPriorityName: gadgets.Prefs().getString("highPriorityName"),
                                                 highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
                                                 blocker: gadgets.Prefs().getString("blocker"),

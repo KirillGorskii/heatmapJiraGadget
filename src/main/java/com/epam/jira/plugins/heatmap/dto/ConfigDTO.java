@@ -15,14 +15,23 @@ public class ConfigDTO {
     private int major = 0;
     private int red = 10;
     private int amber = 1;
+    private int cellsNumber = 50;
+
+    public int getCellsNumber() {
+        return cellsNumber;
+    }
+
+    public void setCellsNumber(int cellsNumber) {
+        this.cellsNumber = cellsNumber;
+    }
 
     private String highestPriorityName = "blocker";
     private String highPriorityName = "critical";
     private String middlePriorityName = "major";
 
-    private static final int standardBlockerSLA = 3*24*3600;
-    private static final int standardCriticalSLA = 5*24*3600;
-    private static final int standardMajorSLA =  25*24*3600;
+    private static final int standardBlockerSLA = 3 * 24 * 3600;
+    private static final int standardCriticalSLA = 5 * 24 * 3600;
+    private static final int standardMajorSLA = 25 * 24 * 3600;
 
     public String getHighestPriorityName() {
         return highestPriorityName;
@@ -47,6 +56,7 @@ public class ConfigDTO {
     public void setMiddlePriorityName(String middlePriorityName) {
         this.middlePriorityName = middlePriorityName;
     }
+
     public List<String> getProjects() {
         return projects;
     }
@@ -143,17 +153,17 @@ public class ConfigDTO {
         return 0;
     }
 
-    public ConfigDTO(HttpServletRequest request){
+    public ConfigDTO(HttpServletRequest request) {
         Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
         addProjects(queryMap.get("projects"));
         setLabels(queryMap.get("labels"));
-        if(queryMap.get("highestPriorityName")!=null) {
+        if (queryMap.get("highestPriorityName") != null) {
             setHighestPriorityName(queryMap.get("highestPriorityName"));
         }
-        if(queryMap.get("highPriorityName")!=null) {
-           setHighPriorityName(queryMap.get("highPriorityName"));
+        if (queryMap.get("highPriorityName") != null) {
+            setHighPriorityName(queryMap.get("highPriorityName"));
         }
-        if(queryMap.get("majorPriorityName")!=null) {
+        if (queryMap.get("majorPriorityName") != null) {
             setMiddlePriorityName(queryMap.get("majorPriorityName"));
         }
         String block = queryMap.get(highestPriorityName);
@@ -168,7 +178,6 @@ public class ConfigDTO {
         if (mj != null && !mj.isEmpty()) {
             major = Integer.parseInt(mj);
         }
-
         String red = queryMap.get("red");
         if (red != null && !red.isEmpty()) {
             this.red = Integer.parseInt(red);
@@ -176,6 +185,10 @@ public class ConfigDTO {
         String amber = queryMap.get("amber");
         if (amber != null && !amber.isEmpty()) {
             this.amber = Integer.parseInt(amber);
+        }
+        String cellsNumber = queryMap.get("cellsNumber");
+        if(cellsNumber != null && !cellsNumber.isEmpty()){
+            this.cellsNumber = Integer.parseInt(cellsNumber);
         }
     }
 
