@@ -101,7 +101,7 @@ public class HitmapDataProviderService {
         int summ = results.stream().mapToInt(ProjectDto::getSquareSize).sum();
         int count = 0;
         for (ProjectDto projectDto : results) {
-            int calculateValue = (projectDto.getSquareSize() *configDto.getCellsNumber()) / summ;
+            int calculateValue = (projectDto.getSquareSize() * configDto.getCellsNumber()) / summ;
             if (calculateValue < 1) {
                 calculateValue++;
                 count++;
@@ -123,7 +123,7 @@ public class HitmapDataProviderService {
                 overallWeight += (float) squareSize / (summ - squareSize);
             }
         }
-            int projectsToDecrement = (int) results.stream().filter(dto -> dto.getSquareSize() > 1).count();
+        int projectsToDecrement = (int) results.stream().filter(dto -> dto.getSquareSize() > 1).count();
         for (ProjectDto projectDto : results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())) {
             int squareSize = projectDto.getSquareSize();
             if (squareSize != 1 && overallWeight > 0) {

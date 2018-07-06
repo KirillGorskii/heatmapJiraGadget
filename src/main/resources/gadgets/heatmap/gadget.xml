@@ -83,7 +83,7 @@
                                 {
                                     type: "custom",
                                     template: function(){
-                                        return "<table id='parentTable' class='parentTable'><tr><td><strong class='titleText'>Issues filter settings</strong></tr></td><tr><td class='cell'>";
+                                        return "<table id='parentTable' class='parentTable'><tr><td><strong class='titleText'>Issues filter settings</strong></tr></td><tr><td>";
                                     }
                                 },{
                                     id: "projects",
@@ -104,7 +104,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td class='cell'>";
+                                        return "</td><td>";
                                     }
                                 },{
                                     id: "labels",
@@ -125,7 +125,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Triage SLA Settings</strong></td></tr><tr><td class='cell'>";
+                                        return "</td></tr><tr><td><strong class='titleText'>Triage SLA Settings</strong></td></tr><tr><td>";
                                     }
                                 },{
                                     id: "highestPriorityName",
@@ -146,7 +146,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td class='cell'>";
+                                        return "</td><td>";
                                     }
                                 },{
                                     id: "blocker",
@@ -155,6 +155,9 @@
                                     label: "Highest expected triage time, h(ex. 24):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$(document).on("input", "#blocker", function() {
+                                            this.value = this.value.replace(/\D/g,'');
+                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "blocker",
@@ -167,7 +170,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td class='cell'>";
+                                        return "</td></tr><tr><td>";
                                     }
                                 },{
                                     id: "highPriorityName",
@@ -188,7 +191,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td class='cell'>";
+                                        return "</td><td>";
                                     }
                                 },{
                                     id: "critical",
@@ -197,6 +200,9 @@
                                     label: "High expected triage time, h(ex. 48):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$(document).on("input", "#critical", function() {
+                                            this.value = this.value.replace(/\D/g,'');
+                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "critical",
@@ -209,7 +215,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td class='cell'>";
+                                        return "</td></tr><tr><td>";
                                     }
                                 },{
                                     id: "majorPriorityName",
@@ -230,7 +236,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td class='cell'>";
+                                        return "</td><td>";
                                     }
                                 },{
                                     id: "major",
@@ -239,6 +245,9 @@
                                     label: "Major expected triage time, h(ex. 96):",
                                      type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                    AJS.$(document).on("input", "#major", function() {
+                                                this.value = this.value.replace(/\D/g,'');
+                                            });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "major",
@@ -251,15 +260,18 @@
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Heatmap Thresholds Settings</strong></td></tr><tr><td class='cell'>";
+                                        return "</td></tr><tr><td><strong class='titleText'>Heatmap Thresholds Settings</strong></td></tr><tr><td>";
                                     }
                                 }, {
                                     id: "red",
                                     userpref: "red",
                                     class: "numField",
                                     label: "Health status 'Red' score value:",
-                                     type: "callbackBuilder",
+                                    type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$(document).on("input", "#red", function() {
+                                            this.value = this.value.replace(/\D/g,'');
+                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "red",
@@ -272,7 +284,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td class='cell'>";
+                                        return "</td><td>";
                                     }
                                 },{
                                     id: "amber",
@@ -281,6 +293,9 @@
                                     label: "Health status 'Amber' score value:",
                                      type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$(document).on("input", "#amber", function() {
+                                            this.value = this.value.replace(/\D/g,'');
+                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "amber",
@@ -293,7 +308,7 @@
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Advanced settings</strong></td></tr><tr><td class='cell'>";
+                                        return "</td></tr><tr><td><strong class='titleText'>Advanced settings</strong></td></tr><tr><td>";
                                     }
                                 },{
                                     id: "cellsNumber",
@@ -302,6 +317,9 @@
                                     label: "Cells per heatmap:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$(document).on("input", "#cellsNumber", function() {
+                                            this.value = this.value.replace(/\D/g,'');
+                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "cellsNumber",
@@ -315,7 +333,7 @@
                                     type: "custom",
                                     userpref: "myfield",
                                     template: function(){
-                                        return "</td><td valign='top' align='left' rowspan='3'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</td></tr><tr><td class='cell'>";
+                                        return "</td><td valign='top' align='left' rowspan='3'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</td></tr><tr><td>";
                                     }
                                 },{
                                     type: "custom",
@@ -359,7 +377,8 @@
                                     height: '50%',
                                     layoutAlgorithm: 'squarified',
                                     alternateStartingDirection: true,
-                                    zoomType: 'xy'
+                                    zoomType: 'xy',
+                                    margin: [5, 5, 5, 5]
                                 },
                                 tooltip: {
                                     useHTML: true,
