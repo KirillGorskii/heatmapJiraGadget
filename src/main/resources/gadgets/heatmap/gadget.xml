@@ -42,11 +42,16 @@
         <![CDATA[
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
-            #requireResource("com.epam.jira.plugins.heatmap:heatmap-resourcesprojects")
+            #requireResource("com.epam.jira.plugins.heatmap:heatmap-resources")
             #includeResources()
             <style type="text/css">
                 .highcharts-point{
                     min-width: 300px;
+                }
+                .field-group {
+                   max-width: 380px;
+                   min-width: 350px;
+                   width:auto;
                 }
             </style>
 
@@ -78,7 +83,7 @@
                                 {
                                     type: "custom",
                                     template: function(){
-                                        return "<p>Issues filter settings</p><table id='parentTable' class='parentTable' width = '100%'><tr><td width = '30%'>";
+                                        return "<table id='parentTable' class='parentTable'><tr><td><strong class='titleText'>Issues filter settings</strong></tr></td><tr><td class='cell'>";
                                     }
                                 },{
                                     id: "projects",
@@ -96,6 +101,11 @@
                                             }).val(gadget.getPref("projects"))
                                         );
                                     }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td><td class='cell'>";
+                                    }
                                 },{
                                     id: "labels",
                                     userpref: "labels",
@@ -112,21 +122,10 @@
                                             }).val(gadget.getPref("labels"))
                                         );
                                     }
-                                },{
-                                    id: "cellsNumber",
-                                    userpref: "cellsNumber",
-                                    class: "numField",
-                                    label: "Set number of cells:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "cellsNumber",
-                                                type: "text",
-                                                class: "text",
-                                                name:"cellsNumber"
-                                            }).val(gadget.getPref("cellsNumber"))
-                                        );
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td></tr><tr><td><strong class='titleText'>Triage SLA Settings</strong></td></tr><tr><td class='cell'>";
                                     }
                                 },{
                                     id: "highestPriorityName",
@@ -144,6 +143,11 @@
                                             }).val(gadget.getPref("highestPriorityName"))
                                         );
                                     }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td><td class='cell'>";
+                                    }
                                 },{
                                     id: "blocker",
                                     userpref: "blocker",
@@ -159,6 +163,11 @@
                                                 name:"blocker"
                                             }).val(gadget.getPref("blocker"))
                                         );
+                                    }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td></tr><tr><td class='cell'>";
                                     }
                                 },{
                                     id: "highPriorityName",
@@ -176,6 +185,11 @@
                                             }).val(gadget.getPref("highPriorityName"))
                                         );
                                     }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td><td class='cell'>";
+                                    }
                                 },{
                                     id: "critical",
                                     userpref: "critical",
@@ -192,6 +206,11 @@
                                             }).val(gadget.getPref("critical"))
                                         );
                                     }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td></tr><tr><td class='cell'>";
+                                    }
                                 },{
                                     id: "majorPriorityName",
                                     userpref: "majorPriorityName",
@@ -207,6 +226,11 @@
                                                 name:"majorPriorityName"
                                             }).val(gadget.getPref("majorPriorityName"))
                                         );
+                                    }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td><td class='cell'>";
                                     }
                                 },{
                                     id: "major",
@@ -225,6 +249,11 @@
                                         );
                                     }
                                 },{
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td></tr><tr><td><strong class='titleText'>Heatmap Thresholds Settings</strong></td></tr><tr><td class='cell'>";
+                                    }
+                                }, {
                                     id: "red",
                                     userpref: "red",
                                     class: "numField",
@@ -239,6 +268,11 @@
                                                 name:"red"
                                             }).val(gadget.getPref("red"))
                                         );
+                                    }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</td><td class='cell'>";
                                     }
                                 },{
                                     id: "amber",
@@ -258,15 +292,30 @@
                                     }
                                 },{
                                     type: "custom",
-                                    userpref: "myfield",
                                     template: function(){
-                                        return "</td><td valign='top' align='left'>";
+                                        return "</td></tr><tr><td><strong class='titleText'>Advanced settings</strong></td></tr><tr><td class='cell'>";
                                     }
                                 },{
+                                    id: "cellsNumber",
+                                    userpref: "cellsNumber",
+                                    class: "numField",
+                                    label: "Cells per heatmap:",
+                                    type: "callbackBuilder",
+                                    callback: function(parentDiv){
+                                        parentDiv.append(
+                                            AJS.$("<input/>").attr({
+                                                id: "cellsNumber",
+                                                type: "text",
+                                                class: "text",
+                                                name:"cellsNumber"
+                                            }).val(gadget.getPref("cellsNumber"))
+                                        );
+                                    }
+                                }, {
                                     type: "custom",
                                     userpref: "myfield",
                                     template: function(){
-                                        return "<div>Risk Score = (Blcokers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)</div>";
+                                        return "</td><td valign='top' align='left' rowspan='3'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</td></tr><tr><td class='cell'>";
                                     }
                                 },{
                                     type: "custom",
