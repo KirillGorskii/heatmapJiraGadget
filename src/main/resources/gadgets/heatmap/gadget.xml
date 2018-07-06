@@ -53,6 +53,20 @@
                    min-width: 350px;
                    width:auto;
                 }
+                .flex-parent{
+                    display: flex;
+                    flex-direction:  column;
+                }
+                .flex-box{
+                    flex 1;
+                    width: 350px;
+                }
+                .flex-row{
+                    display: flex;
+                    flex-directions: row;
+                    justify-content: flex-start;
+                    float: left;
+                }
             </style>
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -83,7 +97,7 @@
                                 {
                                     type: "custom",
                                     template: function(){
-                                        return "<table id='parentTable' class='parentTable'><tr><td><strong class='titleText'>Issues filter settings</strong></tr></td><tr><td>";
+                                        return "<div id='flex-box' class='flex-parent'><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Issues filter settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "projects",
@@ -104,7 +118,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</div><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "labels",
@@ -125,7 +139,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Triage SLA Settings</strong></td></tr><tr><td>";
+                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Triage SLA Settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "highestPriorityName",
@@ -146,7 +160,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</div><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "blocker",
@@ -170,7 +184,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td>";
+                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "highPriorityName",
@@ -191,7 +205,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</div><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "critical",
@@ -215,7 +229,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td>";
+                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "majorPriorityName",
@@ -236,7 +250,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</div><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "major",
@@ -260,7 +274,7 @@
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Heatmap Thresholds Settings</strong></td></tr><tr><td>";
+                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Heatmap Thresholds Settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 }, {
                                     id: "red",
@@ -284,7 +298,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</td><td>";
+                                        return "</div><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "amber",
@@ -308,7 +322,7 @@
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</td></tr><tr><td><strong class='titleText'>Advanced settings</strong></td></tr><tr><td>";
+                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Advanced settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
                                     }
                                 },{
                                     id: "cellsNumber",
@@ -331,15 +345,8 @@
                                     }
                                 }, {
                                     type: "custom",
-                                    userpref: "myfield",
                                     template: function(){
-                                        return "</td><td valign='top' align='left' rowspan='3'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</td></tr><tr><td>";
-                                    }
-                                },{
-                                    type: "custom",
-                                    userpref: "myfield1",
-                                    template: function(){
-                                        return "</td></tr></table>";
+                                        return "</div><div id='flex-box' class='flex-box'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div></div></div>";
                                     }
                                 },
                                  AJS.gadget.fields.nowConfigured()

@@ -13,8 +13,6 @@
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="heatmap.css" location="css/heatmap.css"/>
         <resource type="download" name="images/" location="images"/>
-        <resource type="download" name="highcharts" location="https://code.highcharts.com/highcharts.js"/>
-        <resource type="download" name="treemap" location="https://code.highcharts.com/modules/treemap.js"/>
         <resource type="download" name="heatmapGadget.js" location="js/heatmapGadget.js"/>
         <resource type="i18n" name="i18n" location="i18n/heatmap"/>
         <context>heatmapContext</context>
