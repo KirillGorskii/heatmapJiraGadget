@@ -18,8 +18,9 @@
         <context>heatmapContext</context>
     </web-resource>
 
-    <gadget name="HeatMap gadgeet" i18n-name-key="heatmap.name" key="heatmap-gadget" location="gadgets/heatmap/gadget.xml">
+    <gadget name="Heat Map gadgeet" i18n-name-key="heatmap.name" key="heatmap-gadget" location="gadgets/heatmap/gadget.xml">
         <description key="heatmap.description">The NI Sprint Performance Gadget Plugin</description>
+        <resource type="download" name="sp_logo.png" location="images/sp_logo.png"/>
     </gadget>
 
     <rest key="rest" path="/heatmap-dj" version="1.0">

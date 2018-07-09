@@ -5,6 +5,8 @@
                  description="Heatmap gadget for Dow Jones"
                  author="Dow Jones"
                  author_email=""
+                 screenshot='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmap-resources", "nh_logo.png")'
+                 thumbnail='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmap-resources", "nh_logo.png")'
     >
         <Optional feature="gadget-directory">
             <Param name="categories">
@@ -340,6 +342,8 @@
                                             this.value = this.value.replace(/\D/g,'');
                                         });
                                         AJS.$('div:has(#advanced-settings)').addClass('flex-row');
+                                        AJS.$('.button.save').attr('value', 'Save');
+                                        AJS.$('.button.cancel').attr('value', 'Cancel');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "cellsNumber",
