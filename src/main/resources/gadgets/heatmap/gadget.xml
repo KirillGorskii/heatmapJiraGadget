@@ -54,18 +54,37 @@
                    width:auto;
                 }
                 .flex-parent{
+                    max-width: 1000px;
+                    min-width: 900px;
+                    flex-wrap: wrap;
                     display: flex;
-                    flex-direction:  column;
+                    flex-direction: row;
                 }
                 .flex-box{
                     flex 1;
+                    max-width: 380px;
+                    min-width: 350px;
+                }
+                .risk-def{
                     width: 350px;
                 }
+                .specialFlexBox{
+                    flex-directions: column;
+                    justify-content: flex-start;
+                    max-width: 380px;
+                    min-width: 350px;
+                }
                 .flex-row{
-                    display: flex;
+                    max-width: 1200px;
+                    min-width: 900px;
+                    flex 2;
                     flex-directions: row;
                     justify-content: flex-start;
                     float: left;
+                }
+                .thresholds-settings{
+                    max-width: 1200px;
+                    min-width: 900px;
                 }
             </style>
 
@@ -97,7 +116,7 @@
                                 {
                                     type: "custom",
                                     template: function(){
-                                        return "<div id='flex-box' class='flex-parent'><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Issues filter settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
+                                        return "<div id='issues-filter' class='issues-filter'><strong class='titleText'>Issues filter settings</strong></div>";
                                     }
                                 },{
                                     id: "projects",
@@ -106,6 +125,9 @@
                                     label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                    AJS.$('div:has(#projects)').addClass('flex-box');
+                                    AJS.$('.aui.gdt.top-label').addClass('flex-parent');
+                                    AJS.$('div:has(#issues-filter)').addClass('flex-row');
                                        parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "projects",
@@ -116,17 +138,14 @@
                                         );
                                     }
                                 }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>";
-                                    }
-                                },{
                                     id: "labels",
                                     userpref: "labels",
                                     class: "numField",
                                     label: "Labels(comma separated list, ex. 'sec-issue,security'):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+
+                                        AJS.$('div:has(#labels)').addClass('flex-box');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "labels",
@@ -139,7 +158,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Triage SLA Settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
+                                        return "<div id='sla' class='sla'><strong class='titleText'>Triage SLA Settings</strong></div>";
                                     }
                                 },{
                                     id: "highestPriorityName",
@@ -148,6 +167,8 @@
                                     label: "Highest priority name:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#sla)').addClass('flex-row');
+                                        AJS.$('div:has(#highestPriorityName)').addClass('flex-box');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "highestPriorityName",
@@ -158,17 +179,13 @@
                                         );
                                     }
                                 }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>";
-                                    }
-                                },{
                                     id: "blocker",
                                     userpref: "blocker",
                                     class: "numField",
                                     label: "Highest expected triage time, h(ex. 24):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#blocker)').addClass('flex-box');
                                         AJS.$(document).on("input", "#blocker", function() {
                                             this.value = this.value.replace(/\D/g,'');
                                         });
@@ -181,11 +198,6 @@
                                             }).val(gadget.getPref("blocker"))
                                         );
                                     }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
-                                    }
                                 },{
                                     id: "highPriorityName",
                                     userpref: "highPriorityName",
@@ -193,6 +205,7 @@
                                     label: "High priority name:",
                                      type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#highPriorityName)').addClass('flex-box');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "highPriorityName",
@@ -202,11 +215,6 @@
                                             }).val(gadget.getPref("highPriorityName"))
                                         );
                                     }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>";
-                                    }
                                 },{
                                     id: "critical",
                                     userpref: "critical",
@@ -214,6 +222,7 @@
                                     label: "High expected triage time, h(ex. 48):",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#critical)').addClass('flex-box');
                                         AJS.$(document).on("input", "#critical", function() {
                                             this.value = this.value.replace(/\D/g,'');
                                         });
@@ -226,11 +235,6 @@
                                             }).val(gadget.getPref("critical"))
                                         );
                                     }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
-                                    }
                                 },{
                                     id: "majorPriorityName",
                                     userpref: "majorPriorityName",
@@ -238,6 +242,7 @@
                                     label: "Major priority name:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#majorPriorityName)').addClass('flex-box');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "majorPriorityName",
@@ -247,11 +252,6 @@
                                             }).val(gadget.getPref("majorPriorityName"))
                                         );
                                     }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>";
-                                    }
                                 },{
                                     id: "major",
                                     userpref: "major",
@@ -259,7 +259,8 @@
                                     label: "Major expected triage time, h(ex. 96):",
                                      type: "callbackBuilder",
                                     callback: function(parentDiv){
-                                    AJS.$(document).on("input", "#major", function() {
+                                        AJS.$('div:has(#major)').addClass('flex-box');
+                                        AJS.$(document).on("input", "#major", function() {
                                                 this.value = this.value.replace(/\D/g,'');
                                             });
                                         parentDiv.append(
@@ -274,7 +275,7 @@
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Heatmap Thresholds Settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
+                                        return "<div id='thresholds-settings' class='thresholds-settings'><strong class='titleText'>Heatmap Thresholds Settings</strong></div><div id='specialFlexBox' class='specialFlexBox'>";
                                     }
                                 }, {
                                     id: "red",
@@ -283,6 +284,7 @@
                                     label: "Health status 'Red' score value:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#red)').addClass('flex-box');
                                         AJS.$(document).on("input", "#red", function() {
                                             this.value = this.value.replace(/\D/g,'');
                                         });
@@ -295,18 +297,14 @@
                                             }).val(gadget.getPref("red"))
                                         );
                                     }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>";
-                                    }
                                 },{
                                     id: "amber",
                                     userpref: "amber",
                                     class: "numField",
                                     label: "Health status 'Amber' score value:",
-                                     type: "callbackBuilder",
+                                    type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#amber)').addClass('flex-box');
                                         AJS.$(document).on("input", "#amber", function() {
                                             this.value = this.value.replace(/\D/g,'');
                                         });
@@ -319,10 +317,15 @@
                                             }).val(gadget.getPref("amber"))
                                         );
                                     }
+                                }, {
+                                    type: "custom",
+                                    template: function(){
+                                        return "</div></div><div id='risk-def' class='flex-box risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
+                                    }
                                 },{
                                     type: "custom",
                                     template: function(){
-                                        return "</div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'><strong class='titleText'>Advanced settings</strong></div></div><div id='flex-row' class='flex-row'><div id='flex-box' class='flex-box'>";
+                                        return "<div id='advanced-settings' class='advanced-settings'><strong class='titleText'>Advanced settings</strong></div>";
                                     }
                                 },{
                                     id: "cellsNumber",
@@ -331,9 +334,12 @@
                                     label: "Cells per heatmap:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+                                        AJS.$('div:has(#cellsNumber)').addClass('flex-box');
+                                        AJS.$('div:has(select)').addClass('flex-box');
                                         AJS.$(document).on("input", "#cellsNumber", function() {
                                             this.value = this.value.replace(/\D/g,'');
                                         });
+                                        AJS.$('div:has(#advanced-settings)').addClass('flex-row');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "cellsNumber",
@@ -342,11 +348,6 @@
                                                 name:"cellsNumber"
                                             }).val(gadget.getPref("cellsNumber"))
                                         );
-                                    }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div><div id='flex-box' class='flex-box'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div></div></div>";
                                     }
                                 },
                                  AJS.gadget.fields.nowConfigured()
