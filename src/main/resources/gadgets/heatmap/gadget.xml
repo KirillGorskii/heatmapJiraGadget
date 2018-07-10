@@ -5,8 +5,6 @@
                  description="Heatmap gadget for Dow Jones"
                  author="Dow Jones"
                  author_email=""
-                 screenshot='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmap-resources", "nh_logo.png")'
-                 thumbnail='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmap-resources", "nh_logo.png")'
     >
         <Optional feature="gadget-directory">
             <Param name="categories">
@@ -14,14 +12,13 @@
             </Param>
         </Optional>
         <Require feature="oauthpopup"/>
+        <Optional feature="auth-refresh"/>
         <Require feature="dynamic-height"/>
         <Require feature="setprefs"/>
         <Require feature="settitle"/>
         <Require feature="views"/>
-        <Optional feature='auth-refresh' />
         <Optional feature="atlassian.util"/>
-
-
+        #oauth
         #supportedLocales("gadget.common")
         #supportedLocales
     </ModulePrefs>
@@ -44,7 +41,7 @@
         <![CDATA[
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
-            #requireResource("com.epam.jira.plugins.heatmap:heatmap-resources")
+            #requireResource("com.epam.jira.plugins.heatmap:heatmapResources")
             #includeResources()
             <style type="text/css">
                 .highcharts-point{
@@ -103,7 +100,7 @@
                     descriptor: function(args) {
                         var gadget = this;
                         var allProjects = args.allProjects;
-
+                        debugger;
                         return {
                                 theme : function() {
                                     //set where settings will be
@@ -342,8 +339,6 @@
                                             this.value = this.value.replace(/\D/g,'');
                                         });
                                         AJS.$('div:has(#advanced-settings)').addClass('flex-row');
-                                        AJS.$('.button.save').attr('value', 'Save');
-                                        AJS.$('.button.cancel').attr('value', 'Cancel');
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "cellsNumber",
