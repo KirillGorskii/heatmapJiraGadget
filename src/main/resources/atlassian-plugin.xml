@@ -13,6 +13,7 @@
     <web-resource key="heatmapResources" name="Heatmap Web Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="heatmap.css" location="css/heatmap.css"/>
+        <resource type="download" name="heatmapGadget.js" location="js/heatmapGadget.js"/>
         <resource type="download" name="images" location="images"/>
         <context>heatmapContext</context>
     </web-resource>

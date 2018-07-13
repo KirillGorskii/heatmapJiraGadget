@@ -86,6 +86,23 @@
                 return Math.min.apply(Math, array);
             };
 
+            AJS.$(document).on("input", ".numeric", function() {
+                this.value = this.value.replace(/\D/g,'');
+            });
+
+             AJS.$(document).on("input", "input#amber.numeric", function() {
+                var thisValue = AJS.$('input#amber.numeric').val();
+                var redValue = AJS.$('input#red.numeric').val();
+                this.value = this.value.replace(/\D/g,'');
+                debugger;
+                while(thisValue > redValue){
+                    thisValue = parseInt(thisValue/10)
+                   AJS.$('input#amber.numeric').val(thisValue);
+                debugger;
+                }
+                debugger;
+            });
+
             AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({
@@ -184,14 +201,12 @@
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#blocker)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#blocker", function() {
-                                            this.value = this.value.replace(/\D/g,'');
-                                        });
+
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "blocker",
                                                 type: "text",
-                                                class: "text",
+                                                class: "text numeric",
                                                 name:"blocker"
                                             }).val(gadget.getPref("blocker"))
                                         );
@@ -221,14 +236,11 @@
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#critical)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#critical", function() {
-                                            this.value = this.value.replace(/\D/g,'');
-                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "critical",
                                                 type: "text",
-                                                class: "text",
+                                                class: "text numeric",
                                                 name:"critical"
                                             }).val(gadget.getPref("critical"))
                                         );
@@ -258,14 +270,11 @@
                                      type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#major)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#major", function() {
-                                                this.value = this.value.replace(/\D/g,'');
-                                            });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "major",
                                                 type: "text",
-                                                class: "text",
+                                                class: "text numeric",
                                                 name:"major"
                                             }).val(gadget.getPref("major"))
                                         );
@@ -283,14 +292,11 @@
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#red)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#red", function() {
-                                            this.value = this.value.replace(/\D/g,'');
-                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "red",
                                                 type: "text",
-                                                class: "text",
+                                                class: "text numeric",
                                                 name:"red"
                                             }).val(gadget.getPref("red"))
                                         );
@@ -303,14 +309,11 @@
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#amber)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#amber", function() {
-                                            this.value = this.value.replace(/\D/g,'');
-                                        });
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "amber",
                                                 type: "text",
-                                                class: "text",
+                                                class: "text numeric",
                                                 name:"amber"
                                             }).val(gadget.getPref("amber"))
                                         );
@@ -335,17 +338,9 @@
 
                                         AJS.$('div:has(#cellsNumber)').addClass('flex-box');
                                         AJS.$('div:has(select)').addClass('flex-box');
-                                        AJS.$(document).on("input", "#cellsNumber", function() {
-                                            this.value = this.value.replace(/\D/g,'');
-                                        });
                                         AJS.$('div:has(#advanced-settings)').addClass('flex-row');
                                         parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "cellsNumber",
-                                                type: "text",
-                                                class: "text",
-                                                name:"cellsNumber"
-                                            }).val(gadget.getPref("cellsNumber"))
+                                            AJS.$("<input id='cellsNumber' type='text' class='text numeric' name='cellsNumber'></input>").val(gadget.getPref("cellsNumber"))
                                         );
                                     }
                                 },
@@ -450,7 +445,6 @@
                                          }
                                  }
                             });
-                        debugger;
                         },
                         <!--close templates-->
                         args:[{
