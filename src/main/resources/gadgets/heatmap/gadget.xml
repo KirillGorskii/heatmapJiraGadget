@@ -19,7 +19,7 @@
         <Require feature="views"/>
         <Optional feature="atlassian.util"/>
         #oauth
-        #supportedLocales("gadget.common")
+        #supportedLocales("gadget.common,heatmap")
         #supportedLocales
     </ModulePrefs>
 
@@ -44,54 +44,49 @@
             #requireResource("com.epam.jira.plugins.heatmap:heatmapResources")
             #includeResources()
             <style type="text/css">
-                .highcharts-point{
-                    min-width: 300px;
-                }
-                .field-group {
-                   max-width: 380px;
-                   min-width: 350px;
-                   width:auto;
-                }
-                .flex-parent{
-                    max-width: 1000px;
-                    min-width: 900px;
-                    flex-wrap: wrap;
-                    display: flex;
-                    flex-direction: row;
-                }
-                .flex-box{
-                    flex 1;
-                    max-width: 380px;
-                    min-width: 350px;
-                }
-                .risk-def{
-                    width: 350px;
-                }
-                .specialFlexBox{
-                    flex-directions: column;
-                    justify-content: flex-start;
-                    max-width: 380px;
-                    min-width: 350px;
-                }
-                .flex-row{
-                    max-width: 1200px;
-                    min-width: 900px;
-                    flex 2;
-                    flex-directions: row;
-                    justify-content: flex-start;
-                    float: left;
-                }
-                .thresholds-settings{
-                    max-width: 1200px;
-                    min-width: 900px;
-                }
+
             </style>
 
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script type="text/javascript">
-             AJS.$(document).ready((function() {
+            function calculateFontSize(){
+                var minHeight = findMinSquareSizeForDimention('height');
+                var minWidth = findMinSquareSizeForDimention('width');
+                var minFontSizeForHeight = calculateMinFontSize(minHeight)*1.2;
+                var minFontSizeForWidth = calculateMinFontSize(minWidth);
+                return Math.min(minFontSizeForHeight, minFontSizeForWidth);
+            }
+
+            function calculateMinFontSize(minSize){
+                var standardFontSize = 16;
+                if(minSize < 20){
+                    return standardFontSize-6;
+                } else if(minSize < 40){
+                    return standardFontSize-5;
+                } else if(minSize < 60){
+                    return standardFontSize-4;
+                } else if(minSize < 80){
+                    return standardFontSize-3;
+                } else if(minSize < 100){
+                    return standardFontSize-2;
+                } else if(minSize < 120){
+                    return standardFontSize-1;
+                } else{
+                    return standardFontSize;
+                }
+            }
+
+            function findMinSquareSizeForDimention(attrName){
+                var array = [];
+                AJS.$('rect.highcharts-point').each(function(){
+	                array.push(AJS.$(this).attr(attrName));
+                });
+                return Math.min.apply(Math, array);
+            };
+
+            AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({
                 baseUrl: "__ATLASSIAN_BASE_URL__",
@@ -100,9 +95,12 @@
                     descriptor: function(args) {
                         var gadget = this;
                         var allProjects = args.allProjects;
-                        debugger;
+                        AJS.$(this).resize(function() {
+                            gadgets.window.adjustHeight();
+                        });
                         return {
                                 theme : function() {
+
                                     //set where settings will be
                                 if (gadgets.window.getViewportDimensions().width < 450){
                                     return "gdt top-label";
@@ -110,6 +108,7 @@
                                     return "gdt top-label";
                                 }
                                 }(),
+                                onResizeReload: true,
                                     //set settings to be return(create fields on config page)
                                 fields: [
                                 {
@@ -202,7 +201,7 @@
                                     userpref: "highPriorityName",
                                     class: "highPriorityName",
                                     label: "High priority name:",
-                                     type: "callbackBuilder",
+                                    type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#highPriorityName)').addClass('flex-box');
                                         parentDiv.append(
@@ -319,7 +318,7 @@
                                 }, {
                                     type: "custom",
                                     template: function(){
-                                        return "</div></div><div id='risk-def' class='flex-box risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
+                                        return "</div></div><div id='risk-def' class='risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
                                     }
                                 },{
                                     type: "custom",
@@ -333,6 +332,7 @@
                                     label: "Cells per heatmap:",
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
+
                                         AJS.$('div:has(#cellsNumber)').addClass('flex-box');
                                         AJS.$('div:has(select)').addClass('flex-box');
                                         AJS.$(document).on("input", "#cellsNumber", function() {
@@ -360,8 +360,9 @@
                         onResizeReload: true,
                         template: function(args) {
                         var gadget = this;
+                        AJS.$('.item-link.no_target:contains("gadget.common.configure")').text('Configuration');
+                        AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                         gadget.getView().html("<div id='container'/>");
-
                             var records = args.records;
                             var seriesData = [];
                             records.forEach(function(record){
@@ -380,12 +381,13 @@
                             gadgets.window.setTitle("Projects Status Heatmap");
                             var charts = Highcharts.chart('container', {
                                 chart: {
+
                                     type: 'treemap',
                                     height: '50%',
                                     layoutAlgorithm: 'squarified',
                                     alternateStartingDirection: true,
                                     zoomType: 'xy',
-                                    margin: [5, 5, 5, 5]
+                                    margin: [50, 5, 20, 5]
                                 },
                                 tooltip: {
                                     useHTML: true,
@@ -434,7 +436,21 @@
                                     text: 'Projects Status Heatmap'
                                 }
                             });
-                            charts.redraw();
+                            var calculatedValuer = calculateFontSize() + 'px';
+                            charts.update({
+                                 plotOptions: {
+                                         series: {
+                                            dataLabels: {
+                                            style: {
+                                                fontWeight: 'bold',
+                                                fontSize: calculatedValuer,
+                                                textOutline:'0px'
+                                            }
+                                            }
+                                         }
+                                 }
+                            });
+                        debugger;
                         },
                         <!--close templates-->
                         args:[{

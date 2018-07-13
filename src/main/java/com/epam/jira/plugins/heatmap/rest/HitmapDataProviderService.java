@@ -17,7 +17,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.epam.jira.plugins.heatmap.dto.ConfigDTO;
 import com.epam.jira.plugins.heatmap.dto.ProjectDto;
-import com.google.gson.Gson;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -63,7 +64,14 @@ public class HitmapDataProviderService {
         if (result == null || result.isEmpty()) {
             return Response.noContent().build();
         } else {
-            return Response.ok(transactionTemplate.execute(() -> new Gson().toJson(result))).build();
+            String jsonString = null;
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                jsonString = mapper.writeValueAsString(result);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return Response.ok(jsonString).build();
         }
     }
 

@@ -1,0 +1,39 @@
+ .highcharts-point{
+    min-width: 300px;
+}
+.flex-parent{
+    max-width: 1000px;
+    flex-wrap: wrap;
+    display: flex;
+    overflow: auto;
+    justify-content: flex-start;
+    align-content: flex-start
+    flex-direction: row;
+}
+.flex-box{
+    flex-grow: 2 1 auto;
+    max-width: 380px;
+    flex-shrink: 1;
+    width:auto;
+}
+.risk-def{
+    flex 2 1 auto;
+    max-width: 380px;
+    white-space: pre-line;
+}
+.specialFlexBox{
+    flex-directions: column;
+    justify-content: flex-start;
+    max-width: 380px;
+}
+.flex-row{
+    max-width: 1200px;
+    flex 4 2 auto;
+    flex-directions: row;
+    justify-content: flex-start;
+    float: left;
+}
+.thresholds-settings{
+    max-width: 1200px;
+    min-width: 900px;
+}
