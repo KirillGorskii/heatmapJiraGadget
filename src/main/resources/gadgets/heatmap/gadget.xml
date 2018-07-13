@@ -94,13 +94,10 @@
                 var thisValue = AJS.$('input#amber.numeric').val();
                 var redValue = AJS.$('input#red.numeric').val();
                 this.value = this.value.replace(/\D/g,'');
-                debugger;
                 while(thisValue > redValue){
                     thisValue = parseInt(thisValue/10)
                    AJS.$('input#amber.numeric').val(thisValue);
-                debugger;
                 }
-                debugger;
             });
 
             AJS.$(document).ready((function() {
