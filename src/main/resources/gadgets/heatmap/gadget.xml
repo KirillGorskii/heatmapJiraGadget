@@ -5,6 +5,7 @@
                  description="Heatmap gadget for Dow Jones"
                  author="Dow Jones"
                  author_email=""
+                 thumbnail='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmapResources", "thumbnail.png")'
     >
         <Optional feature="gadget-directory">
             <Param name="categories">
@@ -51,6 +52,13 @@
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script type="text/javascript">
+            var redColor = '#d04437';
+            var standardColor = '#ccc';
+            var amberInputSelector = 'input#amber.numeric';
+            var projectsSelector = 'input#projects';
+            var redInputSelector = 'input#red.numeric';
+            var cellsNumberSelector = 'input#cellsNumber.numeric';
+
             function calculateFontSize(){
                 var minHeight = findMinSquareSizeForDimention('height');
                 var minWidth = findMinSquareSizeForDimention('width');
@@ -90,15 +98,124 @@
                 this.value = this.value.replace(/\D/g,'');
             });
 
-             AJS.$(document).on("input", "input#amber.numeric", function() {
-                var thisValue = AJS.$('input#amber.numeric').val();
-                var redValue = AJS.$('input#red.numeric').val();
-                this.value = this.value.replace(/\D/g,'');
-                while(thisValue > redValue){
-                    thisValue = parseInt(thisValue/10)
-                   AJS.$('input#amber.numeric').val(thisValue);
+
+            AJS.$(document).on("keydown", cellsNumberSelector, function(data){
+                var errorMessageSelector = '#cellsNumber-error';
+                var cellsNumberInput = AJS.$(cellsNumberSelector);
+                cellsNumberInput.css('border-color', standardColor)
+                hideErrorMessage(errorMessageSelector);
+                if(isCorrectSymbol(data)){
+                    var correctionValue = AJS.$(projectsSelector).val().split(',').length;
+                    debugger;
+                    var newValue = getNewValue(data);
+                    if(parseInt(newValue) < parseInt(correctionValue)){
+                        showErrorMessage(errorMessageSelector, 'Incorrect value. "Cells number" field value should be greater than number of selected projects in "Projects" field');
+                        cellsNumberInput.css('border-color', redColor);
+                        return false;
+                    }
+                } else if(data.keyCode > 39 && /\w/g.test(data.key)){
+                    debugger;
+                    showErrorMessage(errorMessageSelector, 'Incorrect value. Only numeric values are allowed');
+                    cellsNumberInput.css('border-color', redColor);
+                    return false;
                 }
+                return true;
             });
+
+            AJS.$(document).on("keydown", amberInputSelector, function(data) {
+                var errorMessageSelector = '#amber-error';
+                var amberInput = AJS.$(amberInputSelector);
+                amberInput.css('borderColor', standardColor)
+                hideErrorMessage(errorMessageSelector);
+
+                if(isCorrectSymbol(data)){
+                    var redValue = AJS.$(redInputSelector).val();
+                    var newValue = getNewValue(data);
+                    if(parseInt(newValue) >  parseInt(redValue)){
+                        showErrorMessage(errorMessageSelector, 'Incorrect value. "Amber" score value should be less than "Red" score value');
+                        amberInput.css('border-color', redColor);
+                        return false;
+                    }
+                } else if(data.keyCode > 39 && /\w/g.test(data.key)){
+                    debugger;
+                    showErrorMessage(errorMessageSelector, 'Incorrect value.');
+                    amberInput.css('border-color', redColor);
+                    return false;
+                }
+                return true;
+            });
+
+            AJS.$(document).on("keydown", redInputSelector, function(data) {
+                var errorMessageSelector = '#red-error';
+                var redInput = AJS.$(redInputSelector);
+                redInput.css('borderColor', standardColor)
+                hideErrorMessage(errorMessageSelector);
+                if(isCorrectSymbol(data)){
+                    var amberValue = AJS.$(amberInputSelector).val();
+                    var newValue = getNewValue(data);
+                    if(parseInt(newValue) <  parseInt(amberValue)){
+                        showErrorMessage(errorMessageSelector, 'Incorrect value. "Red" score value should be greater than "Amber" score value');
+                        redInput.css('border-color', redColor);
+                        return false;
+                    }
+                } else if(data.keyCode > 39 && /\w/g.test(data.key)){
+                    debugger;
+                    showErrorMessage(errorMessageSelector, 'Incorrect value.');
+                    redInput.css('border-color', redColor);
+                    return false;
+                }
+                return true;
+            });
+
+            AJS.$(document).on("keydown", 'input#projects', function(data) {
+                var errorMessageSelector = '#projects-error';
+                var redInput = AJS.$('input#projects');
+                redInput.css('borderColor', standardColor)
+                hideErrorMessage(errorMessageSelector);
+                if( data.keyCode < 40 || /\w/g.test(data.key) || data.key===','){
+                    return true;
+                }
+                showErrorMessage(errorMessageSelector, 'Incorrect value. Possible values are: "A-z", "1-9" and ","]');
+                redInput.css('border-color', redColor);
+                return false;
+            });
+
+            function isNumeric(key){
+                return /\d/g.test(key);
+            }
+
+
+            function getNewValue(data){
+                var currentValue = data.currentTarget.value.toString();
+                if(data.keyCode==8 && data.currentTarget.selectionStart == data.currentTarget.value.toString().length){
+                    return parseInt(currentValue.substring(0, data.currentTarget.selectionStart-1))
+                }
+                return parseInt(currentValue.substring(0, data.currentTarget.selectionStart) + data.key + currentValue.substring(data.currentTarget.selectionEnd))
+            }
+
+            function hideErrorMessage(selector){
+                var errorMessage = AJS.$(selector);
+                errorMessage.css('visibility: hidden; font-size: 8px; color: red');
+                errorMessage.text('');
+                errorMessage.hide();
+                resizeConfigurationForm();
+            }
+
+            function resizeConfigurationForm(){
+                AJS.$(this)[0].gadgets.window.adjustHeight();
+            }
+
+            function showErrorMessage(selector, message){
+                var errorMessage = AJS.$(selector);
+                errorMessage.text(message);
+                errorMessage.show();
+                resizeConfigurationForm();
+            }
+
+            function isCorrectSymbol(data){
+                var keyCode = data.keyCode;
+                return isNumeric(data.key) || keyCode == 8 ||  keyCode == 30 || keyCode == 33 || keyCode == 127;
+            }
 
             AJS.$(document).ready((function() {
                 (function ($) {
@@ -371,6 +488,7 @@
                             });
 
                             gadgets.window.setTitle("Projects Status Heatmap");
+                            gadgets.window.adjustHeight();
                             var charts = Highcharts.chart('container', {
                                 chart: {
 
@@ -442,6 +560,7 @@
                                          }
                                  }
                             });
+                            charts.redraw();
                         },
                         <!--close templates-->
                         args:[{
@@ -473,54 +592,7 @@
         <!--end of function-->
     }));
     <!--end of function in doc.ready-->
-
             </script>
-
-            <form id="heatmapConfig" name="heatmapConfig" class="aui" style="display: none;">
-                <fieldset>
-                    <div class="field-group">
-                        <label for="projects">Projects (comma separated list, ex. "FACTIVA,DMI")</label>
-                        <input type="text" id="projects" name="projects" class="text" value=""/>
-                    </div>
-                    <div class="field-group">
-                        <label for="labels">Labels:(comma separated list, ex. "sec-issue,security")</label>
-                        <input type="text" id="labels" name="labels" class="text" value=""/>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Health thresholds:</legend>
-                    <div class="field-group">
-                        <label for="blocker">Blocker expected triage time, h(ex. 24):</label>
-                        <input type="text" id="blocker" name="blocker" value="" class="text"/>
-                    </div>
-                    <div class="field-group">
-                        <label for="critical">Critical expected triage time, h(ex. 48):</label>
-                        <input type="text" id="critical" name="critical" value="" class="text"/>
-                    </div>
-                    <div class="field-group">
-                        <label for="major">Major expected triage time, h(ex. 96):</label>
-                        <input type="text" id="major" name="major" value="" class="text"/>
-                    </div>
-                    <div class="field-group">
-                        <label for="minor">Minor expected triage time, h(ex. 256):</label>
-                        <input type="text" id="minor" name="minor" value="" class="text"/>
-                    </div>
-                </fieldset>
-                <fieldset>
-                    <legend>Health thresholds:</legend>
-                    <div class="field-group">
-                        <label for="red">Health status "Red" score value:</label>
-                        <input type="text" id="red" name="red" value="" class="text"/>
-                    </div>
-                    <div class="field-group">
-                        <label for="amber">Health status "Amber" score value:</label>
-                        <input type="text" id="amber" name="amber" value="" class="text"/>
-                    </div>
-                    <div class="field-group">
-                        <input type="submit" id="submit" value="Submit" name="submit" class="button"/>
-                    </div>
-                </fieldset>
-            </form>
         ]]>
     </Content>
 
