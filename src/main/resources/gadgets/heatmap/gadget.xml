@@ -44,14 +44,12 @@
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
             #requireResource("com.epam.jira.plugins.heatmap:heatmapResources")
             #includeResources()
-            <style type="text/css">
-
-            </style>
-
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
+            <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
+
             var redColor = '#d04437';
             var standardColor = '#ccc';
             var amberInputSelector = 'input#amber.numeric';
@@ -106,7 +104,6 @@
                 hideErrorMessage(errorMessageSelector);
                 if(isCorrectSymbol(data)){
                     var correctionValue = AJS.$(projectsSelector).val().split(',').length;
-                    debugger;
                     var newValue = getNewValue(data);
                     if(parseInt(newValue) < parseInt(correctionValue)){
                         showErrorMessage(errorMessageSelector, 'Incorrect value. "Cells number" field value should be greater than number of selected projects in "Projects" field');
@@ -114,7 +111,6 @@
                         return false;
                     }
                 } else if(data.keyCode > 39 && /\w/g.test(data.key)){
-                    debugger;
                     showErrorMessage(errorMessageSelector, 'Incorrect value. Only numeric values are allowed');
                     cellsNumberInput.css('border-color', redColor);
                     return false;
@@ -137,7 +133,6 @@
                         return false;
                     }
                 } else if(data.keyCode > 39 && /\w/g.test(data.key)){
-                    debugger;
                     showErrorMessage(errorMessageSelector, 'Incorrect value.');
                     amberInput.css('border-color', redColor);
                     return false;
@@ -159,7 +154,6 @@
                         return false;
                     }
                 } else if(data.keyCode > 39 && /\w/g.test(data.key)){
-                    debugger;
                     showErrorMessage(errorMessageSelector, 'Incorrect value.');
                     redInput.css('border-color', redColor);
                     return false;
@@ -531,6 +525,11 @@
                                     data: seriesData
 
                                 }],
+                                navigation: {
+                                    buttonOptions: {
+                                        align: 'left'
+                                    }
+                                },
                                 xAxis: {
                                     scrollbar: {
                                         enabled: true
@@ -567,7 +566,7 @@
                             key: "records",
                             ajaxOptions: function() {
                                 return {
-                                    url: "/rest/heatmap-dj/1.0/gadget/heatmap",
+                                    url: "/rest/heatmap-dj/1.0/gadget/heatmap/main-chart",
                                     data: {
                                         projects: gadgets.Prefs().getString("projects"),
                                         labels: gadgets.Prefs().getString("labels"),

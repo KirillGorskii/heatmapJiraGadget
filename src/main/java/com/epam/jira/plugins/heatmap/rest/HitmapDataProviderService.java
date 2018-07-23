@@ -52,6 +52,7 @@ public class HitmapDataProviderService {
     }
 
     @GET
+    @Path("/main-chart")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context HttpServletRequest request) {
         configDto = new ConfigDTO(request);
