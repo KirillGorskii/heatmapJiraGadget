@@ -3,7 +3,7 @@ package com.epam.jira.plugins.heatmap.dto;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-public class ConfigDTO {
+public class ConfigPOJO {
     private List<String> projects = new LinkedList<>();
 
 
@@ -153,7 +153,7 @@ public class ConfigDTO {
         return 0;
     }
 
-    public ConfigDTO(HttpServletRequest request) {
+    public ConfigPOJO(HttpServletRequest request) {
         Map<String, String> queryMap = collectPropertiesFromQueryString(request.getQueryString());
         addProjects(queryMap.get("projects"));
         setLabels(queryMap.get("labels"));

@@ -1,6 +1,6 @@
 package com.epam.jira.plugins.heatmap.dto;
 
-public class ProjectDto {
+public class ProjectPOJO {
     private String projectName;
     private String color;
     private int risk_score=0;
@@ -11,7 +11,7 @@ public class ProjectDto {
     private int minor=0;
     private int squareSize =0;
 
-    public ProjectDto(String projectName){
+    public ProjectPOJO(String projectName){
         this.projectName = projectName;
         //green as default
         this.color = "#9EDE00";
