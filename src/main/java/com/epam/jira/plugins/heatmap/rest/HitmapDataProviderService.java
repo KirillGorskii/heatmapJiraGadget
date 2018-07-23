@@ -13,7 +13,6 @@ import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.query.Query;
-import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.atlassian.sal.api.user.UserManager;
 import com.epam.jira.plugins.heatmap.dto.ConfigDTO;
 import com.epam.jira.plugins.heatmap.dto.ProjectDto;
@@ -42,16 +41,13 @@ public class HitmapDataProviderService {
     private final SearchService searchService;
     @ComponentImport
     private final UserManager manager;
-    @ComponentImport
-    private final TransactionTemplate transactionTemplate;
 
     private ConfigDTO configDto;
     private String jiraUrl;
 
     @Inject
-    public HitmapDataProviderService(UserManager userManager, TransactionTemplate transactionTemplate, SearchService searchService) {
+    public HitmapDataProviderService(UserManager userManager, SearchService searchService) {
         this.manager = userManager;
-        this.transactionTemplate = transactionTemplate;
         this.searchService = searchService;
     }
 

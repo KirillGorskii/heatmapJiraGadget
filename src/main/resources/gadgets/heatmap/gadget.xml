@@ -489,9 +489,8 @@
 
                             gadgets.window.setTitle("Projects Status Heatmap");
                             gadgets.window.adjustHeight();
-                            var charts = Highcharts.chart('container', {
+                            var treemapOptions = {
                                 chart: {
-
                                     type: 'treemap',
                                     height: '50%',
                                     layoutAlgorithm: 'squarified',
@@ -545,7 +544,8 @@
                                 title: {
                                     text: 'Projects Status Heatmap'
                                 }
-                            });
+                            }
+                            var charts = Highcharts.chart('container', treemapOptions);
                             var calculatedValuer = calculateFontSize() + 'px';
                             charts.update({
                                  plotOptions: {
@@ -566,22 +566,22 @@
                         args:[{
                             key: "records",
                             ajaxOptions: function() {
-                                        return {
-                                            url: "/rest/heatmap-dj/1.0/gadget/heatmap",
-                                            data: {
-                                                projects: gadgets.Prefs().getString("projects"),
-                                                labels: gadgets.Prefs().getString("labels"),
-                                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-                                                cellsNumber: gadgets.Prefs().getString("cellsNumber"),
-                                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-                                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-                                                blocker: gadgets.Prefs().getString("blocker"),
-                                                critical: gadgets.Prefs().getString("critical"),
-                                                major: gadgets.Prefs().getString("major"),
-                                                red: gadgets.Prefs().getString("red"),
-                                                amber: gadgets.Prefs().getString("amber")
-                                            }
-                                        };
+                                return {
+                                    url: "/rest/heatmap-dj/1.0/gadget/heatmap",
+                                    data: {
+                                        projects: gadgets.Prefs().getString("projects"),
+                                        labels: gadgets.Prefs().getString("labels"),
+                                        majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                        cellsNumber: gadgets.Prefs().getString("cellsNumber"),
+                                        highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                        highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
+                                        blocker: gadgets.Prefs().getString("blocker"),
+                                        critical: gadgets.Prefs().getString("critical"),
+                                        major: gadgets.Prefs().getString("major"),
+                                        red: gadgets.Prefs().getString("red"),
+                                        amber: gadgets.Prefs().getString("amber")
+                                    }
+                                };
                             }
                         }]
                     }
