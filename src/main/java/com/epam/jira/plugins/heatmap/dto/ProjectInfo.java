@@ -1,9 +1,14 @@
 package com.epam.jira.plugins.heatmap.dto;
 
-public class ProjectPOJO {
+import com.atlassian.jira.issue.Issue;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+
+public class ProjectInfo implements RateScoreStatistic {
     private String projectName;
     private String color;
-    private int risk_score=0;
+    private int riskScore =0;
     private String link;
     private int critical=0;
     private int blocker=0;
@@ -11,7 +16,7 @@ public class ProjectPOJO {
     private int minor=0;
     private int squareSize =0;
 
-    public ProjectPOJO(String projectName){
+    public ProjectInfo(String projectName){
         this.projectName = projectName;
         //green as default
         this.color = "#9EDE00";
@@ -32,13 +37,13 @@ public class ProjectPOJO {
         this.color = color;
     }
 
-    public int getRisk_score() {
-        return risk_score;
+    public int getRiskScore() {
+        return riskScore;
     }
 
-    public void setRisk_score(int risk_score) {
-        this.risk_score = risk_score;
-        this.squareSize = risk_score;
+    public void setRiskScore(int riskScore) {
+        this.riskScore = riskScore;
+        this.squareSize = riskScore;
     }
 
     public String getLink() {
@@ -82,16 +87,16 @@ public class ProjectPOJO {
     }
 
     public void incrementRateScore(int value){
-        risk_score+=value;
+        riskScore +=value;
         squareSize+=value;
     }
 
     public void incrementRateScore(){
-        risk_score++;
+        riskScore++;
         squareSize++;
     }
 
-    public void increntBlocker() {
+    public void incrementBlocker() {
         blocker++;
     }
 
@@ -101,6 +106,25 @@ public class ProjectPOJO {
 
     public void incrementMajor() {
         major++;
+    }
+
+    @Override
+    public Timestamp getRateScore() {
+        return Timestamp.from(Instant.now());
+    }
+
+    @Override
+    public void incrementPriorityCounter(Issue issue, RateScoreStatistic dao) {
+        String issuePriority = issue.getPriority().getName();
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
+            dao.incrementBlocker();
+        }
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
+            dao.incrementCritical();
+        }
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
+            dao.incrementMajor();
+        }
     }
 
     public void incrementMinor() {

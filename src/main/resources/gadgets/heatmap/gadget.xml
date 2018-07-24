@@ -473,7 +473,7 @@
                                     name: record.projectName,
                                     color: record.color,
                                     value: record.squareSize,
-                                    risk_score: record.risk_score,
+                                    riskScore: record.riskScore,
                                     link: record.link,
                                     critical: record.critical,
                                     blocker: record.blocker,
@@ -494,7 +494,7 @@
                                 },
                                 tooltip: {
                                     useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.risk_score}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.riskScore}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                                 },
                                 plotOptions: {
                                      series: {
@@ -502,7 +502,7 @@
                                             enabled: true,
                                             allowOverlap: false,
                                             useHTML: true,
-                                            format: '<div style="margin-left: 10px">{point.name}<br />  Risk score: {point.risk_score}</div>',
+                                            format: '<div style="margin-left: 10px">{point.name}<br />  Risk score: {point.riskScore}</div>',
                                             style: {
                                                 fontWeight: 'bold',
                                                 fontSize: '16px',

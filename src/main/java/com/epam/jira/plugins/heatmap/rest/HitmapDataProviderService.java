@@ -2,7 +2,6 @@ package com.epam.jira.plugins.heatmap.rest;
 
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
-import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
@@ -16,7 +15,8 @@ import com.atlassian.query.Query;
 import com.atlassian.sal.api.user.UserManager;
 import com.epam.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
 import com.epam.jira.plugins.heatmap.dto.ConfigPOJO;
-import com.epam.jira.plugins.heatmap.dto.ProjectPOJO;
+import com.epam.jira.plugins.heatmap.dto.ProjectInfo;
+import com.epam.jira.plugins.heatmap.dto.ProjectStatisticInRange;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;
@@ -28,7 +28,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,7 +43,7 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final UserManager manager;
 
-    private ConfigPOJO configPOJO;
+    int daysToCalculate = 30;
 
     @Inject
     public HitmapDataProviderService(UserManager userManager, SearchService searchService) {
@@ -53,8 +55,8 @@ public class HitmapDataProviderService {
     @Path("/main-chart")
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@Context HttpServletRequest request) {
-        configPOJO = new ConfigPOJO(request);
-        List<ProjectPOJO> result = getPropertiesUser(request);
+        ConfigPOJO.setConfigPOJO(request);
+        List<ProjectInfo> result = getPropertiesUser(request);
         if (result == null || result.isEmpty()) {
             return Response.noContent().build();
         } else {
@@ -69,16 +71,49 @@ public class HitmapDataProviderService {
         }
     }
 
+    @GET
+    @Path("/project-statistic")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProjectStatistic(@Context HttpServletRequest request) {
+        ConfigPOJO.setConfigPOJO(request);
+        ProjectStatisticInRange result = getProjectInfo(request);
+        if (result == null) {
+            return Response.noContent().build();
+        } else {
+            String jsonString = null;
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                jsonString = mapper.writeValueAsString(result);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return Response.ok(jsonString).build();
+        }
+    }
 
-    private List<ProjectPOJO> getPropertiesUser(HttpServletRequest request) {
+    private ProjectStatisticInRange getProjectInfo(HttpServletRequest request) {
         ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(manager.getRemoteUsername(request));
-        List<ProjectPOJO> results = new ArrayList<>();
-        RiskScoreCalculator calculator = new RiskScoreCalculator(configPOJO);
-        for (String project : configPOJO.getProjects()) {
+        RiskScoreCalculator calculator = new RiskScoreCalculator();
+        String projectName = request.getParameter("projectName");
+        ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
+        for(int i=0; i< daysToCalculate; i++){
+            List<Issue> issues = getListOfIsses(projectName, applicationUser);
+            LocalDate calculationDate = LocalDate.now().minusDays(daysToCalculate);
+            projectStatistic.addProjectInfoByDate(calculator.calculateRiskScoreStatistic(issues, calculationDate));
+        }
+        return projectStatistic;
+    }
+
+
+    private List<ProjectInfo> getPropertiesUser(HttpServletRequest request) {
+        ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(manager.getRemoteUsername(request));
+        List<ProjectInfo> results = new ArrayList<>();
+        RiskScoreCalculator calculator = new RiskScoreCalculator();
+        for (String project : ConfigPOJO.getProjects()) {
             List<Issue> issues = getListOfIsses(project, applicationUser);
-            ProjectPOJO dto = calculator.calculateRiskScore(project, issues);
-            setColour(dto, configPOJO);
-            if (dto.getRisk_score() == 0) {
+            ProjectInfo dto = calculator.calculateRiskScore(project, issues);
+            setColour(dto);
+            if (dto.getRiskScore() == 0) {
                 dto.incrementRateScore();
             }
             results.add(dto);
@@ -87,25 +122,25 @@ public class HitmapDataProviderService {
         return results;
     }
 
-    private void setMinimumValueToRender(List<ProjectPOJO> results) {
-        int summ = results.stream().mapToInt(ProjectPOJO::getRisk_score).sum();
-        int minValue = results.stream().mapToInt(ProjectPOJO::getSquareSize).min().getAsInt();
-        if (((float) minValue / summ) <= ((float) 1 / configPOJO.getCellsNumber())) {
+    private void setMinimumValueToRender(List<ProjectInfo> results) {
+        int summ = results.stream().mapToInt(ProjectInfo::getRiskScore).sum();
+        int minValue = results.stream().mapToInt(ProjectInfo::getSquareSize).min().getAsInt();
+        if (((float) minValue / summ) <= ((float) 1 / ConfigPOJO.getCellsNumber())) {
             recalculateSquresSizes(results);
         }
 
     }
 
-    private void recalculateSquresSizes(List<ProjectPOJO> results) {
-        int summ = results.stream().mapToInt(ProjectPOJO::getSquareSize).sum();
+    private void recalculateSquresSizes(List<ProjectInfo> results) {
+        int summ = results.stream().mapToInt(ProjectInfo::getSquareSize).sum();
         int count = 0;
-        for (ProjectPOJO projectPOJO : results) {
-            int calculateValue = (projectPOJO.getSquareSize() * configPOJO.getCellsNumber()) / summ;
+        for (ProjectInfo projectInfo : results) {
+            int calculateValue = (projectInfo.getSquareSize() * ConfigPOJO.getCellsNumber()) / summ;
             if (calculateValue < 1) {
                 calculateValue++;
                 count++;
             }
-            projectPOJO.setSquareSize(calculateValue);
+            projectInfo.setSquareSize(calculateValue);
         }
         if (count > 0 && results.size() > 1) {
             correctionsInCalculations(results, count);
@@ -113,34 +148,38 @@ public class HitmapDataProviderService {
     }
 
 
-    private void correctionsInCalculations(List<ProjectPOJO> results, int count) {
-        int summ = results.stream().mapToInt(ProjectPOJO::getSquareSize).sum();
+    private void correctionsInCalculations(List<ProjectInfo> results, int count) {
+        int summ = results.stream().mapToInt(ProjectInfo::getSquareSize).sum();
         float overallWeight = 0;
-        for (ProjectPOJO projectPOJO : results) {
-            int squareSize = projectPOJO.getSquareSize();
+        for (ProjectInfo projectInfo : results) {
+            int squareSize = projectInfo.getSquareSize();
             if (squareSize != 1) {
                 overallWeight += (float) squareSize / (summ - squareSize);
             }
         }
-        for (ProjectPOJO projectPOJO : results.stream().sorted((o1, o2) -> Integer.compare(o1.getSquareSize(), o2.getSquareSize())).collect(Collectors.toList())) {
-            int squareSize = projectPOJO.getSquareSize();
+        for (ProjectInfo projectInfo : results.stream().sorted(Comparator.comparing(ProjectInfo::getSquareSize)).collect(Collectors.toList())) {
+            int squareSize = projectInfo.getSquareSize();
             if (squareSize != 1 && overallWeight > 0) {
                 int valueToDecrement = Math.round((count * ((float) squareSize / (summ - squareSize))) / overallWeight);
                 overallWeight -= valueToDecrement;
                 count--;
-                projectPOJO.setSquareSize(squareSize - valueToDecrement);
+                projectInfo.setSquareSize(squareSize - valueToDecrement);
             }
         }
     }
-    private List<Issue> getListOfIsses(String projectKey, ApplicationUser applicationUser) {
+
+    private List<Issue> getListOfIsses(String projectKey, ApplicationUser applicationUser, LocalDate date) {
         JqlQueryParser parser = ComponentAccessor.getComponent(JqlQueryParser.class);
         Query query = null;
         try {
             StringBuilder builder = new StringBuilder();
-            builder.append("project = '").append(projectKey).append("' AND priority IN (").append(configPOJO.getHighestPriorityName()).append(",")
-                    .append(configPOJO.getHighPriorityName()).append(",").append(configPOJO.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
-            if (configPOJO.getLabels() != null && configPOJO.getLabels().length() > 0 && !configPOJO.getLabels().equals("-")) {
-                builder.append("and labels in (").append(configPOJO.getLabels()).append(")");
+            builder.append("project = '").append(projectKey).append("' AND priority IN (").append(ConfigPOJO.getHighestPriorityName()).append(",")
+                    .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
+            if (ConfigPOJO.getLabels() != null && ConfigPOJO.getLabels().length() > 0 && !ConfigPOJO.getLabels().equals("-")) {
+                builder.append(" AND labels in (").append(ConfigPOJO.getLabels()).append(")");
+            }
+            if(date!=null){
+                //TODO:update me
             }
             query = parser.parseQuery(builder.toString());
         } catch (JqlParseException e) {
@@ -157,17 +196,19 @@ public class HitmapDataProviderService {
         return issues;
     }
 
-    private void setColour(ProjectPOJO dto, ConfigPOJO configPOJO) {
-        if (dto.getRisk_score() > configPOJO.getRed()) {
+    private List<Issue> getListOfIsses(String projectKey, ApplicationUser applicationUser) {
+        return getListOfIsses(projectKey, applicationUser, null);
+    }
+
+    private void setColour(ProjectInfo dto) {
+        if (dto.getRiskScore() > ConfigPOJO.getRed()) {
             dto.setColor("#AF2947");
-        } else if (dto.getRisk_score() > configPOJO.getAmber()) {
+        } else if (dto.getRiskScore() > ConfigPOJO.getAmber()) {
             dto.setColor("#F0B400");
         } else {
             dto.setColor("#7F9943");
         }
     }
-
-
 
 
 
