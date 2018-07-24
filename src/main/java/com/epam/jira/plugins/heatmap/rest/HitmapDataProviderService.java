@@ -57,7 +57,7 @@ public class HitmapDataProviderService {
     public Response get(@Context HttpServletRequest request) {
         ConfigPOJO.setConfigPOJO(request);
         List<ProjectInfo> result = getPropertiesUser(request);
-        if (result == null || result.isEmpty()) {
+        if (result.isEmpty()) {
             return Response.noContent().build();
         } else {
             String jsonString = null;
@@ -174,17 +174,21 @@ public class HitmapDataProviderService {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("project = '").append(projectKey).append("' AND priority IN (").append(ConfigPOJO.getHighestPriorityName()).append(",")
-                    .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(") AND status not in (Closed, Resolved)");
+                    .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(")");
+            if(date!=null){
+                builder.append(" AND status was not in (Closed, Resolved) DURING ('2018/07/22', '2018/07/22')");
+            } else {
+                builder.append(" AND status not in (Closed, Resolved) ");
+            }
             if (ConfigPOJO.getLabels() != null && ConfigPOJO.getLabels().length() > 0 && !ConfigPOJO.getLabels().equals("-")) {
                 builder.append(" AND labels in (").append(ConfigPOJO.getLabels()).append(")");
             }
-            if(date!=null){
-                //TODO:update me
-            }
+
             query = parser.parseQuery(builder.toString());
         } catch (JqlParseException e) {
             e.printStackTrace();
         }
+
         List<Issue> issues = null;
         try {
             SearchResults results = searchService.search(applicationUser, query, PagerFilter.getUnlimitedFilter());

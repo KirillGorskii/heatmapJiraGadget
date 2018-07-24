@@ -19,9 +19,9 @@ public  class ConfigPOJO {
     private static String highPriorityName = "critical";
     private static String middlePriorityName = "major";
 
-    private static final int standardBlockerSLA = 3 * 24 * 3600;
-    private static final int standardCriticalSLA = 5 * 24 * 3600;
-    private static final int standardMajorSLA = 25 * 24 * 3600;
+    private static final int STANDARD_BLOCKER_SLA = 3 * 24 * 3600;
+    private static final int STANDARD_CRITICAL_SLA = 5 * 24 * 3600;
+    private static final int STANDARD_MAJOR_SLA = 25 * 24 * 3600;
 
     public static String getHighestPriorityName() {
         return highestPriorityName;
@@ -41,6 +41,10 @@ public  class ConfigPOJO {
 
     public static int getCellsNumber() {
         return cellsNumber;
+    }
+
+    private ConfigPOJO(){
+
     }
 
     private static void addProjects(String project) {
@@ -79,13 +83,13 @@ public  class ConfigPOJO {
 
     public static int getStandardSlaTimeForPriority(String issuePriority) {
         if (issuePriority.equalsIgnoreCase(highestPriorityName)) {
-            return standardBlockerSLA;
+            return STANDARD_BLOCKER_SLA;
         }
         if (issuePriority.equalsIgnoreCase(highPriorityName)) {
-            return standardCriticalSLA;
+            return STANDARD_CRITICAL_SLA;
         }
         if (issuePriority.equalsIgnoreCase(middlePriorityName)) {
-            return standardMajorSLA;
+            return STANDARD_MAJOR_SLA;
         }
         return 0;
     }

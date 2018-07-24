@@ -16,5 +16,5 @@ public interface RateScoreStatistic {
 
     Timestamp getRateScore();
 
-    void incrementPriorityCounter(Issue name, RateScoreStatistic projectPOJO);
+    void incrementPriorityCounter(Issue name);
 }

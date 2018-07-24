@@ -87,7 +87,16 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     }
 
     @Override
-    public void incrementPriorityCounter(Issue name, RateScoreStatistic projectPOJO) {
-//update me
+    public void incrementPriorityCounter(Issue issue) {
+        String issuePriority = issue.getPriority().getName();
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
+           incrementBlocker();
+        }
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
+            incrementCritical();
+        }
+        if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
+            incrementMajor();
+        }
     }
 }

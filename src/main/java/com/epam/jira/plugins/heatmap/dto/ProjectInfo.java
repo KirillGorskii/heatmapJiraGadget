@@ -114,16 +114,16 @@ public class ProjectInfo implements RateScoreStatistic {
     }
 
     @Override
-    public void incrementPriorityCounter(Issue issue, RateScoreStatistic dao) {
+    public void incrementPriorityCounter(Issue issue) {
         String issuePriority = issue.getPriority().getName();
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
-            dao.incrementBlocker();
+            incrementBlocker();
         }
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
-            dao.incrementCritical();
+            incrementCritical();
         }
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
-            dao.incrementMajor();
+            incrementMajor();
         }
     }
 

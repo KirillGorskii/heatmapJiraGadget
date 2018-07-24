@@ -35,7 +35,7 @@ public class RiskScoreCalculator {
         }
         long dueDate = createdTime + (hoursBetweenDueDateAndCreated * 60 * 60 * 1000);
         if (now.getTime() > dueDate) {
-            projectPOJO.incrementPriorityCounter(issue, projectPOJO);
+            projectPOJO.incrementPriorityCounter(issue);
             projectPOJO.incrementRateScore();
         }
     }
@@ -59,7 +59,6 @@ public class RiskScoreCalculator {
     }
 
     public ProjectInfoByDate calculateRiskScoreStatistic(List<Issue> issues,  LocalDate date) {
-
         ProjectInfoByDate projectInfoByDate = new ProjectInfoByDate(date);
         for(Issue issue: issues){
             calculateRateScore(issue, projectInfoByDate);
