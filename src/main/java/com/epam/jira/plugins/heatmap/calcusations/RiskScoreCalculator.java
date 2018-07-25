@@ -20,14 +20,14 @@ public class RiskScoreCalculator {
         return dto;
     }
 
-    private void calculateRateScoreBaseOnOverallData(ProjectInfo dto) {
-        dto.incrementRateScore(dto.getBlocker() * 10);
-        dto.incrementRateScore(dto.getCritical());
-        dto.incrementRateScore(dto.getMajor() / 20);
+    private void calculateRateScoreBaseOnOverallData(RateScoreStatistic dto) {
+        dto.incrementRiskScore(dto.getBlocker() * 10);
+        dto.incrementRiskScore(dto.getCritical());
+        dto.incrementRiskScore(dto.getMajor() / 20);
     }
 
     private void calculateRateScore(Issue issue, RateScoreStatistic projectPOJO) {
-        Timestamp now = projectPOJO.getRateScore();
+        Timestamp now = projectPOJO.getRiscScoreDate();
         int hoursBetweenDueDateAndCreated = getHoursForProirity(issue);
         long createdTime = issue.getCreated().getTime();
         if (hoursBetweenDueDateAndCreated == 0) {
@@ -36,7 +36,7 @@ public class RiskScoreCalculator {
         long dueDate = createdTime + (hoursBetweenDueDateAndCreated * 60 * 60 * 1000);
         if (now.getTime() > dueDate) {
             projectPOJO.incrementPriorityCounter(issue);
-            projectPOJO.incrementRateScore();
+            projectPOJO.incrementRiskScore();
         }
     }
 
@@ -63,6 +63,7 @@ public class RiskScoreCalculator {
         for(Issue issue: issues){
             calculateRateScore(issue, projectInfoByDate);
         }
+        calculateRateScoreBaseOnOverallData(projectInfoByDate);
         return projectInfoByDate;
     }
 }

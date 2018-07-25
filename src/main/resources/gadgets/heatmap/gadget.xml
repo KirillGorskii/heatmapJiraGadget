@@ -211,6 +211,11 @@
                 return isNumeric(data.key) || keyCode == 8 ||  keyCode == 30 || keyCode == 33 || keyCode == 127;
             }
 
+            function  redrawChartToDrilldown(data){
+                alert("Tadam");
+                debugger;
+            }
+
             AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({
@@ -309,7 +314,6 @@
                                     type: "callbackBuilder",
                                     callback: function(parentDiv){
                                         AJS.$('div:has(#blocker)').addClass('flex-box');
-
                                         parentDiv.append(
                                             AJS.$("<input/>").attr({
                                                 id: "blocker",
@@ -513,7 +517,27 @@
                                         point: {
                                             events: {
                                                 click: function () {
-                                                    window.open(this.link, '_blank');
+                                                    AJS.$.ajax({
+                                                        type: 'GET',
+                                                        url: '/rest/heatmap-dj/1.0/gadget/heatmap/project-statistic',
+                                                        data:{
+                                                            projects: gadgets.Prefs().getString("projects"),
+                                                            labels: gadgets.Prefs().getString("labels"),
+                                                            majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                                            cellsNumber: gadgets.Prefs().getString("cellsNumber"),
+                                                            highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                                            highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
+                                                            blocker: gadgets.Prefs().getString("blocker"),
+                                                            critical: gadgets.Prefs().getString("critical"),
+                                                            major: gadgets.Prefs().getString("major"),
+                                                            red: gadgets.Prefs().getString("red"),
+                                                            amber: gadgets.Prefs().getString("amber"),
+                                                            projectName: this.name
+                                                        },
+                                                        success: function(data){
+                                                            redrawChartToDrilldown(data);
+                                                        }
+                                                    });
                                                 }
                                             }
                                         }

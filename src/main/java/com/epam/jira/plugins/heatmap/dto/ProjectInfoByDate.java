@@ -5,12 +5,13 @@ import com.atlassian.jira.issue.Issue;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 public class ProjectInfoByDate implements RateScoreStatistic{
 
     private LocalDate dateOfRiskScore;
-    private int riskScore = 1;
+    private int riskScore = 0;
     private int major = 0;
     private int critical = 0;
     private int blocker = 0;
@@ -62,8 +63,13 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     }
 
     @Override
-    public void incrementRateScore() {
+    public void incrementRiskScore() {
         riskScore++;
+    }
+
+    @Override
+    public void incrementRiskScore(int valueToIncrement) {
+        riskScore+=valueToIncrement;
     }
 
     @Override
@@ -82,8 +88,8 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     }
 
     @Override
-    public Timestamp getRateScore() {
-        return Timestamp.from(Instant.from(dateOfRiskScore));
+    public Timestamp getRiscScoreDate() {
+        return Timestamp.from(Instant.from(dateOfRiskScore.atStartOfDay().toInstant(ZoneOffset.UTC)));
     }
 
     @Override

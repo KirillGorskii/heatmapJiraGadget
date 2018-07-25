@@ -6,7 +6,9 @@ import java.sql.Timestamp;
 
 public interface RateScoreStatistic {
 
-    void incrementRateScore();
+    void incrementRiskScore();
+
+    void incrementRiskScore(int valueToIncrement);
 
     void incrementBlocker();
 
@@ -14,7 +16,13 @@ public interface RateScoreStatistic {
 
     void incrementMajor();
 
-    Timestamp getRateScore();
+    Timestamp getRiscScoreDate();
 
     void incrementPriorityCounter(Issue name);
+
+    int getBlocker();
+
+    int getCritical();
+
+    int getMajor();
 }

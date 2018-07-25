@@ -86,12 +86,12 @@ public class ProjectInfo implements RateScoreStatistic {
         return minor;
     }
 
-    public void incrementRateScore(int value){
-        riskScore +=value;
+    public void incrementRiskScore(int value){
+        riskScore+=value;
         squareSize+=value;
     }
 
-    public void incrementRateScore(){
+    public void incrementRiskScore(){
         riskScore++;
         squareSize++;
     }
@@ -109,7 +109,7 @@ public class ProjectInfo implements RateScoreStatistic {
     }
 
     @Override
-    public Timestamp getRateScore() {
+    public Timestamp getRiscScoreDate() {
         return Timestamp.from(Instant.now());
     }
 

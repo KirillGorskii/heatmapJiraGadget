@@ -43,7 +43,7 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final UserManager manager;
 
-    int daysToCalculate = 30;
+    int daysToCalculate = 7;
 
     @Inject
     public HitmapDataProviderService(UserManager userManager, SearchService searchService) {
@@ -77,18 +77,15 @@ public class HitmapDataProviderService {
     public Response getProjectStatistic(@Context HttpServletRequest request) {
         ConfigPOJO.setConfigPOJO(request);
         ProjectStatisticInRange result = getProjectInfo(request);
-        if (result == null) {
-            return Response.noContent().build();
-        } else {
-            String jsonString = null;
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                jsonString = mapper.writeValueAsString(result);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return Response.ok(jsonString).build();
+        String jsonString = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            jsonString = mapper.writeValueAsString(result);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return Response.ok(jsonString).build();
+
     }
 
     private ProjectStatisticInRange getProjectInfo(HttpServletRequest request) {
@@ -114,7 +111,7 @@ public class HitmapDataProviderService {
             ProjectInfo dto = calculator.calculateRiskScore(project, issues);
             setColour(dto);
             if (dto.getRiskScore() == 0) {
-                dto.incrementRateScore();
+                dto.incrementRiskScore();
             }
             results.add(dto);
         }
