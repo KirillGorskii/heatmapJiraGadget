@@ -211,9 +211,291 @@
                 return isNumeric(data.key) || keyCode == 8 ||  keyCode == 30 || keyCode == 33 || keyCode == 127;
             }
 
+            function redrawToTreeMap(){
+                try {
+                    AJS.$("#container").highcharts().destroy();
+                } catch(e){
+
+                }
+                var gadgets = AJS.$(this)[0].gadgets;
+                AJS.$.ajax({
+                    type: 'GET',
+                    url: '/rest/heatmap-dj/1.0/gadget/heatmap/main-chart',
+                    data:{
+                        projects: gadgets.Prefs().getString("projects"),
+                        labels: gadgets.Prefs().getString("labels"),
+                        majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                        cellsNumber: gadgets.Prefs().getString("cellsNumber"),
+                        highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                        highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
+                        blocker: gadgets.Prefs().getString("blocker"),
+                        critical: gadgets.Prefs().getString("critical"),
+                        major: gadgets.Prefs().getString("major"),
+                        red: gadgets.Prefs().getString("red"),
+                        amber: gadgets.Prefs().getString("amber")
+                    },
+                    success: function(data){
+                        redrawChartToTreemap(data);
+                    }
+                });
+            }
+
+
+
+            function  redrawChartToTreemap(records){
+                var seriesData = [];
+                records.forEach(function(record){
+                    seriesData.push({
+                        name: record.projectName,
+                        color: record.color,
+                        value: record.squareSize,
+                        riskScore: record.riskScore,
+                        link: record.link,
+                        critical: record.critical,
+                        blocker: record.blocker,
+                        major: record.major
+                    });
+                });
+                var treemapOptions = {
+                    chart: {
+                        type: 'treemap',
+                        height: '50%',
+                        layoutAlgorithm: 'squarified',
+                        alternateStartingDirection: true,
+                        zoomType: 'xy',
+                        margin: [50, 5, 20, 5]
+                    },
+                    tooltip: {
+                        useHTML: true,
+                        pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.riskScore}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                                enabled: true,
+                                allowOverlap: false,
+                                useHTML: true,
+                                format: '<div style="margin-left: 10px">{point.name}<br />  Risk score: {point.riskScore}</div>',
+                                style: {
+                                    fontWeight: 'bold',
+                                    fontSize: '16px',
+                                    textOutline:'0px'
+                                }
+                            },
+                            cursor: 'pointer',
+                            point: {
+                                events: {
+                                    click: function () {
+                                        AJS.$.ajax({
+                                            type: 'GET',
+                                            url: '/rest/heatmap-dj/1.0/gadget/heatmap/project-statistic',
+                                            data:{
+                                                projects: gadgets.Prefs().getString("projects"),
+                                                labels: gadgets.Prefs().getString("labels"),
+                                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                                cellsNumber: gadgets.Prefs().getString("cellsNumber"),
+                                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
+                                                blocker: gadgets.Prefs().getString("blocker"),
+                                                critical: gadgets.Prefs().getString("critical"),
+                                                major: gadgets.Prefs().getString("major"),
+                                                red: gadgets.Prefs().getString("red"),
+                                                amber: gadgets.Prefs().getString("amber"),
+                                                projectName: this.name
+                                            },
+                                            success: function(data){
+                                                redrawChartToDrilldown(data);
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    series: [{
+                        type: 'treemap',
+                        layoutAlgorithm: 'squarified',
+                        data: seriesData
+
+                    }],
+                    navigation: {
+                        buttonOptions: {
+                            align: 'left',
+                              menuItems: [
+                                'back to heatmap view',
+                                'downloadPNG',
+                                'downloadJPEG',
+                                'downloadPDF',
+                                'downloadSVG'
+                              ]
+                        }
+                    },
+                    xAxis: {
+                        scrollbar: {
+                            enabled: true
+                        }
+                    },
+                    yAxis: {
+                        scrollbar: {
+                            enabled: true
+                        }
+                    },
+                    title: {
+                        text: 'Projects Status Heatmap'
+                    }
+                }
+                var charts = Highcharts.chart('container', treemapOptions);
+                var calculatedValuer = calculateFontSize() + 'px';
+                var maxAxisValue = charts.yAxis[0].max;
+                var calculatedValuer = calculateFontSize() + 'px';
+                charts.update({
+                     plotOptions: {
+                             series: {
+                                dataLabels: {
+                                style: {
+                                    fontWeight: 'bold',
+                                    fontSize: calculatedValuer,
+                                    textOutline:'0px'
+                                }
+                                }
+                             }
+                     }
+                });
+                charts.redraw();
+                gadgets.window.adjustHeight();
+            }
+
+
             function  redrawChartToDrilldown(data){
-                alert("Tadam");
+                var chart = AJS.$("#container").highcharts().destroy();
+                var seriesData = [];
+                var xAxisCategories = [];
+                var seriesData = [];
+                var projectName;
+                projectName = data.projectName;
+                data.projectInfoByDates.forEach(function(projectInfo){
+                    seriesData.push({
+                        critical: projectInfo.critical,
+                        blocker: projectInfo.blocker,
+                        major: projectInfo.major,
+                        name: new Date(projectInfo.riscScoreDate),
+                        y: projectInfo.riskScore
+                    });
+                    xAxisCategories.push(new Date(projectInfo.riscScoreDate));
+                });
+                var gadget = AJS.$(this)[0].gadgets.Prefs();
+                var amberLine = parseInt(gadget.getString("amber"));
+                var redLine = parseInt(gadget.getString("red"));
+                var lineChart =  {
+                    chart: {
+                        type: 'line'
+                    },
+                    title: {
+                        text: 'Risk score for date range'
+                    },
+                    xAxis: {
+                        title: {
+                            text: 'Date'
+                        },
+                        categories: xAxisCategories,
+
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Risk score'
+                        },
+                        min: 0,
+                        tickAmount: 0
+                    },
+                    plotOptions: {
+                        line: {
+                            dataLabels: {
+                                enabled: true
+                            },
+                            enableMouseTracking: false
+                        }
+                    },
+                    series: [{
+                        name: projectName,
+                        data: seriesData,
+                        color: '#FFFFFF'
+                    }],
+                    navigation: {
+                        buttonOptions: {
+                            align: 'left'
+                        }
+                    },
+                    exporting: {
+                        menuItemDefinitions: {
+                            backToTreeMap: {
+                                onclick: function(){redrawToTreeMap();},
+                                text: 'Back to heatmap'
+                            }
+                        },
+                        buttons:{
+                            contextButton: {
+                                menuItems: [
+                                   'backToTreeMap',
+                                   'printChart',
+                                   'separator',
+                                   'downloadPNG',
+                                   'downloadJPEG',
+                                   'downloadPDF',
+                                   'downloadSVG'
+                                ]
+                            }
+                        }
+                    }
+                };
+                var charts = Highcharts.chart('container', lineChart);
+                var calculatedValuer = calculateFontSize() + 'px';
+                var maxAxisValue = charts.yAxis[0].max;
+                 charts.update({
+                    line: {
+                        dataLabels: {
+                            enabled: true
+                        },
+                        enableMouseTracking: false
+                    },
+                    plotOptions: {
+                        series: {
+                            dataLabels: {
+                            style: {
+                                fontWeight: 'bold',
+                                fontSize: calculatedValuer,
+                                textOutline:'0px'
+                            }
+                            }
+                        }
+                    },
+                    yAxis: {
+                        plotBands: [{
+                            from: 0,
+                            to: amberLine,
+                            color: '#7F9943',
+                            label: {
+                                text: 'Green status',
+                            }
+                            },{
+                            from: amberLine,
+                            to: redLine,
+                            color: '#F0B400',
+                            label: {
+                                text: 'Amber status',
+                            }
+                            },{
+                            from: redLine,
+                            to: maxAxisValue,
+                            color: '#AF2947',
+                        label: {
+                            text: 'Red status',
+                        }
+                        }]
+                    }
+                });
+                charts.redraw();
                 debugger;
+                gadgets.window.adjustHeight();
             }
 
             AJS.$(document).ready((function() {
@@ -470,127 +752,7 @@
                         AJS.$('.item-link.no_target:contains("gadget.common.configure")').text('Configuration');
                         AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                         gadget.getView().html("<div id='container'/>");
-                            var records = args.records;
-                            var seriesData = [];
-                            records.forEach(function(record){
-                                seriesData.push({
-                                    name: record.projectName,
-                                    color: record.color,
-                                    value: record.squareSize,
-                                    riskScore: record.riskScore,
-                                    link: record.link,
-                                    critical: record.critical,
-                                    blocker: record.blocker,
-                                    major: record.major
-                                });
-                            });
-
-                            gadgets.window.setTitle("Projects Status Heatmap");
-                            gadgets.window.adjustHeight();
-                            var treemapOptions = {
-                                chart: {
-                                    type: 'treemap',
-                                    height: '50%',
-                                    layoutAlgorithm: 'squarified',
-                                    alternateStartingDirection: true,
-                                    zoomType: 'xy',
-                                    margin: [50, 5, 20, 5]
-                                },
-                                tooltip: {
-                                    useHTML: true,
-                                    pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.riskScore}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
-                                },
-                                plotOptions: {
-                                     series: {
-                                        dataLabels: {
-                                            enabled: true,
-                                            allowOverlap: false,
-                                            useHTML: true,
-                                            format: '<div style="margin-left: 10px">{point.name}<br />  Risk score: {point.riskScore}</div>',
-                                            style: {
-                                                fontWeight: 'bold',
-                                                fontSize: '16px',
-                                                textOutline:'0px'
-                                            }
-                                        },
-                                        cursor: 'pointer',
-                                        point: {
-                                            events: {
-                                                click: function () {
-                                                    AJS.$.ajax({
-                                                        type: 'GET',
-                                                        url: '/rest/heatmap-dj/1.0/gadget/heatmap/project-statistic',
-                                                        data:{
-                                                            projects: gadgets.Prefs().getString("projects"),
-                                                            labels: gadgets.Prefs().getString("labels"),
-                                                            majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-                                                            cellsNumber: gadgets.Prefs().getString("cellsNumber"),
-                                                            highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-                                                            highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-                                                            blocker: gadgets.Prefs().getString("blocker"),
-                                                            critical: gadgets.Prefs().getString("critical"),
-                                                            major: gadgets.Prefs().getString("major"),
-                                                            red: gadgets.Prefs().getString("red"),
-                                                            amber: gadgets.Prefs().getString("amber"),
-                                                            projectName: this.name
-                                                        },
-                                                        success: function(data){
-                                                            redrawChartToDrilldown(data);
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                series: [{
-                                    type: 'treemap',
-                                    layoutAlgorithm: 'squarified',
-                                    data: seriesData
-
-                                }],
-                                navigation: {
-                                    buttonOptions: {
-                                        align: 'left',
-                                          menuItems: [
-                                            'back to heatmap view',
-                                            'downloadPNG',
-                                            'downloadJPEG',
-                                            'downloadPDF',
-                                            'downloadSVG'
-                                          ]
-                                    }
-                                },
-                                xAxis: {
-                                    scrollbar: {
-                                        enabled: true
-                                    }
-                                },
-                                yAxis: {
-                                    scrollbar: {
-                                        enabled: true
-                                    }
-                                },
-                                title: {
-                                    text: 'Projects Status Heatmap'
-                                }
-                            }
-                            var charts = Highcharts.chart('container', treemapOptions);
-                            var calculatedValuer = calculateFontSize() + 'px';
-                            charts.update({
-                                 plotOptions: {
-                                         series: {
-                                            dataLabels: {
-                                            style: {
-                                                fontWeight: 'bold',
-                                                fontSize: calculatedValuer,
-                                                textOutline:'0px'
-                                            }
-                                            }
-                                         }
-                                 }
-                            });
-                            charts.redraw();
+                        redrawChartToTreemap(args.records);
                         },
                         <!--close templates-->
                         args:[{
