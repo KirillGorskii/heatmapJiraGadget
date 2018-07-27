@@ -407,12 +407,19 @@
                         min: 0,
                         tickAmount: 0
                     },
+                    tooltip: {
+                        useHTML: true,
+                        pointFormat: 'Risk Score: {point.y}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                    },
                     plotOptions: {
+                        series: {
+                             connectNulls: true
+                        },
                         line: {
                             dataLabels: {
                                 enabled: true
                             },
-                            enableMouseTracking: false
+                            enableMouseTracking: true
                         }
                     },
                     series: [{
