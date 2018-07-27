@@ -1,4 +1,13 @@
-You have successfully created an Atlassian Plugin!
+For receiving .jar file for jira plugin install, run:
+* mvn package
+
+For check plugin locally:
+* install Atlassian SDK from: https://developer.atlassian.com/server/framework/atlassian-sdk/downloads/
+* run cmd or bash
+* open folder with project: cd path/to/project
+* start jira via atlas-run
+
+After it you will have local instance of Jira with this plugin
 
 Here are the SDK commands you'll use immediately:
 
