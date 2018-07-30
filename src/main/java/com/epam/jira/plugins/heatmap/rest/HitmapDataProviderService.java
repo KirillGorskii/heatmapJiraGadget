@@ -93,9 +93,9 @@ public class HitmapDataProviderService {
         RiskScoreCalculator calculator = new RiskScoreCalculator();
         String projectName = request.getParameter("projectName");
         ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
-        for(int i=0; i< daysToCalculate; i++){
+        for(int i=daysToCalculate-1; i >= 0; i--){
             List<Issue> issues = getListOfIsses(projectName, applicationUser);
-            LocalDate calculationDate = LocalDate.now().minusDays(daysToCalculate);
+            LocalDate calculationDate = LocalDate.now().minusDays(i);
             projectStatistic.addProjectInfoByDate(calculator.calculateRiskScoreStatistic(issues, calculationDate));
         }
         return projectStatistic;

@@ -43,6 +43,7 @@
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
             #requireResource("com.epam.jira.plugins.heatmap:heatmapResources")
+            #requireResource("com.atlassian.auiplugin:aui-date-picker")
             #includeResources()
             <script src="https://code.highcharts.com/highcharts.js"></script>
             <script src="https://code.highcharts.com/modules/treemap.js"></script>
@@ -139,6 +140,11 @@
                 }
                 return true;
             });
+
+            AJS.$(document).on("change", "#fromDate", function(data){
+                alert("just test");
+            });
+
 
             AJS.$(document).on("keydown", redInputSelector, function(data) {
                 var errorMessageSelector = '#red-error';
@@ -240,8 +246,6 @@
                 });
             }
 
-
-
             function  redrawChartToTreemap(records){
                 var seriesData = [];
                 records.forEach(function(record){
@@ -256,6 +260,7 @@
                         major: record.major
                     });
                 });
+                AJS.$('#dateConfig').hide();
                 var treemapOptions = {
                     chart: {
                         type: 'treemap',
@@ -371,17 +376,20 @@
                 var seriesData = [];
                 var xAxisCategories = [];
                 var seriesData = [];
-                var projectName;
-                projectName = data.projectName;
+                var projectName = data.projectName;
+                AJS.$('#dateConfig').show();
+                var fieldsadf = AJS.$('#fromDate');
+                fieldsadf.datepicker('setDate', new Date());
+                fieldsadf.val('2018-07-30');
                 data.projectInfoByDates.forEach(function(projectInfo){
                     seriesData.push({
                         critical: projectInfo.critical,
                         blocker: projectInfo.blocker,
                         major: projectInfo.major,
-                        name: new Date(projectInfo.riscScoreDate),
                         y: projectInfo.riskScore
                     });
-                    xAxisCategories.push(new Date(projectInfo.riscScoreDate));
+                    var dateOfRiskScore = projectInfo.dateOfRiskScore;
+                    xAxisCategories.push(dateOfRiskScore.monthValue + '/' + dateOfRiskScore.dayOfMonth + '/' + dateOfRiskScore.year);
                 });
                 var gadget = AJS.$(this)[0].gadgets.Prefs();
                 var amberLine = parseInt(gadget.getString("amber"));
@@ -391,7 +399,7 @@
                         type: 'line'
                     },
                     title: {
-                        text: 'Risk score for date range'
+                        text: 'Risk score for date range for ' + projectName + ' project'
                     },
                     xAxis: {
                         title: {
@@ -407,23 +415,27 @@
                         min: 0,
                         tickAmount: 0
                     },
+                    legend: {
+                        enabled: false
+                    },
                     tooltip: {
                         useHTML: true,
                         pointFormat: 'Risk Score: {point.y}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
                     },
                     plotOptions: {
                         series: {
-                             connectNulls: true
+                            connectNulls: true
                         },
                         line: {
                             dataLabels: {
-                                enabled: true
+                                enabled: true,
+                                color: '#FFFFFF'
                             },
                             enableMouseTracking: true
                         }
                     },
                     series: [{
-                        name: projectName,
+                        name: ' ',
                         data: seriesData,
                         color: '#FFFFFF'
                     }],
@@ -467,11 +479,11 @@
                     plotOptions: {
                         series: {
                             dataLabels: {
-                            style: {
-                                fontWeight: 'bold',
-                                fontSize: calculatedValuer,
-                                textOutline:'0px'
-                            }
+                                style: {
+                                    fontWeight: 'bold',
+                                    fontSize: calculatedValuer,
+                                    textOutline:'0px'
+                                }
                             }
                         }
                     },
@@ -479,29 +491,19 @@
                         plotBands: [{
                             from: 0,
                             to: amberLine,
-                            color: '#7F9943',
-                            label: {
-                                text: 'Green status',
-                            }
-                            },{
+                            color: '#baffc9'
+                        },{
                             from: amberLine,
                             to: redLine,
-                            color: '#F0B400',
-                            label: {
-                                text: 'Amber status',
-                            }
-                            },{
+                            color: '#ffdfba'
+                        },{
                             from: redLine,
                             to: maxAxisValue,
-                            color: '#AF2947',
-                        label: {
-                            text: 'Red status',
-                        }
+                            color: '#ffb3ba',
                         }]
                     }
                 });
                 charts.redraw();
-                debugger;
                 gadgets.window.adjustHeight();
             }
 
@@ -518,272 +520,273 @@
                             gadgets.window.adjustHeight();
                         });
                         return {
-                                theme : function() {
+                            theme : function() {
 
-                                    //set where settings will be
-                                if (gadgets.window.getViewportDimensions().width < 450){
-                                    return "gdt top-label";
-                                } else {
-                                    return "gdt top-label";
+                                //set where settings will be
+                            if (gadgets.window.getViewportDimensions().width < 450){
+                                return "gdt top-label";
+                            } else {
+                                return "gdt top-label";
+                            }
+                            }(),
+                            onResizeReload: true,
+                                //set settings to be return(create fields on config page)
+                            fields: [
+                            {
+                                type: "custom",
+                                template: function(){
+                                    return "<div id='issues-filter' class='issues-filter'><strong class='titleText'>Issues filter settings</strong></div>";
                                 }
-                                }(),
-                                onResizeReload: true,
-                                    //set settings to be return(create fields on config page)
-                                fields: [
-                                {
-                                    type: "custom",
-                                    template: function(){
-                                        return "<div id='issues-filter' class='issues-filter'><strong class='titleText'>Issues filter settings</strong></div>";
-                                    }
-                                },{
-                                    id: "projects",
-                                    userpref: "projects",
-                                    class: "numField",
-                                    label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                    AJS.$('div:has(#projects)').addClass('flex-box');
-                                    AJS.$('.aui.gdt.top-label').addClass('flex-parent');
-                                    AJS.$('div:has(#issues-filter)').addClass('flex-row');
-                                       parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "projects",
-                                                type: "text",
-                                                class: "text",
-                                                name:"projects"
-                                            }).val(gadget.getPref("projects"))
-                                        );
-                                    }
-                                }, {
-                                    id: "labels",
-                                    userpref: "labels",
-                                    class: "numField",
-                                    label: "Labels(comma separated list, ex. 'sec-issue,security'):",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
+                            },{
+                                id: "projects",
+                                userpref: "projects",
+                                class: "numField",
+                                label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                AJS.$('div:has(#projects)').addClass('flex-box');
+                                AJS.$('.aui.gdt.top-label').addClass('flex-parent');
+                                AJS.$('div:has(#issues-filter)').addClass('flex-row');
+                                   parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "projects",
+                                            type: "text",
+                                            class: "text",
+                                            name:"projects"
+                                        }).val(gadget.getPref("projects"))
+                                    );
+                                }
+                            }, {
+                                id: "labels",
+                                userpref: "labels",
+                                class: "numField",
+                                label: "Labels(comma separated list, ex. 'sec-issue,security'):",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
 
-                                        AJS.$('div:has(#labels)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "labels",
-                                                type: "text",
-                                                class: "text",
-                                                name:"labels"
-                                            }).val(gadget.getPref("labels"))
-                                        );
-                                    }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "<div id='sla' class='sla'><strong class='titleText'>Triage SLA Settings</strong></div>";
-                                    }
-                                },{
-                                    id: "highestPriorityName",
-                                    userpref: "highestPriorityName",
-                                    class: "numField",
-                                    label: "Highest priority name:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#sla)').addClass('flex-row');
-                                        AJS.$('div:has(#highestPriorityName)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "highestPriorityName",
-                                                type: "text",
-                                                class: "text",
-                                                name:"highestPriorityName"
-                                            }).val(gadget.getPref("highestPriorityName"))
-                                        );
-                                    }
-                                }, {
-                                    id: "blocker",
-                                    userpref: "blocker",
-                                    class: "numField",
-                                    label: "Highest expected triage time, h(ex. 24):",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#blocker)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "blocker",
-                                                type: "text",
-                                                class: "text numeric",
-                                                name:"blocker"
-                                            }).val(gadget.getPref("blocker"))
-                                        );
-                                    }
-                                },{
-                                    id: "highPriorityName",
-                                    userpref: "highPriorityName",
-                                    class: "highPriorityName",
-                                    label: "High priority name:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#highPriorityName)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "highPriorityName",
-                                                type: "text",
-                                                class: "text",
-                                                name:"highPriorityName"
-                                            }).val(gadget.getPref("highPriorityName"))
-                                        );
-                                    }
-                                },{
-                                    id: "critical",
-                                    userpref: "critical",
-                                    class: "numField",
-                                    label: "High expected triage time, h(ex. 48):",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#critical)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "critical",
-                                                type: "text",
-                                                class: "text numeric",
-                                                name:"critical"
-                                            }).val(gadget.getPref("critical"))
-                                        );
-                                    }
-                                },{
-                                    id: "majorPriorityName",
-                                    userpref: "majorPriorityName",
-                                    class: "majorPriorityName",
-                                    label: "Major priority name:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#majorPriorityName)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "majorPriorityName",
-                                                type: "text",
-                                                class: "text",
-                                                name:"majorPriorityName"
-                                            }).val(gadget.getPref("majorPriorityName"))
-                                        );
-                                    }
-                                },{
-                                    id: "major",
-                                    userpref: "major",
-                                    class: "numField",
-                                    label: "Major expected triage time, h(ex. 96):",
-                                     type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#major)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "major",
-                                                type: "text",
-                                                class: "text numeric",
-                                                name:"major"
-                                            }).val(gadget.getPref("major"))
-                                        );
-                                    }
-                                },{
-                                    type: "custom",
-                                    template: function(){
-                                        return "<div id='thresholds-settings' class='thresholds-settings'><strong class='titleText'>Heatmap Thresholds Settings</strong></div><div id='specialFlexBox' class='specialFlexBox'>";
-                                    }
-                                }, {
-                                    id: "red",
-                                    userpref: "red",
-                                    class: "numField",
-                                    label: "Health status 'Red' score value:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#red)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "red",
-                                                type: "text",
-                                                class: "text numeric",
-                                                name:"red"
-                                            }).val(gadget.getPref("red"))
-                                        );
-                                    }
-                                },{
-                                    id: "amber",
-                                    userpref: "amber",
-                                    class: "numField",
-                                    label: "Health status 'Amber' score value:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
-                                        AJS.$('div:has(#amber)').addClass('flex-box');
-                                        parentDiv.append(
-                                            AJS.$("<input/>").attr({
-                                                id: "amber",
-                                                type: "text",
-                                                class: "text numeric",
-                                                name:"amber"
-                                            }).val(gadget.getPref("amber"))
-                                        );
-                                    }
-                                }, {
-                                    type: "custom",
-                                    template: function(){
-                                        return "</div></div><div id='risk-def' class='risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
-                                    }
-                                },{
-                                    type: "custom",
-                                    template: function(){
-                                        return "<div id='advanced-settings' class='advanced-settings'><strong class='titleText'>Advanced settings</strong></div>";
-                                    }
-                                },{
-                                    id: "cellsNumber",
-                                    userpref: "cellsNumber",
-                                    class: "numField",
-                                    label: "Cells per heatmap:",
-                                    type: "callbackBuilder",
-                                    callback: function(parentDiv){
+                                    AJS.$('div:has(#labels)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "labels",
+                                            type: "text",
+                                            class: "text",
+                                            name:"labels"
+                                        }).val(gadget.getPref("labels"))
+                                    );
+                                }
+                            }, {
+                                type: "custom",
+                                template: function(){
+                                    return "<div id='sla' class='sla'><strong class='titleText'>Triage SLA Settings</strong></div>";
+                                }
+                            },{
+                                id: "highestPriorityName",
+                                userpref: "highestPriorityName",
+                                class: "numField",
+                                label: "Highest priority name:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#sla)').addClass('flex-row');
+                                    AJS.$('div:has(#highestPriorityName)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "highestPriorityName",
+                                            type: "text",
+                                            class: "text",
+                                            name:"highestPriorityName"
+                                        }).val(gadget.getPref("highestPriorityName"))
+                                    );
+                                }
+                            }, {
+                                id: "blocker",
+                                userpref: "blocker",
+                                class: "numField",
+                                label: "Highest expected triage time, h(ex. 24):",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#blocker)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "blocker",
+                                            type: "text",
+                                            class: "text numeric",
+                                            name:"blocker"
+                                        }).val(gadget.getPref("blocker"))
+                                    );
+                                }
+                            },{
+                                id: "highPriorityName",
+                                userpref: "highPriorityName",
+                                class: "highPriorityName",
+                                label: "High priority name:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#highPriorityName)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "highPriorityName",
+                                            type: "text",
+                                            class: "text",
+                                            name:"highPriorityName"
+                                        }).val(gadget.getPref("highPriorityName"))
+                                    );
+                                }
+                            },{
+                                id: "critical",
+                                userpref: "critical",
+                                class: "numField",
+                                label: "High expected triage time, h(ex. 48):",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#critical)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "critical",
+                                            type: "text",
+                                            class: "text numeric",
+                                            name:"critical"
+                                        }).val(gadget.getPref("critical"))
+                                    );
+                                }
+                            },{
+                                id: "majorPriorityName",
+                                userpref: "majorPriorityName",
+                                class: "majorPriorityName",
+                                label: "Major priority name:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#majorPriorityName)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "majorPriorityName",
+                                            type: "text",
+                                            class: "text",
+                                            name:"majorPriorityName"
+                                        }).val(gadget.getPref("majorPriorityName"))
+                                    );
+                                }
+                            },{
+                                id: "major",
+                                userpref: "major",
+                                class: "numField",
+                                label: "Major expected triage time, h(ex. 96):",
+                                 type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#major)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "major",
+                                            type: "text",
+                                            class: "text numeric",
+                                            name:"major"
+                                        }).val(gadget.getPref("major"))
+                                    );
+                                }
+                            },{
+                                type: "custom",
+                                template: function(){
+                                    return "<div id='thresholds-settings' class='thresholds-settings'><strong class='titleText'>Heatmap Thresholds Settings</strong></div><div id='specialFlexBox' class='specialFlexBox'>";
+                                }
+                            }, {
+                                id: "red",
+                                userpref: "red",
+                                class: "numField",
+                                label: "Health status 'Red' score value:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#red)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "red",
+                                            type: "text",
+                                            class: "text numeric",
+                                            name:"red"
+                                        }).val(gadget.getPref("red"))
+                                    );
+                                }
+                            },{
+                                id: "amber",
+                                userpref: "amber",
+                                class: "numField",
+                                label: "Health status 'Amber' score value:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
+                                    AJS.$('div:has(#amber)').addClass('flex-box');
+                                    parentDiv.append(
+                                        AJS.$("<input/>").attr({
+                                            id: "amber",
+                                            type: "text",
+                                            class: "text numeric",
+                                            name:"amber"
+                                        }).val(gadget.getPref("amber"))
+                                    );
+                                }
+                            }, {
+                                type: "custom",
+                                template: function(){
+                                    return "</div></div><div id='risk-def' class='risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
+                                }
+                            },{
+                                type: "custom",
+                                template: function(){
+                                    return "<div id='advanced-settings' class='advanced-settings'><strong class='titleText'>Advanced settings</strong></div>";
+                                }
+                            },{
+                                id: "cellsNumber",
+                                userpref: "cellsNumber",
+                                class: "numField",
+                                label: "Cells per heatmap:",
+                                type: "callbackBuilder",
+                                callback: function(parentDiv){
 
-                                        AJS.$('div:has(#cellsNumber)').addClass('flex-box');
-                                        AJS.$('div:has(select)').addClass('flex-box');
-                                        AJS.$('div:has(#advanced-settings)').addClass('flex-row');
-                                        parentDiv.append(
-                                            AJS.$("<input id='cellsNumber' type='text' class='text numeric' name='cellsNumber'></input>").val(gadget.getPref("cellsNumber"))
-                                        );
-                                    }
-                                },
-                                 AJS.gadget.fields.nowConfigured()
-                                ]
+                                    AJS.$('div:has(#cellsNumber)').addClass('flex-box');
+                                    AJS.$('div:has(select)').addClass('flex-box');
+                                    AJS.$('div:has(#advanced-settings)').addClass('flex-row');
+                                    parentDiv.append(
+                                        AJS.$("<input id='cellsNumber' type='text' class='text numeric' name='cellsNumber'></input>").val(gadget.getPref("cellsNumber"))
+                                    );
+                                }
+                            },
+                             AJS.gadget.fields.nowConfigured()
+                            ]
                         };
                     }
                 },
                 <!--end of config-->
                 view: {
-                        enableReload: true,
-                        onResizeReload: true,
-                        template: function(args) {
-                        var gadget = this;
-                        AJS.$('.item-link.no_target:contains("gadget.common.configure")').text('Configuration');
-                        AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
-                        gadget.getView().html("<div id='container'/>");
-                        redrawChartToTreemap(args.records);
-                        },
-                        <!--close templates-->
-                        args:[{
-                            key: "records",
-                            ajaxOptions: function() {
-                                return {
-                                    url: "/rest/heatmap-dj/1.0/gadget/heatmap/main-chart",
-                                    data: {
-                                        projects: gadgets.Prefs().getString("projects"),
-                                        labels: gadgets.Prefs().getString("labels"),
-                                        majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-                                        cellsNumber: gadgets.Prefs().getString("cellsNumber"),
-                                        highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-                                        highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-                                        blocker: gadgets.Prefs().getString("blocker"),
-                                        critical: gadgets.Prefs().getString("critical"),
-                                        major: gadgets.Prefs().getString("major"),
-                                        red: gadgets.Prefs().getString("red"),
-                                        amber: gadgets.Prefs().getString("amber")
-                                    }
-                                };
+                    enableReload: true,
+                    onResizeReload: true,
+                    template: function(args) {
+                    var gadget = this;
+                    AJS.$('.item-link.no_target:contains("gadget.common.configure")').text('Configuration');
+                    AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
+                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div>");
+                    AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
+                    redrawChartToTreemap(args.records);
+                },
+                <!--close templates-->
+                args:[{
+                    key: "records",
+                    ajaxOptions: function() {
+                        return {
+                            url: "/rest/heatmap-dj/1.0/gadget/heatmap/main-chart",
+                            data: {
+                                projects: gadgets.Prefs().getString("projects"),
+                                labels: gadgets.Prefs().getString("labels"),
+                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
+                                cellsNumber: gadgets.Prefs().getString("cellsNumber"),
+                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
+                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
+                                blocker: gadgets.Prefs().getString("blocker"),
+                                critical: gadgets.Prefs().getString("critical"),
+                                major: gadgets.Prefs().getString("major"),
+                                red: gadgets.Prefs().getString("red"),
+                                amber: gadgets.Prefs().getString("amber")
                             }
-                        }]
+                        };
                     }
+                }]
+                }
                 <!--end of view-->
             });
             <!--end of AJS.Gadget-->
