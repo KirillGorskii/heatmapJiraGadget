@@ -47,8 +47,6 @@ public class HitmapDataProviderService {
     @ComponentImport
     private final UserManager manager;
 
-    int daysToCalculate = 7;
-
     @Inject
     public HitmapDataProviderService(UserManager userManager, SearchService searchService) {
         this.manager = userManager;
@@ -100,7 +98,7 @@ public class HitmapDataProviderService {
         int difsInDays = Math.abs(Period.between(LocalDate.now(), startCalculationDate).getDays());
         ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
         for(int i=difsInDays-1; i >= 0; i--){
-            List<Issue> issues = getListOfIsses(projectName, applicationUser);
+            List<Issue> issues = getListOfIsses(projectName, applicationUser, LocalDate.now().minusDays(i));
             LocalDate calculationDate = LocalDate.now().minusDays(i);
             projectStatistic.addProjectInfoByDate(calculator.calculateRiskScoreStatistic(issues, calculationDate));
         }
@@ -193,7 +191,7 @@ public class HitmapDataProviderService {
             e.printStackTrace();
         }
 
-        List<Issue> issues = null;
+        List<Issue> issues;
         try {
             SearchResults results = searchService.search(applicationUser, query, PagerFilter.getUnlimitedFilter());
             issues = results.getIssues();
