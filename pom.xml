@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.epam.jira.plugins</groupId>
     <artifactId>heatmap</artifactId>
-    <version>1.0.15-SNAPSHOT</version>
+    <version>1.0.15</version>
 
     <organization>
         <name>Epam</name>
