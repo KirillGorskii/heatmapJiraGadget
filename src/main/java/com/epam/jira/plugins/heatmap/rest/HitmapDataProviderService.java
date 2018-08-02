@@ -28,14 +28,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -95,9 +93,9 @@ public class HitmapDataProviderService {
         RiskScoreCalculator calculator = new RiskScoreCalculator();
         String projectName = request.getParameter("projectName");
         LocalDate startCalculationDate = LocalDate.parse(request.getParameter("startDate").replace("-", "/"), DateTimeFormatter.ofPattern("yyyy/M/dd"));
-        int difsInDays = Math.abs(Period.between(LocalDate.now(), startCalculationDate).getDays());
+        int difsInDays = (int) Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), startCalculationDate));
         ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
-        for(int i=difsInDays-1; i >= 0; i--){
+        for (int i = difsInDays; i >= 0; i--) {
             List<Issue> issues = getListOfIsses(projectName, applicationUser, LocalDate.now().minusDays(i));
             LocalDate calculationDate = LocalDate.now().minusDays(i);
             projectStatistic.addProjectInfoByDate(calculator.calculateRiskScoreStatistic(issues, calculationDate));
@@ -176,7 +174,7 @@ public class HitmapDataProviderService {
             StringBuilder builder = new StringBuilder();
             builder.append("project = '").append(projectKey).append("' AND priority IN (").append(ConfigPOJO.getHighestPriorityName()).append(",")
                     .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(")");
-            if(date!=null){
+            if (date != null) {
                 String searchDate = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
                 builder.append(" AND status was not in (Closed, Resolved) DURING ('").append(searchDate).append("', '").append(searchDate).append("')");
             } else {
@@ -215,7 +213,6 @@ public class HitmapDataProviderService {
             dto.setColor(ConfigPOJO.greenColour);
         }
     }
-
 
 
 }
