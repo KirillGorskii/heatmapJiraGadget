@@ -206,11 +206,11 @@ public class HitmapDataProviderService {
 
     private void setColour(ProjectInfo dto) {
         if (dto.getRiskScore() > ConfigPOJO.getRed()) {
-            dto.setColor(ConfigPOJO.redColour);
+            dto.setColor(ConfigPOJO.RED_COLOR);
         } else if (dto.getRiskScore() > ConfigPOJO.getAmber()) {
-            dto.setColor(ConfigPOJO.amberColour);
+            dto.setColor(ConfigPOJO.AMBER_COLOR);
         } else {
-            dto.setColor(ConfigPOJO.greenColour);
+            dto.setColor(ConfigPOJO.GREEN_COLOR);
         }
     }
 

@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProjectInfoByDate implements RateScoreStatistic{
 
@@ -18,7 +19,7 @@ public class ProjectInfoByDate implements RateScoreStatistic{
 
     ArrayList<IssueInfo> issues = new ArrayList<>();
 
-    public ArrayList<IssueInfo> getIssues() {
+    public List<IssueInfo> getIssues() {
         return issues;
     }
 
