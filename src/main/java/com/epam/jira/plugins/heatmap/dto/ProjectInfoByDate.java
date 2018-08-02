@@ -18,6 +18,10 @@ public class ProjectInfoByDate implements RateScoreStatistic{
 
     ArrayList<IssueInfo> issues = new ArrayList<>();
 
+    public ArrayList<IssueInfo> getIssues() {
+        return issues;
+    }
+
     public ProjectInfoByDate(LocalDate date) {
         this.dateOfRiskScore = date;
     }
@@ -95,14 +99,21 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     @Override
     public void incrementPriorityCounter(Issue issue) {
         String issuePriority = issue.getPriority().getName();
+        IssueInfo issueInfo = new IssueInfo(issue.getKey()) ;
+        issueInfo.setIssuePriority(issuePriority);
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
-           incrementBlocker();
+            incrementBlocker();
+            issueInfo.setCalculatedRateScore(1 + 10);
         }
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
             incrementCritical();
+            issueInfo.setCalculatedRateScore(1 + 1);
         }
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
             incrementMajor();
+            issueInfo.setCalculatedRateScore(1);
         }
+        issueInfo.setColour();
+        issues.add(issueInfo);
     }
 }

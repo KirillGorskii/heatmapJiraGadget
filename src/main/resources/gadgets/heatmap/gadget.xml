@@ -59,7 +59,7 @@
             var projectsSelector = 'input#projects';
             var redInputSelector = 'input#red.numeric';
             var cellsNumberSelector = 'input#cellsNumber.numeric';
-
+            var issuesDescription;
             function calculateFontSize(){
                 var minHeight = findMinSquareSizeForDimention('height');
                 var minWidth = findMinSquareSizeForDimention('width');
@@ -149,6 +149,19 @@
                 redrawToDrilldown();
             });
 
+            AJS.$(document).on("click", "#showDescription", function(data){
+                var table = AJS.$('#issuesDescriptionTable')
+                AJS.$('#issuesDescriptionTable').show();
+                if(table){
+                    table.empty();
+                }
+                table.append("<tr class='headerRow'><td id='tableColor'><strong>Status</strong></td><td id='issuePriority'><strong>Issue priority</strong></td><td id='issueKey'><strong>Issue name</strong></td><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td></tr>");
+                issuesDescription.forEach(function(issue){
+                    table.append("<tr class='bodyRow'><td id='tableColor'><svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='22' height='22'><circle cx='11' cy='11' r='10' stroke='#333' stroke-width='1' fill="+issue.color+"/></svg></td><td id='issuePriority'>" + issue.issuePriority + "</td><td id='issueKey'>" + issue.issueKey + "</td><td id='calculatedRateScore'>" + issue.calculatedRateScore + "</td></tr>");
+                });
+                AJS.$(window)[0].gadgets.window.adjustHeight();
+            });
+
 
             AJS.$(document).on("keydown", redInputSelector, function(data) {
                 var errorMessageSelector = '#red-error';
@@ -214,6 +227,7 @@
                 errorMessage.text(message);
                 errorMessage.show();
                 resizeConfigurationForm();
+
             }
 
             function isCorrectSymbol(data){
@@ -293,6 +307,7 @@
                     });
                 });
                 AJS.$('#dateConfig').hide();
+                AJS.$('#issuesDescriptionTable').hide();
                 var treemapOptions = {
                     chart: {
                         type: 'treemap',
@@ -305,6 +320,9 @@
                     tooltip: {
                         useHTML: true,
                         pointFormat: '<span style="font-size: 14px"><strong>{point.name}</strong></span><br/>Risk Score: {point.riskScore}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+                    },
+                    credits: {
+                        enabled: false
                     },
                     plotOptions: {
                         series: {
@@ -391,6 +409,9 @@
                 var seriesData = [];
                 var projectName = data.projectName;
                 AJS.$('#dateConfig').show();
+                AJS.$('#issuesDescriptionTable').hide();
+                var today = new Date();
+                today.setHours(0,0,0,0);
                 data.projectInfoByDates.forEach(function(projectInfo){
                     seriesData.push({
                         critical: projectInfo.critical,
@@ -399,7 +420,13 @@
                         y: projectInfo.riskScore
                     });
                     var dateOfRiskScore = projectInfo.dateOfRiskScore;
-                    xAxisCategories.push(dateOfRiskScore.monthValue + '/' + dateOfRiskScore.dayOfMonth + '/' + dateOfRiskScore.year);
+                    var formatDateOfCalc = dateOfRiskScore.monthValue + '/' + dateOfRiskScore.dayOfMonth + '/' + dateOfRiskScore.year;
+                    xAxisCategories.push(formatDateOfCalc);
+                    var dateOfCalculation = new Date(formatDateOfCalc);
+                    dateOfCalculation.setHours(0,0,0,0);
+                    if( today.getTime() === dateOfCalculation.getTime()){
+                        issuesDescription = projectInfo.issues;
+                    }
                 });
                 var gadget = AJS.$(this)[0].gadgets.Prefs();
                 var amberLine = parseInt(gadget.getString("amber"));
@@ -407,6 +434,9 @@
                 var lineChart =  {
                     chart: {
                         type: 'line'
+                    },
+                    credits: {
+                        enabled: false
                     },
                     title: {
                         text: 'Risk score for date range for ' + projectName + ' project'
@@ -772,7 +802,7 @@
                     AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                     var now = new Date();
                     var formatedDate = now.getFullYear() + "-" + now.getMonth() + '-' + now.getDate();
-                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div>");
+                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').datePicker({'maxDate': formatedDate});
                     var defaultDate = new Date()

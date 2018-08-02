@@ -14,6 +14,10 @@ public  class ConfigPOJO {
     private static int amber = 1;
     private static int cellsNumber = 50;
 
+    public static final String redColour = "#AF2947";
+    public static final String amberColour = "#F0B400";
+    public static final String greenColour = "#7F9943";
+
 
     private static String highestPriorityName = "blocker";
     private static String highPriorityName = "critical";
