@@ -802,9 +802,9 @@
                     AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                     var now = new Date();
                     var formatedDate = now.getFullYear() + "-" + now.getMonth() + '-' + now.getDate();
-                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
+                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable' class='flex-box'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
-                    AJS.$('#fromDate').datePicker({'maxDate': formatedDate});
+                    AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
                     var formatedDefaultDate = defaultDate.getFullYear() + "-" + defaultDate.getMonth() + '-' + defaultDate.getDate();
