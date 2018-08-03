@@ -51,7 +51,7 @@
 }
 #calculatedRateScore{
     width:20%;
-    padding: 15px 15px 15px 15px;
+    padding: 12px 15px 12px 15px;
 }
 #issueKey{
     width:35%;
@@ -69,4 +69,37 @@
     align-content: flex-start
     flex-direction: row;
     width:100%;
+}
+.red{
+    background: #AF2947;
+    -webkit-border-radius: 0.8em;
+    color: #fff;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 15px;
+    text-align: center;
+    line-height: 1.8em;
+    width: 1.8em;
+}
+.amber{
+    background: #F0B400;
+    -webkit-border-radius: 0.8em;
+    color: #fff;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 15px;
+    text-align: center;
+    line-height: 1.8em;
+    width: 1.8em;
+}
+.green{
+    background: #7F9943;
+    -webkit-border-radius: 0.8em;
+    color: #fff;
+    display: inline-block;
+    font-weight: bold;
+    margin-right: 15px;
+    text-align: center;
+    line-height: 1.8em;
+    width: 1.8em;
 }

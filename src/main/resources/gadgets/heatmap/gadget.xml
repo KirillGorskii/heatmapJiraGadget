@@ -25,7 +25,7 @@
     </ModulePrefs>
 
     <UserPref name="isConfigured" datatype="hidden" default_value="false"/>
-    <UserPref name="refresh" datatype="hidden" default_value="false" />
+    <UserPref name="refresh" datatype="hidden" default_value="false"/>
     <UserPref name="projects" datatype="hidden" default_value="projects"/>
     <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
     <UserPref name="cellsNumber" datatype="hidden" default_value="50"/>
@@ -155,9 +155,9 @@
                 if(table){
                     table.empty();
                 }
-                table.append("<tr class='headerRow'><td id='tableColor'><strong>Status</strong></td><td id='issuePriority'><strong>Issue priority</strong></td><td id='issueKey'><strong>Issue name</strong></td><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td></tr>");
+                table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td><td id='issuePriority'><strong>Issue priority</strong></td><td id='issueKey'><strong>Issue name</strong></td></tr>");
                 issuesDescription.forEach(function(issue){
-                    table.append("<tr class='bodyRow'><td id='tableColor'><svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='22' height='22'><circle cx='11' cy='11' r='10' stroke='#333' stroke-width='1' fill="+issue.color+"/></svg></td><td id='issuePriority'>" + issue.issuePriority + "</td><td id='issueKey'>" + issue.issueKey + "</td><td id='calculatedRateScore'>" + issue.calculatedRateScore + "</td></tr>");
+                    table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td><td id='issuePriority'>" + issue.issuePriority + "</td><td id='issueKey'>" + issue.issueKey + "</td></tr>");
                 });
                 AJS.$(window)[0].gadgets.window.adjustHeight();
             });
@@ -801,13 +801,14 @@
                     AJS.$('.item-link.no_target:contains("gadget.common.configure")').text('Configuration');
                     AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                     var now = new Date();
-                    var formatedDate = now.getFullYear() + "-" + now.getMonth() + '-' + now.getDate();
+                    var formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + now.getDate();
                     gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable' class='flex-box'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
+                    debugger;
                     AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
-                    var formatedDefaultDate = defaultDate.getFullYear() + "-" + defaultDate.getMonth() + '-' + defaultDate.getDate();
+                    var formatedDefaultDate = defaultDate.getFullYear() + "-" + (defaultDate.getMonth()+1) + '-' + defaultDate.getDate();
                     gadgets.Prefs().set('startDate', formatedDefaultDate)
                     redrawChartToTreemap(args.records);
                 },

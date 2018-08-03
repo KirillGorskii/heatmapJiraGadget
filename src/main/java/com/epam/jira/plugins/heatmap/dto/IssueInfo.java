@@ -32,11 +32,11 @@ public class IssueInfo {
 
     public void setColour() {
         if(calculatedRateScore >=5){
-            color = ConfigPOJO.RED_COLOR;
+            color = "red";
         } else if(calculatedRateScore >= 2){
-            color = ConfigPOJO.AMBER_COLOR;
+            color = "amber";
         } else {
-            color = ConfigPOJO.GREEN_COLOR;
+            color = "green";
         }
     }
 

@@ -123,6 +123,12 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     }
 
     private int getDays(Issue issue){
-        return (int) Duration.between(issue.getDueDate().toInstant(), Instant.now()).toDays();
+        Timestamp due = issue.getDueDate();
+        if (due != null) {
+            return (int) Duration.between(due.toInstant(),dateOfRiskScore.atStartOfDay().toInstant(ZoneOffset.UTC)).toDays();
+        } else {
+            long dueDate = issue.getCreated().getTime() + ConfigPOJO.getStandardSlaTimeForPriority(issue.getPriority().getName())* 60 * 60 * 1000;
+            return (int) Duration.between(Instant.ofEpochMilli(dueDate),dateOfRiskScore.atStartOfDay().toInstant(ZoneOffset.UTC)).toDays();
+        }
     }
 }
