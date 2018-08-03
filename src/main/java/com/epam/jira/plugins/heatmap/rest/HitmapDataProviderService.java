@@ -90,16 +90,16 @@ public class HitmapDataProviderService {
 
     private ProjectStatisticInRange getProjectInfo(HttpServletRequest request) {
         ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(manager.getRemoteUsername(request));
-        RiskScoreCalculator calculator = new RiskScoreCalculator();
         String projectName = request.getParameter("projectName");
+        ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
         LocalDate startCalculationDate = LocalDate.parse(request.getParameter("startDate").replace("-", "/"), DateTimeFormatter.ofPattern("yyyy/M/dd"));
         int difsInDays = (int) Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), startCalculationDate));
-        ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
         for (int i = difsInDays; i >= 0; i--) {
             List<Issue> issues = getListOfIsses(projectName, applicationUser, LocalDate.now().minusDays(i));
             LocalDate calculationDate = LocalDate.now().minusDays(i);
-            projectStatistic.addProjectInfoByDate(calculator.calculateRiskScoreStatistic(issues, calculationDate));
+            projectStatistic.calculateRiskScore(issues, calculationDate);
         }
+
         return projectStatistic;
     }
 

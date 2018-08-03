@@ -1,6 +1,10 @@
 package com.epam.jira.plugins.heatmap.dto;
 
 
+import com.atlassian.jira.issue.Issue;
+import com.epam.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +28,10 @@ public class ProjectStatisticInRange {
         return projectInfoByDates;
     }
 
-    public void addProjectInfoByDate(ProjectInfoByDate projectInfoByDate){
-        projectInfoByDates.add(projectInfoByDate);
+
+    public void calculateRiskScore(List<Issue> issues, LocalDate calculationDate){
+        RiskScoreCalculator calculator = new RiskScoreCalculator();
+        projectInfoByDates.add(calculator.calculateRiskScoreStatistic(issues, calculationDate));
     }
 
 }
