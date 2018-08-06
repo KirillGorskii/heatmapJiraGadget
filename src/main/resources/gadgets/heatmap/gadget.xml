@@ -804,7 +804,6 @@
                     var formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + now.getDate();
                     gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable' class='flex-box'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
-                    debugger;
                     AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
