@@ -101,12 +101,13 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     @Override
     public void incrementPriorityCounter(Issue issue) {
         String issuePriority = issue.getPriority().getName();
-        IssueInfo issueInfo = new IssueInfo(issue.getKey()) ;
+        IssueInfo issueInfo = collectMainStatisticFromIssue(issue);
         issueInfo.setIssuePriority(issuePriority);
         int days = getDays(issue);
         int valueToIncerment;
+        issueInfo.setIssueExpiration(days);
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
-            valueToIncerment = 1*days;
+            valueToIncerment = days;
             incrementBlocker();
             issueInfo.setCalculatedRateScore(valueToIncerment + 10);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
@@ -120,6 +121,10 @@ public class ProjectInfoByDate implements RateScoreStatistic{
         }
         issueInfo.setColour();
         issues.add(issueInfo);
+    }
+
+    private IssueInfo collectMainStatisticFromIssue(Issue issue){
+         return new IssueInfo().setIssueKey(issue.getKey()).setAssignee(issue.getAssignee());
     }
 
     private int getDays(Issue issue){

@@ -1,29 +1,31 @@
 package com.epam.jira.plugins.heatmap.dto;
 
+import com.atlassian.jira.user.ApplicationUser;
+
 public class IssueInfo {
     private String issuePriority;
     private int calculatedRateScore;
     private String issueKey;
     private String color;
-
-    IssueInfo(String name){
-        issueKey = name;
-    }
+    private int issueExpiration;
+    private String assignee;
 
     public int getCalculatedRateScore() {
         return calculatedRateScore;
     }
 
-    public void setCalculatedRateScore(int calculatedRateScore) {
+    public IssueInfo setCalculatedRateScore(int calculatedRateScore) {
         this.calculatedRateScore = calculatedRateScore;
+        return this;
     }
 
     public String getIssueKey() {
         return issueKey;
     }
 
-    public void setIssueKey(String issueKey) {
+    public IssueInfo setIssueKey(String issueKey) {
         this.issueKey = issueKey;
+        return this;
     }
 
     public String getColor() {
@@ -45,7 +47,33 @@ public class IssueInfo {
         return issuePriority;
     }
 
-    public void setIssuePriority(String issuePriority) {
+    public IssueInfo setIssuePriority(String issuePriority) {
         this.issuePriority = issuePriority;
+        return this;
     }
+
+
+    public int getIssueExpiration() {
+        return issueExpiration;
+    }
+
+    public IssueInfo setIssueExpiration(int issueExpiration) {
+        this.issueExpiration = issueExpiration;
+        return this;
+    }
+
+    public String getAssignee() {
+        return assignee;
+    }
+
+    public IssueInfo setAssignee(ApplicationUser assignee) {
+        if(assignee==null){
+            this.assignee="unassigned";
+        } else {
+            this.assignee = assignee.getDisplayName();
+        }
+        return this;
+    }
+
+
 }
