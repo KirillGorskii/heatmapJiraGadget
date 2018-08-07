@@ -88,9 +88,17 @@ public class ProjectInfoByDate implements RateScoreStatistic{
         critical++;
     }
 
+    public void incrementCritical(int valueToIncerment) {
+        critical+=valueToIncerment;
+    }
+
     @Override
     public void incrementMajor() {
         major++;
+    }
+
+    public void incrementMajor(int valueToIncerment) {
+        major+=valueToIncerment;
     }
 
     @Override
@@ -111,12 +119,12 @@ public class ProjectInfoByDate implements RateScoreStatistic{
             incrementBlocker();
             issueInfo.setCalculatedRateScore(valueToIncerment + 10);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
-            valueToIncerment = (int)(0.1*days);
+            valueToIncerment = (int)(0.5*days);
             incrementCritical();
             issueInfo.setCalculatedRateScore(valueToIncerment + 1);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
-            valueToIncerment = (int)(0.02*days);
-            incrementMajor();
+            valueToIncerment = (int)(0.1*days);
+            incrementMajor(valueToIncerment);
             issueInfo.setCalculatedRateScore(1+ valueToIncerment);
         }
         issueInfo.setColour();
@@ -124,7 +132,7 @@ public class ProjectInfoByDate implements RateScoreStatistic{
     }
 
     private IssueInfo collectMainStatisticFromIssue(Issue issue){
-         return new IssueInfo().setIssueKey(issue.getKey()).setAssignee(issue.getAssignee());
+         return new IssueInfo().setIssueKey(issue.getKey()).setAssignee(issue.getAssignee()).setSummary(issue.getSummary());
     }
 
     private int getDays(Issue issue){

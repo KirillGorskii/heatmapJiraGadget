@@ -10,8 +10,8 @@
     <version>1.0.16</version>
 
     <organization>
-        <name>Epam</name>
-        <url>http://www.epam.com/</url>
+        <name>Dow Jones</name>
+        <url>https://www.dowjones.com/</url>
     </organization>
 
     <name>heatmap</name>

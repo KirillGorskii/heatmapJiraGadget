@@ -9,6 +9,16 @@ public class IssueInfo {
     private String color;
     private int issueExpiration;
     private String assignee;
+    private String summary;
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public IssueInfo setSummary(String summary) {
+        this.summary = summary;
+        return this;
+    }
 
     public int getCalculatedRateScore() {
         return calculatedRateScore;
