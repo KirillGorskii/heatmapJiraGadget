@@ -37,27 +37,39 @@
     max-width: 1200px;
     min-width: 900px;
 }
+#issuesDescriptionTable{
+    max-width: 800px;
+}
 .headerRow{
     font-size: 14px;
     border-bottom: 2px solid #6678b1;
 }
 .bodyRow{
+    max-width: 800px;
     width:100%;
     border-bottom: 1px solid #669;
 }
-#tableColor{
-    width:15%;
-    padding: 15px 15px 15px 15px;
-}
 #calculatedRateScore{
-    width:20%;
+    text-align: right;
+    width:5%;
     padding: 12px 15px 12px 15px;
 }
-#issueKey{
-    width:35%;
+#issueSummary{
+    width:20%;
+    padding: 15px 15px 15px 15px;
+}#issueKey{
+    width:10%;
     padding: 15px 15px 15px 15px;
 }
 #issuePriority{
+    width:20%;
+    padding: 15px 15px 15px 15px;
+}
+#issueExpiration{
+    width:15%;
+    padding: 15px 15px 15px 15px;
+}
+#assignee{
     width:30%;
     padding: 15px 15px 15px 15px;
 }

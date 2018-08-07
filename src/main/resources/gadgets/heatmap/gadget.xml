@@ -155,9 +155,9 @@
                 if(table){
                     table.empty();
                 }
-                table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td><td id='issuePriority'><strong>Issue priority</strong></td><td id='issueKey'><strong>Issue name</strong></td></tr>");
+                table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td><td id='issueKey'><strong>Issue name</strong></td><td id='issueSummary'><strong>Summary<strong></td><td id='issueExpiration'><strong>Expired by</strong></td><td id='assignee'><strong>Assignee</strong></td><td id='issuePriority'><strong>Issue priority</strong></td></tr>");
                 issuesDescription.forEach(function(issue){
-                    table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td><td id='issuePriority'>" + issue.issuePriority + "</td><td id='issueKey'>" + issue.issueKey + "</td></tr>");
+                    table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td><td id='issueKey'>" + issue.issueKey + "</td><td id='issueSummary'>" + issue.summary + "</td><td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td><td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
                 });
                 AJS.$(window)[0].gadgets.window.adjustHeight();
             });
@@ -236,10 +236,9 @@
             }
 
             function redrawToTreeMap(){
-                try {
-                    AJS.$("#container").highcharts().destroy();
-                } catch(e){
-
+                var chart = AJS.$("#container").highcharts();
+                if(charts !=  null){
+                    chart.destroy();
                 }
                 var gadgets = AJS.$(this)[0].gadgets;
                 AJS.$.ajax({
@@ -403,7 +402,10 @@
 
 
             function redrawChartToDrilldown(data) {
-                var chart = AJS.$("#container").highcharts().destroy();
+                var chart = AJS.$("#container").highcharts();
+                if(charts !=  null){
+                    chart.destroy();
+                }
                 var seriesData = [];
                 var xAxisCategories = [];
                 var seriesData = [];
@@ -808,8 +810,14 @@
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
                     var formatedDefaultDate = defaultDate.getFullYear() + "-" + (defaultDate.getMonth()+1) + '-' + defaultDate.getDate();
-                    gadgets.Prefs().set('startDate', formatedDefaultDate)
-                    redrawChartToTreemap(args.records);
+                    gadgets.Prefs().set('startDate', formatedDefaultDate);
+                    var records =  args.records;
+                    if(records.length===1){
+                         gadgets.Prefs().set("projectName", records[0].projectName);
+                         redrawToDrilldown();
+                    } else{
+                        redrawChartToTreemap(args.records);
+                    }
                 },
                 <!--close templates-->
                 args:[{
