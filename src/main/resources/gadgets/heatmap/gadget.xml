@@ -155,9 +155,17 @@
                 if(table){
                     table.empty();
                 }
-                table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td><td id='issueKey'><strong>Issue name</strong></td><td id='issueSummary'><strong>Summary<strong></td><td id='issueExpiration'><strong>Expired by</strong></td><td id='assignee'><strong>Assignee</strong></td><td id='issuePriority'><strong>Issue priority</strong></td></tr>");
+                table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td>"
+                + "<td id='issueKey'><strong>Issue name</strong></td><td id='issueSummary'><strong>Summary<strong></td>"
+                + "<td id='issueExpiration'><strong>Expired by</strong></td><td id='assignee'><strong>Assignee</strong></td>"
+                + "<td id='issuePriority'><strong>Issue priority</strong></td></tr>");
                 issuesDescription.forEach(function(issue){
-                    table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td><td id='issueKey'>" + issue.issueKey + "</td><td id='issueSummary'>" + issue.summary + "</td><td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td><td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
+                    var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
+                    debugger;
+                    table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td>"
+                    + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issueSummary'>" + issue.summary + "</td>"
+                    + "<td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td>"
+                    + "<td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
                 });
                 AJS.$(window)[0].gadgets.window.adjustHeight();
             });
@@ -237,7 +245,7 @@
 
             function redrawToTreeMap(){
                 var chart = AJS.$("#container").highcharts();
-                if(charts !=  null){
+                if(chart !=  null){
                     chart.destroy();
                 }
                 var gadgets = AJS.$(this)[0].gadgets;

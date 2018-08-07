@@ -137,6 +137,7 @@ public class ProjectInfoByDate implements RateScoreStatistic{
 
     private int getDays(Issue issue){
         Timestamp due = issue.getDueDate();
+
         if (due != null) {
             return (int) Duration.between(due.toInstant(),dateOfRiskScore.atStartOfDay().toInstant(ZoneOffset.UTC)).toDays();
         } else {
