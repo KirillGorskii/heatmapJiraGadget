@@ -88,17 +88,9 @@ public class ProjectInfoByDate implements RateScoreStatistic{
         critical++;
     }
 
-    public void incrementCritical(int valueToIncerment) {
-        critical+=valueToIncerment;
-    }
-
     @Override
     public void incrementMajor() {
         major++;
-    }
-
-    public void incrementMajor(int valueToIncerment) {
-        major+=valueToIncerment;
     }
 
     @Override
@@ -124,7 +116,7 @@ public class ProjectInfoByDate implements RateScoreStatistic{
             issueInfo.setCalculatedRateScore(valueToIncerment + 1);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
             valueToIncerment = (int)(0.1*days);
-            incrementMajor(valueToIncerment);
+            incrementBlocker();
             issueInfo.setCalculatedRateScore(1+ valueToIncerment);
         }
         issueInfo.setColour();

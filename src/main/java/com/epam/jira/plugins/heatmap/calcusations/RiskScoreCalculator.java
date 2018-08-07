@@ -49,9 +49,9 @@ public class RiskScoreCalculator {
         if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighestPriorityName())) {
             return  10 + days;
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getHighPriorityName())) {
-            return 1 + (int) (0.1*days);
+            return 1 + (int) (0.5*days);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
-            return (int)(0.02*days);
+            return (int)(0.1*days);
         }
         return 0;
     }
