@@ -159,6 +159,15 @@
                 + "<td id='issueKey'><strong>Issue name</strong></td><td id='issueSummary'><strong>Summary<strong></td>"
                 + "<td id='issueExpiration'><strong>Expired by</strong></td><td id='assignee'><strong>Assignee</strong></td>"
                 + "<td id='issuePriority'><strong>Issue priority</strong></td></tr>");
+                issuesDescription.sort(function(a, b){
+                    if(a.calculatedRateScore>b.calculatedRateScore){
+                        return -1;
+                    }
+                    if(a.calculatedRateScore<b.calculatedRateScore){
+                        return 1;
+                    }
+                    return 0;
+                });
                 issuesDescription.forEach(function(issue){
                     var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
                     debugger;
