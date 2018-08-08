@@ -13,6 +13,7 @@ public  class ConfigPOJO {
     private static int red = 10;
     private static int amber = 1;
     private static int cellsNumber = 50;
+    private static String issueType = "vulnerability";
 
     public static final String RED_COLOR = "#AF2947";
     public static final String AMBER_COLOR = "#F0B400";
@@ -148,8 +149,11 @@ public  class ConfigPOJO {
         if(cellsNumber != null && !cellsNumber.isEmpty()){
             ConfigPOJO.cellsNumber = Integer.parseInt(cellsNumber);
         }
+        String issueType = queryMap.get("issueType");
+        if(issueType != null ){
+            ConfigPOJO.issueType = issueType;
+        }
     }
-
 
     private static Map<String, String> collectPropertiesFromQueryString(String queryString) {
         Map<String, String> resultMap = new HashMap<>();

@@ -52,17 +52,18 @@
 #calculatedRateScore{
     text-align: right;
     width:5%;
-    padding: 12px 15px 12px 15px;
+    padding: 0px 15px 12px 0px;
 }
 #issueSummary{
     width:20%;
     padding: 15px 15px 15px 15px;
-}#issueKey{
-    width:10%;
+}
+#issueKey{
+    width:15%;
     padding: 15px 15px 15px 15px;
 }
 #issuePriority{
-    width:20%;
+    width:15%;
     padding: 15px 15px 15px 15px;
 }
 #issueExpiration{
