@@ -264,7 +264,8 @@
                         critical: gadgets.Prefs().getString("critical"),
                         major: gadgets.Prefs().getString("major"),
                         red: gadgets.Prefs().getString("red"),
-                        amber: gadgets.Prefs().getString("amber")
+                        amber: gadgets.Prefs().getString("amber"),
+                        issueType: gadgets.Prefs().getString("issueType")
                     },
                     success: function(data){
                         redrawChartToTreemap(data);
@@ -291,7 +292,8 @@
                         red: gadgets.Prefs().getString("red"),
                         amber: gadgets.Prefs().getString("amber"),
                         projectName: gadgets.Prefs().getString("projectName"),
-                        startDate: gadgets.Prefs().getString("startDate")
+                        startDate: gadgets.Prefs().getString("startDate"),
+                        issueType: gadgets.Prefs().getString("issueType")
                     },
                     success: function(data){
                         redrawChartToDrilldown(data);
@@ -812,6 +814,7 @@
                                 userpref: "issueType",
                                 label: "Issue type:",
                                 type: "select",
+                                selected: gadget.getPref("issueType"),
                                 options: issueTypes
                              },
                              AJS.gadget.fields.nowConfigured()
@@ -878,7 +881,8 @@
                                 critical: gadgets.Prefs().getString("critical"),
                                 major: gadgets.Prefs().getString("major"),
                                 red: gadgets.Prefs().getString("red"),
-                                amber: gadgets.Prefs().getString("amber")
+                                amber: gadgets.Prefs().getString("amber"),
+                                issueType: gadgets.Prefs().getString("issueType")
                             }
                         };
                     }

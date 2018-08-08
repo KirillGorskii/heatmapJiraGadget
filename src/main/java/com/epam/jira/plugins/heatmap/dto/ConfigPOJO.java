@@ -169,4 +169,8 @@ public  class ConfigPOJO {
             resultMap.put(splittedString[0], null);
         }
     }
+
+    public static String getIssueType() {
+        return issueType;
+    }
 }

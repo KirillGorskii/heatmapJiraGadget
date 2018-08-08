@@ -173,7 +173,7 @@ public class HitmapDataProviderService {
         try {
             StringBuilder builder = new StringBuilder();
             builder.append("project = '").append(projectKey).append("' AND priority IN (").append(ConfigPOJO.getHighestPriorityName()).append(",")
-                    .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(")");
+                    .append(ConfigPOJO.getHighPriorityName()).append(",").append(ConfigPOJO.getMiddlePriorityName()).append(") AND issueType = '").append(ConfigPOJO.getIssueType()).append("'");
             if (date != null) {
                 String searchDate = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
                 builder.append(" AND status was not in (Closed, Resolved) DURING ('").append(searchDate).append("', '").append(searchDate).append("')");
