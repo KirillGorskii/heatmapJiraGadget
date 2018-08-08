@@ -5,7 +5,7 @@
                  description="Heatmap gadget for Dow Jones"
                  author="Dow Jones"
                  author_email=""
-                 thumbnail='#staticResourceUrl("com.epam.jira.plugins.heatmap:heatmapResources", "thumbnail.png")'
+                 thumbnail='#staticResourceUrl("com.dowJones.jira.plugins.heatmap:heatmapResources", "thumbnail.png")'
     >
         <Optional feature="gadget-directory">
             <Param name="categories">
@@ -44,7 +44,7 @@
         <![CDATA[
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
-            #requireResource("com.epam.jira.plugins.heatmap:heatmapResources")
+            #requireResource("com.dowJones.jira.plugins.heatmap:heatmapResources")
             #requireResource("com.atlassian.auiplugin:aui-date-picker")
             #includeResources()
             <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -207,6 +207,7 @@
                 redInput.css('borderColor', standardColor)
                 hideErrorMessage(errorMessageSelector);
                 if( data.keyCode < 40 || /\w/g.test(data.key) || data.key===','){
+                    debugger;
                     return true;
                 }
                 showErrorMessage(errorMessageSelector, 'Incorrect value. Possible values are: "A-z", "1-9" and ","]');
@@ -215,6 +216,7 @@
             });
 
             function isNumeric(key){
+                debugger;
                 return /\d/g.test(key);
             }
 

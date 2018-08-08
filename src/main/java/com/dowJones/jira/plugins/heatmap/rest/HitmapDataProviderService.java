@@ -1,4 +1,4 @@
-package com.epam.jira.plugins.heatmap.rest;
+package com.dowJones.jira.plugins.heatmap.rest;
 
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
@@ -13,10 +13,10 @@ import com.atlassian.plugin.spring.scanner.annotation.component.Scanned;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.query.Query;
 import com.atlassian.sal.api.user.UserManager;
-import com.epam.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
-import com.epam.jira.plugins.heatmap.dto.ConfigPOJO;
-import com.epam.jira.plugins.heatmap.dto.ProjectInfo;
-import com.epam.jira.plugins.heatmap.dto.ProjectStatisticInRange;
+import com.dowJones.jira.plugins.heatmap.dto.ProjectStatisticInRange;
+import com.dowJones.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
+import com.dowJones.jira.plugins.heatmap.dto.ConfigPOJO;
+import com.dowJones.jira.plugins.heatmap.dto.ProjectInfo;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.inject.Inject;

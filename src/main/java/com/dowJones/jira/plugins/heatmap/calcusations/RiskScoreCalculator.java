@@ -1,7 +1,10 @@
-package com.epam.jira.plugins.heatmap.calcusations;
+package com.dowJones.jira.plugins.heatmap.calcusations;
 
 import com.atlassian.jira.issue.Issue;
-import com.epam.jira.plugins.heatmap.dto.*;
+import com.dowJones.jira.plugins.heatmap.dto.ConfigPOJO;
+import com.dowJones.jira.plugins.heatmap.dto.ProjectInfo;
+import com.dowJones.jira.plugins.heatmap.dto.ProjectInfoByDate;
+import com.dowJones.jira.plugins.heatmap.dto.RateScoreStatistic;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -73,7 +76,7 @@ public class RiskScoreCalculator {
         return hours;
     }
 
-    public ProjectInfoByDate calculateRiskScoreStatistic(List<Issue> issues,  LocalDate date) {
+    public ProjectInfoByDate calculateRiskScoreStatistic(List<Issue> issues, LocalDate date) {
         ProjectInfoByDate projectInfoByDate = new ProjectInfoByDate(date);
         for(Issue issue: issues){
             calculateRateScore(issue, projectInfoByDate);

@@ -1,4 +1,4 @@
-package com.epam.jira.plugins.heatmap.dto;
+package com.dowJones.jira.plugins.heatmap.dto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;

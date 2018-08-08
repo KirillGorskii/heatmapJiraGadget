@@ -5,9 +5,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.epam.jira.plugins</groupId>
+    <groupId>com.dowJones.jira.plugins</groupId>
     <artifactId>heatmap</artifactId>
-    <version>1.0.16</version>
+    <version>1.1.0</version>
 
     <organization>
         <name>Dow Jones</name>
@@ -137,7 +137,7 @@
 
                         <!-- Add package to export here -->
                         <Export-Package>
-                            com.epam.jira.plugins.heatmap.api,
+                            com.dowJones.jira.plugins.heatmap.api,
                         </Export-Package>
 
                         <!-- Add package import here -->

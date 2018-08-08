@@ -1,8 +1,8 @@
-package com.epam.jira.plugins.heatmap.dto;
+package com.dowJones.jira.plugins.heatmap.dto;
 
 
 import com.atlassian.jira.issue.Issue;
-import com.epam.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
+import com.dowJones.jira.plugins.heatmap.calcusations.RiskScoreCalculator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

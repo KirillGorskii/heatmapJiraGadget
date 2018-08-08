@@ -22,7 +22,7 @@
 
     <rest key="rest" path="/heatmap-dj" version="1.0">
         <description>Provides REST resources for the admin UI.</description>
-        <package>com.epam.jira.plugins.heatmap.rest</package>
+        <package>com.dowJones.jira.plugins.heatmap.rest</package>
     </rest>
 
 </atlassian-plugin>

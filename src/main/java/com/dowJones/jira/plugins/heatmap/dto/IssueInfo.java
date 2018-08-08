@@ -1,4 +1,4 @@
-package com.epam.jira.plugins.heatmap.dto;
+package com.dowJones.jira.plugins.heatmap.dto;
 
 import com.atlassian.jira.user.ApplicationUser;
 
