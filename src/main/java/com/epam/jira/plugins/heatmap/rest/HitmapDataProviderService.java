@@ -92,7 +92,7 @@ public class HitmapDataProviderService {
         ApplicationUser applicationUser = ComponentAccessor.getUserManager().getUserByName(manager.getRemoteUsername(request));
         String projectName = request.getParameter("projectName");
         ProjectStatisticInRange projectStatistic = new ProjectStatisticInRange(projectName);
-        LocalDate startCalculationDate = LocalDate.parse(request.getParameter("startDate").replace("-", "/"), DateTimeFormatter.ofPattern("yyyy/M/dd"));
+        LocalDate startCalculationDate = LocalDate.parse(request.getParameter("startDate").replace("-", "/"), DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         int difsInDays = (int) Math.abs(ChronoUnit.DAYS.between(LocalDate.now(), startCalculationDate));
         for (int i = difsInDays; i >= 0; i--) {
             List<Issue> issues = getListOfIsses(projectName, applicationUser, LocalDate.now().minusDays(i));

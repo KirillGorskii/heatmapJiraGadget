@@ -816,8 +816,15 @@
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
-                    defaultDate.setDate(now.getDate()-7);
-                    var formatedDefaultDate = defaultDate.getFullYear() + "-" + (defaultDate.getMonth()+1) + '-' + defaultDate.getDate();
+                    defaultDate.setDate(now.getDate()-7);var day = defaultDate.getDate();
+                    var month = (defaultDate.getMonth()+1);
+                    if(day<10){
+                        day='0'+day;
+                    }
+                    if(month<10){
+                        month='0'+month;
+                    }
+                    var formatedDefaultDate = defaultDate.getFullYear() + "-" + month + '-' + day;
                     gadgets.Prefs().set('startDate', formatedDefaultDate);
                     var records =  args.records;
                     if(records.length===1){
