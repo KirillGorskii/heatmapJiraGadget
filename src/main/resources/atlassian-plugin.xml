@@ -14,6 +14,7 @@
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="heatmap.css" location="css/heatmap.css"/>
         <resource type="download" name="heatmapGadget.js" location="/js/heatmapGadget.js"/>
+        <resource type="download" name="heatmapGadgetRest.js" location="/js/heatmapGadgetRest.js"/>
         <resource type="download" name="heatmapGadgetChart.js" location="/js/heatmapGadgetChart.js"/>
         <resource type="download" name="thumbnail.png" location="images/thumbnail.png"/>
         <resource type="download" name="images" location="images"/>
