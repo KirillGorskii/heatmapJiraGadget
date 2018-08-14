@@ -116,7 +116,7 @@ public class ProjectInfoByDate implements RateScoreStatistic{
             issueInfo.setCalculatedRateScore(valueToIncerment + 1);
         } else if (issuePriority.equalsIgnoreCase(ConfigPOJO.getMiddlePriorityName())) {
             valueToIncerment = (int)(0.1*days);
-            incrementBlocker();
+            incrementMajor();
             issueInfo.setCalculatedRateScore(1+ valueToIncerment);
         }
         issueInfo.setColour();

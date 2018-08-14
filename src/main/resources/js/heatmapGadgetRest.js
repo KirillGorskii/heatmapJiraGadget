@@ -5,7 +5,8 @@
      gadgets.Prefs().getString("projects").split(',').forEach(function(project){
          var queryObject = getStandardQueryObject();
          queryObject.projectName = project;
-         queryObject.searchDate = new Date();
+         var now = new Date();
+         queryObject.searchDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
          AJS.$.ajax({
             type: 'GET',
             contentType: 'application/json',
@@ -49,7 +50,7 @@ function calculateRiskScore(dataFromJira, queryObject){
         name: queryObject.projectName,
         color: null,
         value: 1,
-        riskScore: 1,
+        riskScore: 0,
         critical: 0,
         blocker: 0,
         major:0
@@ -61,7 +62,10 @@ function calculateRiskScore(dataFromJira, queryObject){
         }
     });
     calculatedRiskScoreForOverallData(calculatedRiskScore);
-    setColour(calculatedRiskScore)
+    if(calculatedRiskScore.riskScore==0){
+        calculatedRiskScore.riskScore=1;
+    }
+    setColour(calculatedRiskScore);
     return calculatedRiskScore;
 }
 
@@ -70,36 +74,34 @@ function calculateRiskScore(dataFromJira, queryObject){
 function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
     var priorityName = issue.fields.priority.name;
     if(priorityName == gadgets.Prefs().getString("highestPriorityName")){
-        calculatedRiskScore.riskScore+= 10 + getOverdueDateForPriorityInDays(issue, queryObject);
+        calculatedRiskScore.riskScore+=Math.round(10 + getOverdueDateForPriorityInDays(issue, queryObject));
         calculatedRiskScore.blocker++;
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
-        calculatedRiskScore.riskScore+= 1 + (0.5 * getOverdueDateForPriorityInDays(issue, queryObject));
+        calculatedRiskScore.riskScore+=Math.round((0.5 * getOverdueDateForPriorityInDays(issue, queryObject)));
         calculatedRiskScore.critical++;
     } else if (priorityName == gadgets.Prefs().getString("majorPriorityName")){
-        calculatedRiskScore.riskScore+=(0.1 * getOverdueDateForPriorityInDays(issue, queryObject));
+        calculatedRiskScore.riskScore+=Math.round((0.1 * getOverdueDateForPriorityInDays(issue, queryObject)));
         calculatedRiskScore.major++;
     }
 }
 
 function calculatedRiskScoreForOverallData(calculatedRiskScore){
-   calculatedRiskScore.riskScore+=calculatedRiskScore.blocker*10;
-   calculatedRiskScore.riskScore+=calculatedRiskScore.critical;
-   calculatedRiskScore.riskScore+=calculatedRiskScore.major*0.05;
-   calculatedRiskScore.riskScore= Math.ceil(calculatedRiskScore.riskScore);
-   calculatedRiskScore.value=calculatedRiskScore.riskScore;
+    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.blocker*10);
+    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.critical);
+    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.major*0.05);
+    calculatedRiskScore.value=calculatedRiskScore.riskScore;
 }
 
 function collectUrlForRestQuery(queryObject){
     var urlString = '/rest/api/2/search?jql=project=' + queryObject.projectName +
-    '&priority%20IN%20('+queryObject.highestPriorityName +','+queryObject.highPriorityName +',' + queryObject.majorPriorityName + ')' +
-    '&issueTypeNames=%27Vulnerability%27';
+    '%20AND%20priority%20IN%20('+queryObject.highestPriorityName +','+queryObject.highPriorityName +',' + queryObject.majorPriorityName + ')';
     if(queryObject.labels!=null){
-        urlString+= '&%20labels%20in%20(' + queryObject.labels + ')';
+        urlString+= '%20AND%20labels%20in%20(' + queryObject.labels + ')';
     }
     if(queryObject.date!=null){
-        urlString+='&%20status%20was%20not%20in%20(Closed,%20Resolved)%20DURING ('+ queryObject.searchDate + "',%20'" + queryObject.searchDate + ')';
+        urlString+='%20AND%20status%20was%20not%20in%20(CLOSED,%20RESOLVED)%20DURING ('+ queryObject.searchDate + "',%20'" + queryObject.searchDate + ')';
     } else {
-        urlString+='&status%20not%20in%20(Closed,%20Resolved)';
+        urlString+='%20AND%20status%20not%20in%20(CLOSED,%20RESOLVED)';
     }
     urlString+= '&fields=id,key,status,summary,assignee,issuetype,priority,duedate,created&maxResults=500'
     return urlString;
@@ -140,9 +142,11 @@ function getOverdueDateForPriorityInDays(issue, queryObject){
     var duedate;
     if(issue.fields.duedate == null){
         var created =  new Date(issue.fields.created);
+        created = new Date(created.getFullYear(), created.getMonth(), created.getDate())
         duedate = new Date(created.setDate(created.getDate() + getOverdueSLAForPriority(issue.fields.priority.name)));
     } else {
         duedate = new Date(issue.fields.duedate);
+        duedate = new Date(duedate.getFullYear(), duedate.getMonth(), duedate.getDate());
     }
     var difference = Math.abs(queryObject.searchDate.getTime() - duedate.getTime());
     return Math.ceil(difference/(1000*24*3600));
