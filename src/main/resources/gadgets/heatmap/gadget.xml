@@ -54,6 +54,7 @@
             <script type="text/javascript">
 
 
+
             AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({
@@ -313,7 +314,8 @@
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
-                    defaultDate.setDate(now.getDate()-7);var day = defaultDate.getDate();
+                    defaultDate.setDate(now.getDate()-7);
+                    var day = defaultDate.getDate();
                     var month = (defaultDate.getMonth()+1);
                     if(day<10){
                         day='0'+day;
@@ -323,36 +325,16 @@
                     }
                     var formatedDefaultDate = defaultDate.getFullYear() + "-" + month + '-' + day;
                     gadgets.Prefs().set('startDate', formatedDefaultDate);
-                    var records =  args.records;
+                    var projects =   gadgets.Prefs().getString('projects');
+                    var records = projects.split(',')
                     if(records.length===1){
                          gadgets.Prefs().set("projectName", records[0].projectName);
                          redrawToDrilldown();
                     } else{
-                        redrawChartToTreemap(args.records);
+                        redrawToTreeMap();
                     }
                 },
                 <!--close templates-->
-                args:[{
-                    key: "records",
-                    ajaxOptions: function() {
-                        return {
-                            url: "/rest/heatmap-dj/1.0/gadget/heatmap/main-chart",
-                            data: {
-                                projects: gadgets.Prefs().getString("projects"),
-                                labels: gadgets.Prefs().getString("labels"),
-                                majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-                                cellsNumber: gadgets.Prefs().getString("cellsNumber"),
-                                highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-                                highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-                                blocker: gadgets.Prefs().getString("blocker"),
-                                critical: gadgets.Prefs().getString("critical"),
-                                major: gadgets.Prefs().getString("major"),
-                                red: gadgets.Prefs().getString("red"),
-                                amber: gadgets.Prefs().getString("amber")
-                            }
-                        };
-                    }
-                }]
                 }
                 <!--end of view-->
             });

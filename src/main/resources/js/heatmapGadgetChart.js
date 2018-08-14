@@ -6,29 +6,14 @@ function redrawToTreeMap(){
         chart.destroy();
     }
     getInfoForHeatmapView(redrawChartToTreemap);
-
 }
 
 function redrawToDrilldown(){
     AJS.$('#dateConfig').datepicker('setDate', gadgets.Prefs().getString('startDate'));
-    getDataForDetailView(redrawChartToDrilldown(data));
-
+    getDataForDetailView(redrawChartToDrilldown);
 }
 
-function  redrawChartToTreemap(records){
-    var seriesData = [];
-    records.forEach(function(record){
-        seriesData.push({
-            name: record.projectName,
-            color: record.color,
-            value: record.squareSize,
-            riskScore: record.riskScore,
-            link: record.link,
-            critical: record.critical,
-            blocker: record.blocker,
-            major: record.major
-        });
-    });
+function redrawChartToTreemap(seriesData){
     AJS.$('#dateConfig').hide();
     AJS.$('#issuesDescriptionTable').hide();
     var treemapOptions = {
@@ -121,7 +106,6 @@ function  redrawChartToTreemap(records){
     charts.redraw();
     gadgets.window.adjustHeight();
 }
-
 
 function redrawChartToDrilldown(data) {
     var chart = AJS.$("#container").highcharts();
