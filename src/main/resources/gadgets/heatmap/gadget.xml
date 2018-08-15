@@ -54,7 +54,6 @@
             <script type="text/javascript">
 
 
-
             AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({

@@ -1,4 +1,4 @@
-  function getInfoForHeatmapView(drawFunction){
+function getInfoForHeatmapView(drawFunction){
      var gadgets = AJS.$(this)[0].gadgets;
      var result = [];
 
@@ -17,39 +17,6 @@
      })
 }
 
-function getDataForDetailView(drawFunction){
-    var gadgets = AJS.$(this)[0].gadgets;
-    var result = [];
-    var startSearchingDate = new Date(gadgets.Prefs().getString("startDate"));
-    var projectName = gadgets.Prefs().getString("projectName");
-    var now = new Date();
-    now.setHours(0,0,0,0);
-    var days =  Math.ceil((now.getTime() - startSearchingDate.getTime())/(3600*24*1000));
-    for(var i=0; i<days; i++){
-        var queryObject = getStandardQueryObject();
-        queryObject.projectName = projectName;
-        var newDate = new Date();
-        newDate.setHours(0,0,0,0);
-        queryObject.searchDate = newDate.setDate(now.getDate() - i);
-        if(i==0){
-            queryObject.returnIssueTable=true;
-        }
-        AJS.$.ajax({
-            type: 'GET',
-            url: collectUrlForRestQuery(queryObject),
-            contentType: 'application/json',
-            success: function(data){
-                result.push(calculateRiskScore(data, queryObject));
-                drawFunction({
-                    projectName: projectName,
-                    projectInfoByDates: result
-                });
-
-            }
-        });
-    }
-}
-
 function calculateRiskScore(dataFromJira, queryObject){
     var issues = dataFromJira.issues;
     var calculatedRiskScore = {
@@ -60,6 +27,7 @@ function calculateRiskScore(dataFromJira, queryObject){
         critical: 0,
         blocker: 0,
         major:0,
+        dateOfRiskScore: queryObject.searchDate,
         issues: []
     }
 
@@ -77,6 +45,56 @@ function calculateRiskScore(dataFromJira, queryObject){
     return calculatedRiskScore;
 }
 
+
+function getDataForDetailView(drawFunction){
+    var queryObjects = []
+    var gadgets = AJS.$(this)[0].gadgets;
+    var result = [];
+    var startSearchingDate = new Date(gadgets.Prefs().getString("startDate"));
+    var projectName = gadgets.Prefs().getString("projectName");
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    var days =  Math.ceil((now.getTime() - startSearchingDate.getTime())/(3600*24*1000));
+    for(var i=0; i<days; i++){
+        var queryObject = getStandardQueryObject();
+        queryObject.projectName = projectName;
+        var newDate = new Date();
+        queryObject.searchDate = newDate.setDate(newDate.getDate() - i);
+
+        if(i==0){
+            queryObject.returnIssueTable=true;
+        }
+        queryObjects.push(queryObject);
+    }
+
+    queryObjects.forEach(function(queryObject){
+        AJS.$.ajax({
+                type: 'GET',
+                url: collectUrlForRestQuery(queryObject),
+                contentType: 'application/json',
+                success: function(data){
+                    result.push(calculateRiskScore(data, queryObject));
+                    result.sort(function(a, b){
+                    var dateOfRiskScoreA = new Date(a.dateOfRiskScore).getTime();
+                    var dateOfRiskScoreB = new Date(b.dateOfRiskScore).getTime();
+                        if(dateOfRiskScoreA>dateOfRiskScoreB){
+                            return 1;
+                        }
+                        if(dateOfRiskScoreA<dateOfRiskScoreB){
+                            return -1;
+                        }
+                        return 0;
+                    });
+                    var dataToDraw = {
+                        projectName: projectName,
+                        projectInfoByDates: result
+                    }
+                    drawFunction(dataToDraw);
+
+                }
+            });
+    });
+}
 
 
 function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
@@ -115,15 +133,20 @@ function collectIssueInfo(issueFromJira, calculatedRiskScore, days){
     } else {
         calcColor = 'green';
     }
-
+    var assignee = issueFromJira.fields.assignee;
+    if(assignee==null){
+        assignee= 'Unassigned'
+    } else{
+        assignee = issueFromJira.fields.assignee.name;
+    }
     return {
         issuePriority: issueFromJira.fields.priority.name,
         calculatedRateScore: calculatedRiskScore,
         issueKey: issueFromJira.key,
         color: calcColor,
         issueExpiration: days,
-        assignee: issueFromJira.fields.assignee.name,
-        summary: issueFromJira.fields.fields.summary
+        assignee: assignee,
+        summary: issueFromJira.fields.summary
     }
 }
 

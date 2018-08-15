@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectInfoByDate implements RateScoreStatistic{
-
     private LocalDate dateOfRiskScore;
     private int riskScore = 0;
     private int major = 0;
