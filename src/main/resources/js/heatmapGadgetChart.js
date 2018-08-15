@@ -126,8 +126,8 @@ function redrawChartToDrilldown(data) {
             major: projectInfo.major,
             y: projectInfo.riskScore
         });
-        var dateOfRiskScore = projectInfo.dateOfRiskScore;
-        var formatDateOfCalc = dateOfRiskScore.monthValue + '/' + dateOfRiskScore.dayOfMonth + '/' + dateOfRiskScore.year;
+        var dateOfRiskScore = new Date(projectInfo.dateOfRiskScore);
+        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '/' + dateOfRiskScore.getMonth() + '/' + dateOfRiskScore.getDate();
         xAxisCategories.push(formatDateOfCalc);
         var dateOfCalculation = new Date(formatDateOfCalc);
         dateOfCalculation.setHours(0,0,0,0);

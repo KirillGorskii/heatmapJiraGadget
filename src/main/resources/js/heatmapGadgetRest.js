@@ -5,8 +5,6 @@
      gadgets.Prefs().getString("projects").split(',').forEach(function(project){
          var queryObject = getStandardQueryObject();
          queryObject.projectName = project;
-         var now = new Date();
-         queryObject.searchDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
          AJS.$.ajax({
             type: 'GET',
             contentType: 'application/json',
@@ -20,28 +18,36 @@
 }
 
 function getDataForDetailView(drawFunction){
-    AJS.$.ajax({
-        type: 'GET',
-        url: '/rest/heatmap-dj/1.0/gadget/heatmap/project-statistic',
-        data:{
-            projects: gadgets.Prefs().getString("projects"),
-            labels: gadgets.Prefs().getString("labels"),
-            majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
-            cellsNumber: gadgets.Prefs().getString("cellsNumber"),
-            highPriorityName: gadgets.Prefs().getString("highPriorityName"),
-            highestPriorityName: gadgets.Prefs().getString("highestPriorityName"),
-            blocker: gadgets.Prefs().getString("blocker"),
-            critical: gadgets.Prefs().getString("critical"),
-            major: gadgets.Prefs().getString("major"),
-            red: gadgets.Prefs().getString("red"),
-            amber: gadgets.Prefs().getString("amber"),
-            projectName: gadgets.Prefs().getString("projectName"),
-            startDate: gadgets.Prefs().getString("startDate")
-        },
-        success: function(data){
-            drawFunction(data);
+    var gadgets = AJS.$(this)[0].gadgets;
+    var result = [];
+    var startSearchingDate = new Date(gadgets.Prefs().getString("startDate"));
+    var projectName = gadgets.Prefs().getString("projectName");
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    var days =  Math.ceil((now.getTime() - startSearchingDate.getTime())/(3600*24*1000));
+    for(var i=0; i<days; i++){
+        var queryObject = getStandardQueryObject();
+        queryObject.projectName = projectName;
+        var newDate = new Date();
+        newDate.setHours(0,0,0,0);
+        queryObject.searchDate = newDate.setDate(now.getDate() - i);
+        if(i==0){
+            queryObject.returnIssueTable=true;
         }
-    });
+        AJS.$.ajax({
+            type: 'GET',
+            url: collectUrlForRestQuery(queryObject),
+            contentType: 'application/json',
+            success: function(data){
+                result.push(calculateRiskScore(data, queryObject));
+                drawFunction({
+                    projectName: projectName,
+                    projectInfoByDates: result
+                });
+
+            }
+        });
+    }
 }
 
 function calculateRiskScore(dataFromJira, queryObject){
@@ -53,7 +59,8 @@ function calculateRiskScore(dataFromJira, queryObject){
         riskScore: 0,
         critical: 0,
         blocker: 0,
-        major:0
+        major:0,
+        issues: []
     }
 
     issues.forEach(function(issue){
@@ -61,6 +68,7 @@ function calculateRiskScore(dataFromJira, queryObject){
             calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore);
         }
     });
+
     calculatedRiskScoreForOverallData(calculatedRiskScore);
     if(calculatedRiskScore.riskScore==0){
         calculatedRiskScore.riskScore=1;
@@ -73,17 +81,52 @@ function calculateRiskScore(dataFromJira, queryObject){
 
 function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
     var priorityName = issue.fields.priority.name;
+    var daysOverdue = getOverdueDateForPriorityInDays(issue, queryObject);
     if(priorityName == gadgets.Prefs().getString("highestPriorityName")){
-        calculatedRiskScore.riskScore+=Math.round(10 + getOverdueDateForPriorityInDays(issue, queryObject));
+        calculatedRiskScore.riskScore+=daysOverdue;
         calculatedRiskScore.blocker++;
+        if(queryObject.returnIssueTable){
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue), daysOverdue);
+        }
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
-        calculatedRiskScore.riskScore+=Math.round((0.5 * getOverdueDateForPriorityInDays(issue, queryObject)));
+        var calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
+        calculatedRiskScore.riskScore+=calcRiskScoreForPriority;
         calculatedRiskScore.critical++;
+         if(queryObject.returnIssueTable){
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, 1 + calcRiskScoreForPriority, daysOverdue));
+        }
     } else if (priorityName == gadgets.Prefs().getString("majorPriorityName")){
-        calculatedRiskScore.riskScore+=Math.round((0.1 * getOverdueDateForPriorityInDays(issue, queryObject)));
+        var calcRiskScoreForPriority = Math.round((0.1 * daysOverdue))
+        calculatedRiskScore.riskScore+=calcRiskScoreForPriority;
         calculatedRiskScore.major++;
+        if(queryObject.returnIssueTable){
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, calcRiskScoreForPriority, daysOverdue));
+        }
     }
 }
+
+
+function collectIssueInfo(issueFromJira, calculatedRiskScore, days){
+    var calcColor;
+    if(calculatedRiskScore>=5){
+        calcColor = 'red';
+    } else if(calculatedRiskScore>=2){
+        calcColor = 'amber';
+    } else {
+        calcColor = 'green';
+    }
+
+    return {
+        issuePriority: issueFromJira.fields.priority.name,
+        calculatedRateScore: calculatedRiskScore,
+        issueKey: issueFromJira.key,
+        color: calcColor,
+        issueExpiration: days,
+        assignee: issueFromJira.fields.assignee.name,
+        summary: issueFromJira.fields.fields.summary
+    }
+}
+
 
 function calculatedRiskScoreForOverallData(calculatedRiskScore){
     calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.blocker*10);
@@ -92,14 +135,29 @@ function calculatedRiskScoreForOverallData(calculatedRiskScore){
     calculatedRiskScore.value=calculatedRiskScore.riskScore;
 }
 
+function formatDate(dateToFormat){
+    dateToFormat = new Date(dateToFormat);
+    var days = dateToFormat.getDate();
+    var month = dateToFormat.getMonth();
+    month++;
+    if(days<10){
+        days='0'+days;
+    }
+    if(month<10){
+        month='0'+month;
+    }
+    return dateToFormat.getFullYear() + '/' + month + '/' +days;
+}
+
 function collectUrlForRestQuery(queryObject){
     var urlString = '/rest/api/2/search?jql=project=' + queryObject.projectName +
     '%20AND%20priority%20IN%20('+queryObject.highestPriorityName +','+queryObject.highPriorityName +',' + queryObject.majorPriorityName + ')';
     if(queryObject.labels!=null){
         urlString+= '%20AND%20labels%20in%20(' + queryObject.labels + ')';
     }
-    if(queryObject.date!=null){
-        urlString+='%20AND%20status%20was%20not%20in%20(CLOSED,%20RESOLVED)%20DURING ('+ queryObject.searchDate + "',%20'" + queryObject.searchDate + ')';
+    if(queryObject.searchDate!=null){
+        var searchDate = formatDate(queryObject.searchDate);
+        urlString+='%20AND%20status%20was%20not%20in%20(CLOSED,%20RESOLVED)%20DURING%20("'+ searchDate + '",%20"' + searchDate + '")';
     } else {
         urlString+='%20AND%20status%20not%20in%20(CLOSED,%20RESOLVED)';
     }
@@ -108,12 +166,17 @@ function collectUrlForRestQuery(queryObject){
 }
 
 function isOverdue(issue, queryObject){
+    var searchDate = queryObject.searchDate;
+    if(searchDate==null){
+        searchDate= new Date();
+        searchDate.setHours(0,0,0,0);
+    }
     if(issue.fields.duedate == null){
         var created = new Date(issue.fields.created);
         var duedate = created.setDate(created.getDate() + getOverdueSLAForPriority(issue.fields.priority.name));
-        return new Date(queryObject.searchDate) > duedate;
+        return new Date(searchDate) > duedate;
     } else {
-        return new Date(queryObject.searchDate) > new Date(issue.fields.duedate);
+        return new Date(searchDate) > new Date(issue.fields.duedate);
     }
 }
 
@@ -124,6 +187,7 @@ function getStandardQueryObject(){
         highPriorityName: gadgets.Prefs().getString("highPriorityName"),
         majorPriorityName: gadgets.Prefs().getString("majorPriorityName"),
         labels: gadgets.Prefs().getString("labels"),
+        returnIssueTable:false,
         searchDate:null
     };
 }
@@ -140,6 +204,11 @@ function setColour(calculatedRiskScore){
 
 function getOverdueDateForPriorityInDays(issue, queryObject){
     var duedate;
+    var searchDate = queryObject.searchDate;
+    if(searchDate==null){
+        searchDate= new Date();
+        searchDate.setHours(0,0,0,0);
+    }
     if(issue.fields.duedate == null){
         var created =  new Date(issue.fields.created);
         created = new Date(created.getFullYear(), created.getMonth(), created.getDate())
@@ -148,7 +217,7 @@ function getOverdueDateForPriorityInDays(issue, queryObject){
         duedate = new Date(issue.fields.duedate);
         duedate = new Date(duedate.getFullYear(), duedate.getMonth(), duedate.getDate());
     }
-    var difference = Math.abs(queryObject.searchDate.getTime() - duedate.getTime());
+    var difference = Math.abs(new Date(searchDate).getTime() - duedate.getTime());
     return Math.ceil(difference/(1000*24*3600));
 }
 
