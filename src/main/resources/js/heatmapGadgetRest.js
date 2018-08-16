@@ -104,7 +104,7 @@ function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
         calculatedRiskScore.riskScore+=daysOverdue;
         calculatedRiskScore.blocker++;
         if(queryObject.returnIssueTable){
-            calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue), daysOverdue);
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
         var calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
@@ -234,24 +234,24 @@ function getOverdueDateForPriorityInDays(issue, queryObject){
     }
     if(issue.fields.duedate == null){
         var created =  new Date(issue.fields.created);
-        created = new Date(created.getFullYear(), created.getMonth(), created.getDate())
+        created.setHours(0,0,0,0);
         duedate = new Date(created.setDate(created.getDate() + getOverdueSLAForPriority(issue.fields.priority.name)));
     } else {
         duedate = new Date(issue.fields.duedate);
-        duedate = new Date(duedate.getFullYear(), duedate.getMonth(), duedate.getDate());
+        duedate.setHours(0,0,0,0);
     }
     var difference = Math.abs(new Date(searchDate).getTime() - duedate.getTime());
     return Math.ceil(difference/(1000*24*3600));
 }
 
 function getOverdueSLAForPriority(priorityName){
-    if(priorityName == gadgets.Prefs().getString("highestPriorityName")){
+    if(priorityName.toLowerCase() == gadgets.Prefs().getString("highestPriorityName").toLowerCase()){
         return gadgets.Prefs().getString("blocker")/24;
     }
-    if(priorityName==gadgets.Prefs().getString("highPriorityName")){
+    if(priorityName.toLowerCase()==gadgets.Prefs().getString("highPriorityName").toLowerCase()){
         return gadgets.Prefs().getString("critical")/24;
     }
-    if(priorityName==gadgets.Prefs().getString("majorPriorityName")){
+    if(priorityName.toLowerCase()==gadgets.Prefs().getString("majorPriorityName").toLowerCase()){
         return gadgets.Prefs().getString("major")/24;
     }
     return 2;

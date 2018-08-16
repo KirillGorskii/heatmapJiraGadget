@@ -114,13 +114,12 @@ AJS.$(document).on("click", "#showDescription", function(data){
         return 0;
     });
     issuesDescription.forEach(function(issue){
-        if(issue.issueKey!=null){
             var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
             table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td>"
             + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issueSummary'>" + issue.summary + "</td>"
             + "<td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td>"
             + "<td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
-        }
+
     });
     AJS.$(window)[0].gadgets.window.adjustHeight();
 });
@@ -326,7 +325,9 @@ function redrawChartToDrilldown(data) {
             y: projectInfo.riskScore
         });
         var dateOfRiskScore = new Date(projectInfo.dateOfRiskScore);
-        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '/' + dateOfRiskScore.getMonth() + '/' + dateOfRiskScore.getDate();
+        var month = dateOfRiskScore.getMonth();
+        month++;
+        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '/' + month + '/' + dateOfRiskScore.getDate();
         xAxisCategories.push(formatDateOfCalc);
         var dateOfCalculation = new Date(formatDateOfCalc);
         dateOfCalculation.setHours(0,0,0,0);
