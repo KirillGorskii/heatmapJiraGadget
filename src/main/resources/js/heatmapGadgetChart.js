@@ -94,7 +94,7 @@ AJS.$(document).on("change", "#fromDate", function(data){
     redrawToDrilldown();
 });
 
-AJS.$(document).on("click", "#showDescription", function(data){
+function redrawTable(){
     var table = AJS.$('#issuesDescriptionTable')
     AJS.$('#issuesDescriptionTable').show();
     if(table){
@@ -114,15 +114,15 @@ AJS.$(document).on("click", "#showDescription", function(data){
         return 0;
     });
     issuesDescription.forEach(function(issue){
-            var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
-            table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td>"
-            + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issueSummary'>" + issue.summary + "</td>"
-            + "<td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td>"
-            + "<td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
+        var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
+        table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td>"
+        + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issueSummary'>" + issue.summary + "</td>"
+        + "<td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td>"
+        + "<td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
 
     });
     AJS.$(window)[0].gadgets.window.adjustHeight();
-});
+}
 
 
 AJS.$(document).on("keydown", redInputSelector, function(data) {
@@ -314,7 +314,6 @@ function redrawChartToDrilldown(data) {
     var seriesData = [];
     var projectName = data.projectName;
     AJS.$('#dateConfig').show();
-    AJS.$('#issuesDescriptionTable').hide();
     var today = new Date();
     today.setHours(0,0,0,0);
     data.projectInfoByDates.forEach(function(projectInfo){
@@ -335,6 +334,7 @@ function redrawChartToDrilldown(data) {
             issuesDescription = projectInfo.issues;
         }
     });
+    redrawTable();
     var gadget = AJS.$(this)[0].gadgets.Prefs();
     var amberLine = parseInt(gadget.getString("amber"));
     var redLine = parseInt(gadget.getString("red"));
