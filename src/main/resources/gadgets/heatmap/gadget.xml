@@ -37,7 +37,7 @@
     <UserPref name="major" datatype="hidden" default_value="96"/>
     <UserPref name="red" datatype="hidden" default_value="10"/>
     <UserPref name="amber" datatype="hidden" default_value="1"/>
-    <UserPref name="startDate" datatype="hidden" default_value="2018-07-31"/>
+    <UserPref name="startDate" datatype="hidden" default_value="2018/08/31"/>
     <UserPref name="projectName" datatype="hidden" default_value=""/>
 
     <Content type="html">
@@ -312,6 +312,7 @@
                     gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').attr("max", formatedDate);
+                    AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
                     var day = defaultDate.getDate();
@@ -322,8 +323,9 @@
                     if(month<10){
                         month='0'+month;
                     }
-                    var formatedDefaultDate = defaultDate.getFullYear() + "-" + month + '-' + day;
+                    var formatedDefaultDate = defaultDate.getFullYear() + "/" + month + '/' + day;
                     gadgets.Prefs().set('startDate', formatedDefaultDate);
+                    AJS.$('#fromDate').val(formatedDefaultDate);
                     var projects =   gadgets.Prefs().getString('projects');
                     var records = projects.split(',')
                     if(records.length===1){
