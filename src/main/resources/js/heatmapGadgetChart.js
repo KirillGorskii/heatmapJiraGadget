@@ -5,6 +5,7 @@ var amberInputSelector = 'input#amber.numeric';
 var projectsSelector = 'input#projects';
 var redInputSelector = 'input#red.numeric';
 var cellsNumberSelector = 'input#cellsNumber.numeric';
+
 function calculateFontSize(){
     var minHeight = findMinSquareSizeForDimention('height');
     var minWidth = findMinSquareSizeForDimention('width');
@@ -262,7 +263,7 @@ function redrawChartToTreemap(seriesData){
         }],
         navigation: {
             buttonOptions: {
-                align: 'left',
+                align: 'right',
                   menuItems: [
                     'back to heatmap view',
                     'downloadPNG',
@@ -340,18 +341,24 @@ function redrawChartToDrilldown(data) {
     var redLine = parseInt(gadget.getString("red"));
     var lineChart =  {
         chart: {
-            type: 'line'
+            type: 'line',
+            marginLeft: 60,
+            marginRight: 60
         },
         credits: {
             enabled: false
         },
+        subtitle: {
+            text: projectName + 'project',
+            align: 'left',
+            x: 50
+        },
         title: {
-            text: 'Risk score for date range for ' + projectName + ' project'
+            text: 'Risk score for date range',
+            align: 'left',
+            x: 50
         },
         xAxis: {
-            title: {
-                text: 'Date'
-            },
             categories: xAxisCategories,
 
         },
@@ -388,7 +395,7 @@ function redrawChartToDrilldown(data) {
         }],
         navigation: {
             buttonOptions: {
-                align: 'left'
+                align: 'right'
             }
         },
         exporting: {
@@ -438,15 +445,15 @@ function redrawChartToDrilldown(data) {
             plotBands: [{
                 from: 0,
                 to: amberLine,
-                color: '#baffc9'
+                color: '#7f9943'
             },{
                 from: amberLine,
                 to: redLine,
-                color: '#ffdfba'
+                color: '#ff9f00'
             },{
                 from: redLine,
                 to: maxAxisValue,
-                color: '#ffb3ba',
+                color: '#d22c32',
             }]
         }
     });

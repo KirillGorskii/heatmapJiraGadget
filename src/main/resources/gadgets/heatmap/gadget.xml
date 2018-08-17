@@ -284,7 +284,8 @@
                                 label: "Cells per heatmap:",
                                 type: "callbackBuilder",
                                 callback: function(parentDiv){
-
+                                    AJS.$('.button.save').attr('value', 'Save');
+                                    AJS.$('.button.cancel').attr('value', 'Cancel');
                                     AJS.$('div:has(#cellsNumber)').addClass('flex-box');
                                     AJS.$('div:has(select)').addClass('flex-box');
                                     AJS.$('div:has(#advanced-settings)').addClass('flex-row');
@@ -308,7 +309,7 @@
                     AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                     var now = new Date();
                     var formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + now.getDate();
-                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div><div id='showTable' class='flex-box'><input type='button' class='aui-button' value='Show description' id='showDescription'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
+                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').attr("max", formatedDate);
                     var defaultDate = new Date()
@@ -326,7 +327,7 @@
                     var projects =   gadgets.Prefs().getString('projects');
                     var records = projects.split(',')
                     if(records.length===1){
-                         gadgets.Prefs().set("projectName", records[0].projectName);
+                         gadgets.Prefs().set("projectName", projects);
                          redrawToDrilldown();
                     } else{
                         redrawToTreeMap();

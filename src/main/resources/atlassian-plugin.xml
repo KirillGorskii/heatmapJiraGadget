@@ -17,6 +17,7 @@
         <resource type="download" name="heatmapGadgetRest.js" location="/js/heatmapGadgetRest.js"/>
         <resource type="download" name="heatmapGadgetChart.js" location="/js/heatmapGadgetChart.js"/>
         <resource type="download" name="thumbnail.png" location="images/thumbnail.png"/>
+        <resource type="i18n" name="i18n" location="i18n/i18n"/>
         <resource type="download" name="images" location="images"/>
         <context>heatmapContext</context>
     </web-resource>
