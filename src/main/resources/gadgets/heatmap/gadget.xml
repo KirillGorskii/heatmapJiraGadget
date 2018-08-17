@@ -1,6 +1,5 @@
 <Module>
     <ModulePrefs title="Heatmap gadget for Dow Jones"
-                 title_url=""
                  directory_title="Heatmap gadget for Dow Jones"
                  description="Heatmap gadget for Dow Jones"
                  author="Dow Jones"
@@ -53,13 +52,7 @@
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
 
-AJS.$(document).on("change", '#fromDate', function(data){
-    var newDate = new Date(data.target.value);
-    if(newDate!=null){
-        AJS.$(window)[0].gadgets.Prefs().set('startDate', formatDate(newDate));
-        debugger;
-    }
-});
+
 
             AJS.$(document).ready((function() {
                 (function ($) {

@@ -19,6 +19,11 @@ function getInfoForHeatmapView(drawFunction){
 
 function calculateRiskScore(dataFromJira, queryObject){
     var issues = dataFromJira.issues;
+    var searchDate = queryObject.searchDate;
+    if(searchDate==null){
+        searchDate = new Date();
+        searchDate.setHours(0,0,0,0);
+    }
     var calculatedRiskScore = {
         name: queryObject.projectName,
         color: null,
@@ -27,7 +32,7 @@ function calculateRiskScore(dataFromJira, queryObject){
         critical: 0,
         blocker: 0,
         major:0,
-        dateOfRiskScore: queryObject.searchDate,
+        dateOfRiskScore: searchDate,
         issues: []
     }
 
@@ -58,12 +63,13 @@ function getDataForDetailView(drawFunction){
     for(var i=0; i<days; i++){
         var queryObject = getStandardQueryObject();
         queryObject.projectName = projectName;
-        var newDate = new Date();
-        queryObject.searchDate = newDate.setDate(newDate.getDate() - i);
-
+        if(i!=0){
+            var newDate = new Date();
+            queryObject.searchDate = newDate.setDate(newDate.getDate() - i);
+        }
         if(i==0){
             queryObject.returnIssueTable=true;
-        }
+         }
         queryObjects.push(queryObject);
     }
 
@@ -100,6 +106,7 @@ function getDataForDetailView(drawFunction){
 function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
     var priorityName = issue.fields.priority.name;
     var daysOverdue = getOverdueDateForPriorityInDays(issue, queryObject);
+    var calcRiskScoreForPriority;
     if(priorityName == gadgets.Prefs().getString("highestPriorityName")){
         calculatedRiskScore.riskScore+=daysOverdue;
         calculatedRiskScore.blocker++;
@@ -107,14 +114,14 @@ function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
             calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
-        var calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
+        calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
         calculatedRiskScore.riskScore+=calcRiskScoreForPriority;
         calculatedRiskScore.critical++;
          if(queryObject.returnIssueTable){
             calculatedRiskScore.issues.push(collectIssueInfo(issue, 1 + calcRiskScoreForPriority, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("majorPriorityName")){
-        var calcRiskScoreForPriority = Math.round((0.1 * daysOverdue))
+        calcRiskScoreForPriority = Math.round((0.1 * daysOverdue))
         calculatedRiskScore.riskScore+=calcRiskScoreForPriority;
         calculatedRiskScore.major++;
         if(queryObject.returnIssueTable){
@@ -217,11 +224,11 @@ function getStandardQueryObject(){
 
 function setColour(calculatedRiskScore){
     if(calculatedRiskScore.riskScore < gadgets.Prefs().getString("amber")){
-        calculatedRiskScore.color= '#7F9943';
+        calculatedRiskScore.color= '#84a732';
     } else if(calculatedRiskScore.riskScore < gadgets.Prefs().getString("red")){
-     calculatedRiskScore.color= '#F0B400';
+     calculatedRiskScore.color= '#ff9f00';
     } else {
-        calculatedRiskScore.color= '#AF2947';
+        calculatedRiskScore.color= '#d22c32';
     }
 }
 

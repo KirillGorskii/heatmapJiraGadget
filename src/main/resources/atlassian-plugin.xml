@@ -21,11 +21,8 @@
         <resource type="download" name="images" location="images"/>
         <context>heatmapContext</context>
     </web-resource>
+
     <gadget name="Heat Map gadgeet" i18n-name-key="heatmap.name" key="heatmap-gadget" location="gadgets/heatmap/gadget.xml"></gadget>
 
-    <rest key="rest" path="/heatmap-dj" version="1.0">
-        <description>Provides REST resources for the admin UI.</description>
-        <package>com.dowJones.jira.plugins.heatmap.rest</package>
-    </rest>
 
 </atlassian-plugin>

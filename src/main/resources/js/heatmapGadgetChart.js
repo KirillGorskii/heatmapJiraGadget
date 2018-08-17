@@ -95,16 +95,24 @@ AJS.$(document).on("change", "#fromDate", function(data){
     redrawToDrilldown();
 });
 
+AJS.$(document).on("change", '#fromDate', function(data){
+    var newDate = new Date(data.target.value);
+    if(newDate!=null){
+        AJS.$(window)[0].gadgets.Prefs().set('startDate', formatDate(newDate));
+
+    }
+});
+
 function redrawTable(){
     var table = AJS.$('#issuesDescriptionTable')
     AJS.$('#issuesDescriptionTable').show();
     if(table){
         table.empty();
     }
-    table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Contributed rate score:</strong></td>"
-    + "<td id='issueKey'><strong>Issue name</strong></td><td id='issueSummary'><strong>Summary<strong></td>"
-    + "<td id='issueExpiration'><strong>Expired by</strong></td><td id='assignee'><strong>Assignee</strong></td>"
-    + "<td id='issuePriority'><strong>Issue priority</strong></td></tr>");
+    table.append("<tr class='headerRow'><td id='calculatedRateScore'><strong>Rate score:</strong></td>"
+    + "<td id='issueKey'><strong>Issue name</strong></td><td id='issuePriority'><strong>Issue priority</strong></td>"
+    + "<td id='issueExpiration'><strong>Past Due Date</strong></td><td id='assignee'><strong>Assignee</strong></td>"
+    + "<td id='issueSummary'><strong>Summary<strong></td></tr>");
     issuesDescription.sort(function(a, b){
         if(a.calculatedRateScore>b.calculatedRateScore){
             return -1;
@@ -117,9 +125,9 @@ function redrawTable(){
     issuesDescription.forEach(function(issue){
         var linkToIssue = AJS.gadget.getBaseUrl() + "/browse/" + issue.issueKey;
         table.append("<tr class='bodyRow'><td id='calculatedRateScore'><span class='" + issue.color + "'>" + issue.calculatedRateScore + "</span></td>"
-        + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issueSummary'>" + issue.summary + "</td>"
+        + "<td id='issueKey'><a href='"+linkToIssue+"' target='_blank'>" + issue.issueKey + "</a></td><td id='issuePriority'>" + issue.issuePriority + "</td>"
         + "<td id='issueExpiration'>" + issue.issueExpiration + " days</td><td id='assignee'>" + issue.assignee + "</td>"
-        + "<td id='issuePriority'>" + issue.issuePriority + "</td></tr>");
+        + "<td id='issueSummary'>" + issue.summary + "</td></tr>");
 
     });
     AJS.$(window)[0].gadgets.window.adjustHeight();
@@ -338,7 +346,6 @@ function redrawChartToDrilldown(data) {
             issuesDescription = projectInfo.issues;
         }
     });
-    redrawTable();
     var gadget = AJS.$(this)[0].gadgets.Prefs();
     var amberLine = parseInt(gadget.getString("amber"));
     var redLine = parseInt(gadget.getString("red"));
@@ -461,5 +468,6 @@ function redrawChartToDrilldown(data) {
         }
     });
     charts.redraw();
+    redrawTable();
     gadgets.window.adjustHeight();
 }
