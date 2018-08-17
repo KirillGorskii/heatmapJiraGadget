@@ -203,12 +203,14 @@ function redrawToTreeMap(){
     var chart = AJS.$("#container").highcharts();
     if(chart !=  null){
         chart.destroy();
+       AJS.$(window)[0].gadgets.window.adjustHeight();
     }
     getInfoForHeatmapView(redrawChartToTreemap);
 }
 
 function redrawToDrilldown(){
-    AJS.$('#dateConfig').datepicker('setDate', gadgets.Prefs().getString('startDate'));
+    var date = gadgets.Prefs().getString('startDate');
+    AJS.$('#dateConfig').datepicker('setDate', date);
     getDataForDetailView(redrawChartToDrilldown);
 }
 
@@ -310,6 +312,7 @@ function redrawChartToDrilldown(data) {
     var chart = AJS.$("#container").highcharts();
     if(chart !=  null){
         chart.destroy();
+        AJS.$(window)[0].gadgets.window.adjustHeight();
     }
     var xAxisCategories = [];
     var seriesData = [];
@@ -327,7 +330,7 @@ function redrawChartToDrilldown(data) {
         var dateOfRiskScore = new Date(projectInfo.dateOfRiskScore);
         var month = dateOfRiskScore.getMonth();
         month++;
-        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '/' + month + '/' + dateOfRiskScore.getDate();
+        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '-' + month + '-' + dateOfRiskScore.getDate();
         xAxisCategories.push(formatDateOfCalc);
         var dateOfCalculation = new Date(formatDateOfCalc);
         dateOfCalculation.setHours(0,0,0,0);

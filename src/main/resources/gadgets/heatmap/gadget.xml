@@ -53,6 +53,14 @@
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
 
+AJS.$(document).on("change", '#fromDate', function(data){
+    var newDate = new Date(data.target.value);
+    if(newDate!=null){
+        AJS.$(window)[0].gadgets.Prefs().set('startDate', formatDate(newDate));
+        debugger;
+    }
+});
+
             AJS.$(document).ready((function() {
                 (function ($) {
                 var gadget = AJS.Gadget({
@@ -310,9 +318,9 @@
                     var now = new Date();
                     var formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + now.getDate();
                     gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
-                    AJS.$('#fromDate').datePicker({'overrideBrowserDefault': true});
                     AJS.$('#fromDate').attr("max", formatedDate);
-                    AJS.$('#fromDate').attr("max", formatedDate);
+                    AJS.$('#fromDate').datePicker({overrideBrowserDefault: true});
+                    AJS.$('#fromDate').attr("dateFormat", "YY/MM/DD");
                     var defaultDate = new Date()
                     defaultDate.setDate(now.getDate()-7);
                     var day = defaultDate.getDate();
@@ -323,7 +331,7 @@
                     if(month<10){
                         month='0'+month;
                     }
-                    var formatedDefaultDate = defaultDate.getFullYear() + "/" + month + '/' + day;
+                    var formatedDefaultDate = defaultDate.getFullYear() + '-' + month + '-' + day;
                     gadgets.Prefs().set('startDate', formatedDefaultDate);
                     AJS.$('#fromDate').val(formatedDefaultDate);
                     var projects =   gadgets.Prefs().getString('projects');

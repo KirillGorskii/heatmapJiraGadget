@@ -169,7 +169,7 @@ function formatDate(dateToFormat){
     if(month<10){
         month='0'+month;
     }
-    return dateToFormat.getFullYear() + '/' + month + '/' +days;
+    return dateToFormat.getFullYear() + '-' + month + '-' +days;
 }
 
 function collectUrlForRestQuery(queryObject){
