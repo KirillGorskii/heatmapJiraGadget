@@ -359,7 +359,7 @@ function redrawChartToDrilldown(data) {
             enabled: false
         },
         subtitle: {
-            text: projectName + 'project',
+            text: projectName + ' project',
             align: 'left',
             x: 50
         },

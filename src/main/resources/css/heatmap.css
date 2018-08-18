@@ -107,7 +107,6 @@
 }
 .red{
     background: #AF2947;
-    -webkit-border-radius: 0.8em;
     color: #fff;
     display: inline-block;
     font-weight: bold;
@@ -118,7 +117,6 @@
 }
 .amber{
     background: #F0B400;
-    -webkit-border-radius: 0.8em;
     color: #fff;
     display: inline-block;
     font-weight: bold;
@@ -129,7 +127,6 @@
 }
 .green{
     background: #7F9943;
-    -webkit-border-radius: 0.8em;
     color: #fff;
     display: inline-block;
     font-weight: bold;

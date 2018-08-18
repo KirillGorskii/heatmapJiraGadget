@@ -182,7 +182,7 @@ function formatDate(dateToFormat){
 function collectUrlForRestQuery(queryObject){
     var urlString = '/rest/api/2/search?jql=project=' + queryObject.projectName +
     '%20AND%20priority%20IN%20('+queryObject.highestPriorityName +','+queryObject.highPriorityName +',' + queryObject.majorPriorityName + ')';
-    if(queryObject.labels!=null){
+    if(queryObject.labels!=null && queryObject.labels != ""){
         urlString+= '%20AND%20labels%20in%20(' + queryObject.labels + ')';
     }
     if(queryObject.searchDate!=null){

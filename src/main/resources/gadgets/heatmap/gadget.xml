@@ -19,14 +19,14 @@
         <Require feature="views"/>
         <Optional feature="atlassian.util"/>
         #oauth
-        #supportedLocales("gadget.common,heatmap")
+        #supportedLocales("gadget.common")
         #supportedLocales
     </ModulePrefs>
 
     <UserPref name="isConfigured" datatype="hidden" default_value="false"/>
     <UserPref name="refresh" datatype="hidden" default_value="false"/>
     <UserPref name="projects" datatype="hidden" default_value="projects"/>
-    <UserPref name="labels" datatype="hidden" default_value="SECURITY"/>
+    <UserPref name="labels" datatype="hidden" default_value=""/>
     <UserPref name="cellsNumber" datatype="hidden" default_value="50"/>
     <UserPref name="majorPriorityName" datatype="hidden" default_value="Major"/>
     <UserPref name="highPriorityName" datatype="hidden" default_value="Critical"/>
@@ -41,6 +41,7 @@
 
     <Content type="html">
         <![CDATA[
+            #requireResource("com.atlassian.jira.gadgets:common")
             #requireResource("com.atlassian.jira.gadgets:autocomplete")
             #requireResource("com.atlassian.jira.gadgets:ajs-gadgets")
             #requireResource("com.dowJones.jira.plugins.heatmap:heatmapResources")
@@ -51,7 +52,6 @@
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
-
 
 
             AJS.$(document).ready((function() {
@@ -88,7 +88,7 @@
                                 id: "projects",
                                 userpref: "projects",
                                 class: "numField",
-                                label: "Projects(comma separated list, ex. 'FACTIVA,DMI'):",
+                                label: "Project code(comma separated list, ex. 'FAC,NWSR,ID'):",
                                 type: "callbackBuilder",
                                 callback: function(parentDiv){
                                 AJS.$('div:has(#projects)').addClass('flex-box');
@@ -271,7 +271,7 @@
                             }, {
                                 type: "custom",
                                 template: function(){
-                                    return "</div></div><div id='risk-def' class='risk-def'>Risc Score is a wighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
+                                    return "</div></div><div id='risk-def' class='risk-def'>Risc Score is a weighted value of SLA violation level on a particular project calculated by formula:<br/><br/>Risk Score = (Blockers * 10) + (Criticals * 1) + (Majors / 20) + (sum of SLA violations)<br/><br/>Note: Only issues with SLA violations are counted in Blockers, Criticals and Majors</div>";
                                 }
                             },{
                                 type: "custom",
