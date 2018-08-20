@@ -11,7 +11,12 @@ function getInfoForHeatmapView(drawFunction){
             url: collectUrlForRestQuery(queryObject),
             success: function(data){
                 result.push(calculateRiskScore(data, queryObject));
-                drawFunction(result);
+                if(data!=null){
+                    drawFunction(result);
+                }
+            },
+            error: function(error){
+                showNothingFoundMessage();
             }
          });
      })
@@ -44,7 +49,7 @@ function calculateRiskScore(dataFromJira, queryObject){
 
     calculatedRiskScoreForOverallData(calculatedRiskScore);
     if(calculatedRiskScore.riskScore==0){
-        calculatedRiskScore.riskScore=1;
+        calculatedRiskScore.value=1;
     }
     setColour(calculatedRiskScore);
     return calculatedRiskScore;
@@ -95,8 +100,14 @@ function getDataForDetailView(drawFunction){
                         projectName: projectName,
                         projectInfoByDates: result
                     }
-                    drawFunction(dataToDraw);
-
+                    if(dataToDraw!=null){
+                        drawFunction(dataToDraw);
+                    } else{
+                        showNothingFoundMessage();
+                    }
+                },
+                error: function(error){
+                    showNothingFoundMessage();
                 }
             });
     });
@@ -162,7 +173,9 @@ function calculatedRiskScoreForOverallData(calculatedRiskScore){
     calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.blocker*10);
     calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.critical);
     calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.major*0.05);
-    calculatedRiskScore.value=calculatedRiskScore.riskScore;
+    if(calculatedRiskScore.riskScore!=0){
+        calculatedRiskScore.value=calculatedRiskScore.riskScore;
+    }
 }
 
 function formatDate(dateToFormat){
@@ -178,6 +191,8 @@ function formatDate(dateToFormat){
     }
     return dateToFormat.getFullYear() + '-' + month + '-' +days;
 }
+
+
 
 function collectUrlForRestQuery(queryObject){
     var urlString = '/rest/api/2/search?jql=project=' + queryObject.projectName +

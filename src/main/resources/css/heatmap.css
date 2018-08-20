@@ -135,3 +135,16 @@
     line-height: 1.8em;
     width: 1.8em;
 }
+
+#nothingFound{
+    text-align: center;
+    font-family: Roboto;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    font-size: 16px;
+    padding-top: 100;
+    padding-bottom: 100;
+    color: #fff;
+}

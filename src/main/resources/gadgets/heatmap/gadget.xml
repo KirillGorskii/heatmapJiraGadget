@@ -310,7 +310,9 @@
                     AJS.$('.item-link.no_target:contains("gadget.common.reload")').text('Reload');
                     var now = new Date();
                     var formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + now.getDate();
-                    gadget.getView().html("<div id='container'/><div id='dateConfig'><div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div><table id='issuesDescriptionTable' align='center'></table>");
+                    gadget.getView().html("<div id='container'/><div id='nothingFound'><span class='aui-icon aui-icon-small aui-iconfont-cross-circle'><strong>Nothing found, please update plugin configuration</strong></span></div><div id='dateConfig'>" +
+                    "<div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div>" +
+                    "<table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').attr("max", formatedDate);
                     AJS.$('#fromDate').datePicker({overrideBrowserDefault: true});
                     AJS.$('#fromDate').attr("dateFormat", "YY/MM/DD");

@@ -224,6 +224,7 @@ function redrawToDrilldown(){
 
 function redrawChartToTreemap(seriesData){
     AJS.$('#dateConfig').hide();
+    AJS.$('#nothingFound').hide();
     AJS.$('#issuesDescriptionTable').hide();
     var treemapOptions = {
         chart: {
@@ -316,6 +317,12 @@ function redrawChartToTreemap(seriesData){
     gadgets.window.adjustHeight();
 }
 
+function showNothingFoundMessage(){
+    AJS.$('#nothingFound').show();
+    AJS.$(window)[0].gadgets.window.adjustHeight();
+
+}
+
 function redrawChartToDrilldown(data) {
     var chart = AJS.$("#container").highcharts();
     if(chart !=  null){
@@ -326,6 +333,7 @@ function redrawChartToDrilldown(data) {
     var seriesData = [];
     var projectName = data.projectName;
     AJS.$('#dateConfig').show();
+    AJS.$('#nothingFound').hide();
     var today = new Date();
     today.setHours(0,0,0,0);
     data.projectInfoByDates.forEach(function(projectInfo){
