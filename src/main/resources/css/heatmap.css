@@ -11,12 +11,18 @@
     align-content: flex-start
     flex-direction: row;
 }
-
+.select2-container{
+    width:100%;
+    min-width:225px;
+}
 .flex-box{
     flex-grow: 2 1 auto;
     max-width: 380px;
     flex-shrink: 1;
     width:auto;
+}
+.text{
+    min-width:225px;
 }
 
 .risk-def{
