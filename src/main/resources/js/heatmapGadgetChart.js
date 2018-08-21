@@ -2,7 +2,7 @@ var issuesDescription;
 var redColor = '#d04437';
 var standardColor = '#ccc';
 var amberInputSelector = 'input#amber.numeric';
-var projectsSelector = 'input#projects';
+var projectsSelector = '.projects';
 var redInputSelector = 'input#red.numeric';
 var cellsNumberSelector = 'input#cellsNumber.numeric';
 
@@ -52,7 +52,7 @@ AJS.$(document).on("keydown", cellsNumberSelector, function(data){
     cellsNumberInput.css('border-color', standardColor)
     hideErrorMessage(errorMessageSelector);
     if(isCorrectSymbol(data)){
-        var correctionValue = AJS.$(projectsSelector).val().split(',').length;
+        var correctionValue =  AJS.$(window)[0].gadgets.Prefs().getString('projects').split(',').length;
         var newValue = getNewValue(data);
         if(parseInt(newValue) < parseInt(correctionValue)){
             showErrorMessage(errorMessageSelector, 'Incorrect value. "Cells number" field value should be greater than number of selected projects in "Projects" field');
@@ -226,6 +226,7 @@ function redrawChartToTreemap(seriesData){
     AJS.$('#dateConfig').hide();
     AJS.$('#nothingFound').hide();
     AJS.$('#issuesDescriptionTable').hide();
+    setMinimumValueToRender(seriesData);
     var treemapOptions = {
         chart: {
             type: 'treemap',

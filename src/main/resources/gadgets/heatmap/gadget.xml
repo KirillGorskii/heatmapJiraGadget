@@ -55,33 +55,71 @@
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
 
-            function changeSelect(eventData){
-
-                var data = eventData.currentTarget.selectedOptions;
-                var gadget = AJS.$(window)[0].gadgets;
-                var values = [];
-                var projects;
-                if(data.length>0){
-                    for(var i = 0; i < data.length; i++){
-                        values.push(data[i].value);
+            function recalculateSize(results, summ){
+                var count = 0;
+                var cellsNumber = AJS.$(this)[0].gadgets.Prefs().getString('cellsNumber');
+                results.forEach(function(projectInfo){
+                    var riskScore = projectInfo.riskScore;
+                    var calculatedValue = parseInt((riskScore * cellsNumber) / summ);
+                    if (calculatedValue < 1){
+                        calculatedValue++;
+                        count++;
                     }
-                    if(values.length>1){
-                        projects = values.join(',');
-                    } else {
-                        projects = values[0];
-                    }
+                    projectInfo.value = calculatedValue;
+                });
+                if(count > 0 ){
+                    correctionsInCalculations(results, count);
                 }
-                gadget.Prefs().set('projects', projects);
-                gadget.window.adjustHeight();
             }
 
-            AJS.$(document).on('select2:select', '.projects', function(eventData){
-                changeSelect(eventData);
-            });
+            function correctionsInCalculations(results, count){
+                 var summ = 0;
+                 var overallWeight = 0;
+                 results.forEach(function(projectInfo){
+                    summ+=projectInfo.value;
+                 });
+                 results.forEach(function(projectInfo){
+                    var squareSize = projectInfo.value;
+                    if (squareSize !=1){
+                        overallWeight += squareSize/(summ - squareSize);
+                    }
+                 });
+                 results.sort(function(a, b){
+                    return b.value - a.value;
+                 });
+                 results.forEach(function(projectInfo){
+                    var squareSize = projectInfo.value;
+                    if(squareSize == 0){
+                        squareSize++;
+                    }
+                    if(squareSize !=1 && overallWeight>0 && count >0){
+                        var valueToDecrement = Math.round((count * (squareSize/(summ - squareSize)))/overallWeight);
+                        overallWeight-=valueToDecrement;
+                        count--;
+                        projectInfo.value = squareSize - valueToDecrement;
+                    }
+                 });
+            }
 
-            AJS.$(document).on('select2:unselect', '.projects', function(eventData){
-                changeSelect(eventData);
-            });
+            function setMinimumValueToRender(results){
+                if(Array.isArray(results) && results.length>1){
+                    var summ = 0;
+                    var values = [];
+                    results.forEach(function(projectInfo){
+                        var valueToAdd = projectInfo.riskScore;
+                        if (valueToAdd==0){
+                            valueToAdd++;
+                        }
+                        values.push(valueToAdd);
+                        summ+=valueToAdd;
+                    });
+                    var minValue = Math.min.apply(Math, values);
+                    var isTrue =  (minValue/summ) <= (1/ AJS.$(this)[0].gadgets.Prefs().getString('cellsNumber'));
+                    if( (minValue/summ) <= (1/ AJS.$(this)[0].gadgets.Prefs().getString('cellsNumber')) ){
+                       recalculateSize(results, summ);
+                    }
+                }
+            }
 
             AJS.$(document).ready((function() {
                 (function ($) {
@@ -136,12 +174,9 @@
                                                 });
                                             });
                                             AJS.$('.projects').select2({data: results});
-                                            debugger;
                                             var projects = [];
                                             projects = gadget.getPref("projects").split(',');
-                                            debugger;
                                             AJS.$('.projects').select2().val(projects).trigger("change");
-                                            debugger;
                                         }
                                     });
                                 }
