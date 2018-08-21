@@ -62,23 +62,16 @@
                 var values = [];
                 var projects;
                 if(data.length>0){
-                    debugger;
                     for(var i = 0; i < data.length; i++){
                         values.push(data[i].value);
-                        debugger;
                     }
                     if(values.length>1){
                         projects = values.join(',');
                     } else {
                         projects = values[0];
                     }
-                    debugger;
-                } else{
-                    debugger;
                 }
-
                 gadget.Prefs().set('projects', projects);
-                debugger;
                 gadget.window.adjustHeight();
             }
 
