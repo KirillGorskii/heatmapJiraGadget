@@ -122,7 +122,7 @@ function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
         calculatedRiskScore.riskScore+=daysOverdue;
         calculatedRiskScore.blocker++;
         if(queryObject.returnIssueTable){
-            calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue, daysOverdue));
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, daysOverdue, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
         calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
@@ -171,8 +171,8 @@ function collectIssueInfo(issueFromJira, calculatedRiskScore, days){
 
 function calculatedRiskScoreForOverallData(calculatedRiskScore){
     calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.blocker*10);
-    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.critical);
-    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.major*0.05);
+    calculatedRiskScore.riskScore+=Math.round(calculatedRiskScore.critical*5);
+    calculatedRiskScore.riskScore+=calculatedRiskScore.major;
     if(calculatedRiskScore.riskScore!=0){
         calculatedRiskScore.value=calculatedRiskScore.riskScore;
     }

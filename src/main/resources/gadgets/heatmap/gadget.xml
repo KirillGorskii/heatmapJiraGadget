@@ -197,7 +197,7 @@
                                 id: "blocker",
                                 userpref: "blocker",
                                 class: "numField",
-                                label: "Highest expected triage time, h(ex. 24):",
+                                label: "Blocker Triage Time SLA, h(ex. 24):",
                                 type: "callbackBuilder",
                                 callback: function(parentDiv){
                                     AJS.$('div:has(#blocker)').addClass('flex-box');
@@ -231,7 +231,7 @@
                                 id: "critical",
                                 userpref: "critical",
                                 class: "numField",
-                                label: "High expected triage time, h(ex. 48):",
+                                label: "Critical Triage Time SLA, h(ex. 48):",
                                 type: "callbackBuilder",
                                 callback: function(parentDiv){
                                     AJS.$('div:has(#critical)').addClass('flex-box');
@@ -265,7 +265,7 @@
                                 id: "major",
                                 userpref: "major",
                                 class: "numField",
-                                label: "Major expected triage time, h(ex. 96):",
+                                label: "Major Triage Time SLA, h(ex. 96):",
                                  type: "callbackBuilder",
                                 callback: function(parentDiv){
                                     AJS.$('div:has(#major)').addClass('flex-box');
