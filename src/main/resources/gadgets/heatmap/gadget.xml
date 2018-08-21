@@ -36,7 +36,7 @@
     <UserPref name="major" datatype="hidden" default_value="96"/>
     <UserPref name="red" datatype="hidden" default_value="10"/>
     <UserPref name="amber" datatype="hidden" default_value="1"/>
-    <UserPref name="startDate" datatype="hidden" default_value="2018/08/31"/>
+    <UserPref name="startDate" datatype="hidden" default_value=""/>
     <UserPref name="projectName" datatype="hidden" default_value=""/>
 
     <Content type="html">
@@ -54,7 +54,162 @@
             <script src="https://code.highcharts.com/modules/series-label.js"></script>
             <script src="https://code.highcharts.com/modules/exporting.js"></script>
             <script type="text/javascript">
+function redrawChartToDrilldown(data) {
+    var chart = AJS.$("#container").highcharts();
+    if(chart !=  null){
+        chart.destroy();
+        AJS.$(window)[0].gadgets.window.adjustHeight();
+    }
+    var xAxisCategories = [];
+    var seriesData = [];
+    var projectName = data.projectName;
+    AJS.$('#dateConfig').show();
+    AJS.$('#nothingFound').hide();
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    data.projectInfoByDates.forEach(function(projectInfo){
+        seriesData.push({
+            critical: projectInfo.critical,
+            blocker: projectInfo.blocker,
+            major: projectInfo.major,
+            y: projectInfo.riskScore
+        });
+        var dateOfRiskScore = new Date(projectInfo.dateOfRiskScore);
+        var month = dateOfRiskScore.getMonth();
+        month++;
+        var formatDateOfCalc = dateOfRiskScore.getFullYear() + '-' + month + '-' + dateOfRiskScore.getDate();
+        xAxisCategories.push(formatDateOfCalc);
+        var dateOfCalculation = new Date(formatDateOfCalc);
+        dateOfCalculation.setHours(0,0,0,0);
+        if(projectInfo.issues != null){
+            issuesDescription = projectInfo.issues;
+        }
+    });
+    var gadget = AJS.$(this)[0].gadgets.Prefs();
+    var amberLine = parseInt(gadget.getString("amber"));
+    var redLine = parseInt(gadget.getString("red"));
+    var lineChart =  {
+        chart: {
+            type: 'line',
+            marginLeft: 60,
+            marginRight: 60
+        },
+        credits: {
+            enabled: false
+        },
+        subtitle: {
+            text: projectName + ' project',
+            align: 'left',
+            x: 50
+        },
+        title: {
+            text: 'Risk score for date range',
+            align: 'left',
+            x: 50
+        },
+        xAxis: {
+            categories: xAxisCategories,
 
+        },
+        yAxis: {
+            title: {
+                text: 'Risk score'
+            },
+            min: 0,
+            tickAmount: 0
+        },
+        legend: {
+            enabled: false
+        },
+        tooltip: {
+            useHTML: true,
+            pointFormat: 'Risk Score: {point.y}<br/>Blocker: {point.blocker}<br/>Critical: {point.critical}<br/>Major: {point.major}'
+        },
+        plotOptions: {
+            series: {
+                connectNulls: true
+            },
+            line: {
+                dataLabels: {
+                    enabled: true,
+                    color: '#FFFFFF'
+                },
+                enableMouseTracking: true
+            }
+        },
+        series: [{
+            name: ' ',
+            data: seriesData,
+            color: '#FFFFFF'
+        }],
+        navigation: {
+            buttonOptions: {
+                align: 'right'
+            }
+        },
+        exporting: {
+            menuItemDefinitions: {
+                backToTreeMap: {
+                    onclick: function(){redrawToTreeMap();},
+                    text: 'Back to heatmap'
+                }
+            },
+            buttons:{
+                contextButton: {
+                    menuItems: [
+                       'backToTreeMap',
+                       'printChart',
+                       'separator',
+                       'downloadPNG',
+                       'downloadJPEG',
+                       'downloadPDF',
+                       'downloadSVG'
+                    ]
+                }
+            }
+        }
+    };
+    var charts = Highcharts.chart('container', lineChart);
+    var calculatedValuer = calculateFontSize() + 'px';
+    var maxAxisValue = charts.yAxis[0].max;
+     charts.update({
+        line: {
+            dataLabels: {
+                enabled: true
+            },
+            enableMouseTracking: false
+        },
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    style: {
+                        fontWeight: 'bold',
+                        fontSize: calculatedValuer,
+                        textOutline:'0px'
+                    }
+                }
+            }
+        },
+        yAxis: {
+            plotBands: [{
+                from: 0,
+                to: amberLine,
+                color: '#7f9943'
+            },{
+                from: amberLine,
+                to: redLine,
+                color: '#ff9f00'
+            },{
+                from: redLine,
+                to: maxAxisValue,
+                color: '#d22c32',
+            }]
+        }
+    });
+    charts.redraw();
+    redrawTable();
+    gadgets.window.adjustHeight();
+}
             function recalculateSize(results, summ){
                 var count = 0;
                 var cellsNumber = AJS.$(this)[0].gadgets.Prefs().getString('cellsNumber');
@@ -391,6 +546,9 @@
                     "<div class='flex-box'><label for='fromDate'>Show statistic from: </label><input class='aui-date-picker' id='fromDate' type='date'/></div></div>" +
                     "<table id='issuesDescriptionTable' align='center'></table>");
                     AJS.$('#fromDate').attr("max", formatedDate);
+                    formatedDate = now.getFullYear() + "-" + (now.getMonth()+1) + '-' + (now.getDate()-6);
+                    gadgets.Prefs().set('startDate', formatedDate);
+                    AJS.$('#fromDate').attr("min", formatedDate);
                     AJS.$('#fromDate').datePicker({overrideBrowserDefault: true});
                     AJS.$('#fromDate').attr("dateFormat", "YY/MM/DD");
                     var defaultDate = new Date()
