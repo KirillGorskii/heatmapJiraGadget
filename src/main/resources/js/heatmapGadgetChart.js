@@ -90,7 +90,10 @@ AJS.$(document).on("keydown", amberInputSelector, function(data) {
 });
 
 AJS.$(document).on("keypress", "#fromDate", function(data){
-    debugger;
+    data.preventDefault();
+});
+
+AJS.$(document).on("paste", "#fromDate", function(data){
     data.preventDefault();
 });
 
