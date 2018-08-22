@@ -345,7 +345,7 @@
                     gadgets.Prefs().set('startDate', formatedDefaultDate);
                     AJS.$('#fromDate').val(formatedDefaultDate);
                     var projects =   gadgets.Prefs().getString('projects');
-                    var records = projects.split(',')
+                    var records = projects.split(',');
                     if(records.length===1){
                          gadgets.Prefs().set("projectName", projects);
                          redrawToDrilldown();

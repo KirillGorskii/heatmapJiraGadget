@@ -211,6 +211,8 @@ function isCorrectSymbol(data){
 
 function redrawToTreeMap(){
     var chart = AJS.$("#container").highcharts();
+    AJS.$('.dropdown-item.configure').text('Edit');
+    AJS.$('.dropdown-item.reload').text('Refresh');
     if(chart !=  null){
         chart.destroy();
        AJS.$(window)[0].gadgets.window.adjustHeight();
