@@ -245,14 +245,14 @@ function calculateRateScoreForOneIssue(issue, queryObject, calculatedRiskScore){
         calculatedRiskScore.riskScore+=daysOverdue;
         calculatedRiskScore.blocker++;
         if(queryObject.returnIssueTable){
-            calculatedRiskScore.issues.push(collectIssueInfo(issue, daysOverdue, daysOverdue));
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, 10 + daysOverdue, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("highPriorityName")){
         calcRiskScoreForPriority = Math.round((0.5 * daysOverdue))
         calculatedRiskScore.riskScore+=calcRiskScoreForPriority;
         calculatedRiskScore.critical++;
          if(queryObject.returnIssueTable){
-            calculatedRiskScore.issues.push(collectIssueInfo(issue, 1 + calcRiskScoreForPriority, daysOverdue));
+            calculatedRiskScore.issues.push(collectIssueInfo(issue, 5 + calcRiskScoreForPriority, daysOverdue));
         }
     } else if (priorityName == gadgets.Prefs().getString("majorPriorityName")){
         calcRiskScoreForPriority = Math.round((0.1 * daysOverdue))

@@ -89,10 +89,9 @@ AJS.$(document).on("keydown", amberInputSelector, function(data) {
     return true;
 });
 
-AJS.$(document).on("change", "#fromDate", function(data){
-    var gadgets = AJS.$(window)[0].gadgets.Prefs();
-    gadgets.set('startDate', data.target.value);
-    redrawToDrilldown();
+AJS.$(document).on("keypress", "#fromDate", function(data){
+    debugger;
+    data.preventDefault();
 });
 
 AJS.$(document).on("change", '#fromDate', function(data){
@@ -100,6 +99,7 @@ AJS.$(document).on("change", '#fromDate', function(data){
     if(newDate!=null){
         AJS.$(window)[0].gadgets.Prefs().set('startDate', formatDate(newDate));
     }
+    redrawToDrilldown();
 });
 
 function redrawTable(){
